@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ax07 - 3D Logo & Particle Export Preview</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #080808;
+      color: #fff;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      overflow-x: hidden;
+    }
+    /* 200vh wrapper for scroll timeline */
+    .scroll-track {
+      position: relative;
+      width: 100%;
+      height: 200vh;
+    }
+    .sticky-viewport {
+      position: sticky;
+      top: 0;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+    }
+    #canvas-container {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
+    .hud {
+      position: absolute;
+      bottom: 24px;
+      left: 24px;
+      z-index: 10;
+      font-family: monospace;
+      font-size: 11px;
+      color: rgba(255,255,255,0.6);
+      background: rgba(0,0,0,0.4);
+      padding: 8px 14px;
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.1);
+      backdrop-filter: blur(8px);
+      pointer-events: none;
+    }
+    .next-section {
+      min-height: 100vh;
+      background: #080808;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-top: 1px solid rgba(255,255,255,0.1);
+      font-family: monospace;
+      font-size: 14px;
+      color: rgba(255,255,255,0.5);
+    }
+  </style>
+
+  <!-- Three.js + GLTFLoader + GSAP CDNs -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+</head>
+<body>
+
+  <div id="scroll-track" class="scroll-track">
+    <div class="sticky-viewport">
+      <div id="canvas-container"></div>
+      <div class="hud">Move cursor (slow = cursor-tip precision, fast = expanded blast) &middot; Scroll down to turn 360&deg;</div>
+    </div>
+  </div>
+
+  <div class="next-section">
+    &darr; Zoomed through 3D logo core into next page section &darr;
+  </div>
+
+  <script type="module">
+    import { init3DLogo } from './logo3D.js';
+
+    // Register GSAP ScrollTrigger
+    gsap.registerPlugin(ScrollTrigger);
+
+    // Initialize 3D Logo
+    init3DLogo({
+      container: document.getElementById('canvas-container'),
+      scrollTriggerEl: document.getElementById('scroll-track'),
+      modelUrl: './logo.glb' // Or './stylized+logo+3d+model.glb'
+    });
+  </script>
+</body>
+</html>

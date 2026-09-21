@@ -1,0 +1,81 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-sans: "Plus Jakarta Sans", sans-serif;
+  --font-display: "Syne", sans-serif;
+}
+
+:root {
+  --bg-canvas: #070708;
+  --text-main: #ededed;
+  color-scheme: dark;
+}
+
+html.light {
+  --bg-canvas: #fafafa;
+  --text-main: #09090b;
+  color-scheme: light;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--bg-canvas);
+  color: var(--text-main);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Emil Kowalski Mobile-Native Polish: 
+   Eliminate mobile 300ms tap delay & sticky hover anomalies */
+button, a, input, [role="button"] {
+  touch-action: manipulation;
+}
+
+/* Respect user's motion preferences (Emil design accessibility rule) */
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+}
+
+/* Custom Utilities */
+@layer utilities {
+  .text-micro {
+    @apply text-[10px] uppercase tracking-[0.25em] text-zinc-500 font-mono;
+  }
+  .glass-panel {
+    @apply bg-white/[0.02] backdrop-blur-xl border border-white/10;
+  }
+}
+
+@keyframes marquee {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-marquee {
+  display: flex;
+  width: max-content;
+  animation: marquee 28s linear infinite;
+}
+
+.animate-marquee:hover {
+  animation-play-state: paused;
+}
+

@@ -1,0 +1,6 @@
+{
+  "name": "AX07 Services",
+  "description": "High-Motion Spec Studio crafting custom 3D web experiences.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
