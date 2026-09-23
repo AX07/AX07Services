@@ -71,7 +71,7 @@ export function init3DLogo(options = {}) {
   if ('outputColorSpace' in renderer) {
     renderer.outputColorSpace = THREE.SRGBColorSpace;
   } else if ('outputEncoding' in renderer) {
-    renderer.outputEncoding = THREE.sRGBEncoding || 3001;
+    renderer.outputEncoding = 3001; // Legacy Three.js sRGBEncoding
   }
   renderer.toneMapping = THREE.ACESFilmicToneMapping || 4;
   renderer.toneMappingExposure = 1.3;

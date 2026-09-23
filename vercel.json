@@ -1,0 +1,16 @@
+{
+  "framework": "vite",
+  "redirects": [
+    {
+      "source": "/",
+      "destination": "/ie",
+      "permanent": false
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
