@@ -61,9 +61,8 @@ export function PortfolioReviewGrid() {
 
   // =========================================================================
   // SCROLL-DRIVEN STICKY PIN TRACKING
-  // The outer section spans 500vh so each project occupies a 100vh scroll window.
-  // The viewport stays sticky at top-0 (the section doesn't move when scrolling),
-  // and the projects pass by one by one from beginning (0) to end (last).
+  // Responsive track depth: 220vh (~24vh scroll per card) so each project card
+  // passes briskly and sooner without requiring excessive scroll effort.
   // =========================================================================
   const { scrollYProgress } = useScroll({
     target: containerRef,
@@ -158,7 +157,7 @@ export function PortfolioReviewGrid() {
   // Motion variants for text content passing by
   const slideVariants = {
     enter: (dir: number) => ({
-      y: dir > 0 ? 45 : -45,
+      y: dir > 0 ? 35 : -35,
       opacity: 0,
       scale: 0.98,
     }),
@@ -167,19 +166,19 @@ export function PortfolioReviewGrid() {
       opacity: 1,
       scale: 1,
       transition: {
-        y: { type: 'spring', stiffness: 280, damping: 28 },
-        opacity: { duration: 0.4 },
-        scale: { duration: 0.4 },
+        y: { type: 'spring', stiffness: 320, damping: 26 },
+        opacity: { duration: 0.28 },
+        scale: { duration: 0.28 },
       },
     },
     exit: (dir: number) => ({
-      y: dir > 0 ? -45 : 45,
+      y: dir > 0 ? -35 : 35,
       opacity: 0,
       scale: 0.98,
       transition: {
-        y: { type: 'spring', stiffness: 280, damping: 28 },
-        opacity: { duration: 0.3 },
-        scale: { duration: 0.3 },
+        y: { type: 'spring', stiffness: 320, damping: 26 },
+        opacity: { duration: 0.22 },
+        scale: { duration: 0.22 },
       },
     }),
   };
@@ -188,17 +187,17 @@ export function PortfolioReviewGrid() {
   const bgVariants = {
     enter: (dir: number) => ({
       opacity: 0,
-      scale: dir > 0 ? 1.08 : 0.95,
+      scale: dir > 0 ? 1.05 : 0.96,
     }),
     center: {
       opacity: 1,
       scale: 1,
-      transition: { duration: 0.65, ease: [0.16, 1, 0.3, 1] },
+      transition: { duration: 0.38, ease: [0.16, 1, 0.3, 1] },
     },
     exit: (dir: number) => ({
       opacity: 0,
-      scale: dir > 0 ? 0.95 : 1.08,
-      transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] },
+      scale: dir > 0 ? 0.96 : 1.05,
+      transition: { duration: 0.28, ease: [0.16, 1, 0.3, 1] },
     }),
   };
 
@@ -206,11 +205,11 @@ export function PortfolioReviewGrid() {
     <section
       id="project-showcase"
       ref={containerRef}
-      className="relative w-full h-[500vh] bg-zinc-950 text-white select-none z-20"
+      className="relative w-full h-[220vh] bg-zinc-950 text-white select-none z-20"
     >
       {/* ========================================================================= */}
       {/* STICKY VIEWPORT CONTAINER                                                  */}
-      {/* Stays pinned to 100vh during the entire 500vh scroll depth.                */}
+      {/* Stays pinned to 100vh during the responsive 220vh scroll depth.            */}
       {/* The section does not move; instead, the projects pass by as you scroll!    */}
       {/* ========================================================================= */}
       <div className="sticky top-0 w-full h-screen h-[100dvh] overflow-hidden bg-zinc-950 text-white flex flex-col justify-between">

@@ -4,8 +4,14 @@ import { ArrowDown, ArrowUpRight, Zap, Clock, Euro, MessageSquare, ChevronDown, 
 import { LogoCanvas } from './LogoCanvas';
 import { appleGestures } from '../lib/design-system';
 import { useApp } from '../context/ThemeLanguageContext';
+import { CountryContent } from '../lib/content';
+import etherealBackdrop from '../assets/images/ethereal_hero_backdrop_1790087265626.jpg';
 
-export function Hero() {
+export interface HeroProps {
+  countryContent?: CountryContent;
+}
+
+export function Hero({ countryContent }: HeroProps = {}) {
   const { t, lang } = useApp();
   const scrollTrackRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
@@ -13,28 +19,29 @@ export function Hero() {
     offset: ["start start", "end end"]
   });
 
+  const heroSubtitle = countryContent?.heroSubtitle || t.hero.beat1.subtitle;
+  const whatsappNumber = countryContent?.whatsappNumber || '351912345678';
+  const badgeLocation = countryContent?.badgeLocation || t.hero.beat1.eyebrow;
+
   // =========================================================================
   // THE 3-BEAT SCROLL CHOREOGRAPHY (Strictly Independent & Non-Overlapping)
   // =========================================================================
 
   // [BEAT 1: 0% - 28%] Logo Centered, The Identity & Hook
-  const beat1Opacity = useTransform(scrollYProgress, [0, 0.16, 0.25], [1, 1, 0]);
-  const beat1Y = useTransform(scrollYProgress, [0, 0.25], [0, -35]);
-  const beat1Scale = useTransform(scrollYProgress, [0, 0.25], [1, 0.96]);
-  const beat1Display = useTransform(scrollYProgress, (v) => (v < 0.26 ? 'flex' : 'none'));
-  const beat1PointerEvents = useTransform(scrollYProgress, (v) => (v < 0.25 ? 'auto' : 'none'));
+  const beat1Opacity = useTransform(scrollYProgress, [0, 0.16, 0.26], [1, 1, 0]);
+  const beat1Y = useTransform(scrollYProgress, [0, 0.26], [0, -35]);
+  const beat1Scale = useTransform(scrollYProgress, [0, 0.26], [1, 0.96]);
+  const beat1Visibility = useTransform(scrollYProgress, (v) => (v < 0.28 ? 'visible' : 'hidden'));
 
-  // [BEAT 2: 28% - 68%] Logo Shifts Left, Text on Right
-  const beat2Opacity = useTransform(scrollYProgress, [0.28, 0.36, 0.58, 0.66], [0, 1, 1, 0]);
-  const beat2Y = useTransform(scrollYProgress, [0.28, 0.36, 0.58, 0.66], [35, 0, 0, -35]);
-  const beat2Display = useTransform(scrollYProgress, (v) => (v >= 0.27 && v < 0.68 ? 'flex' : 'none'));
-  const beat2PointerEvents = useTransform(scrollYProgress, (v) => (v >= 0.28 && v <= 0.66 ? 'auto' : 'none'));
+  // [BEAT 2: 28% - 68%] Logo Shifts Left (Desktop) or Up (Mobile), Text on Right/Bottom
+  const beat2Opacity = useTransform(scrollYProgress, [0.26, 0.34, 0.58, 0.66], [0, 1, 1, 0]);
+  const beat2Y = useTransform(scrollYProgress, [0.26, 0.34, 0.58, 0.66], [35, 0, 0, -35]);
+  const beat2Visibility = useTransform(scrollYProgress, (v) => (v >= 0.24 && v < 0.68 ? 'visible' : 'hidden'));
 
   // [BEAT 3: 68% - 100%] Camera Zooms Through Particles, Business Value & CTA
-  const beat3Opacity = useTransform(scrollYProgress, [0.68, 0.76, 1.0], [0, 1, 1]);
-  const beat3Y = useTransform(scrollYProgress, [0.68, 0.76], [35, 0]);
-  const beat3Display = useTransform(scrollYProgress, (v) => (v >= 0.68 ? 'flex' : 'none'));
-  const beat3PointerEvents = useTransform(scrollYProgress, (v) => (v >= 0.68 ? 'auto' : 'none'));
+  const beat3Opacity = useTransform(scrollYProgress, [0.66, 0.74, 1.0], [0, 1, 1]);
+  const beat3Y = useTransform(scrollYProgress, [0.66, 0.74], [35, 0]);
+  const beat3Visibility = useTransform(scrollYProgress, (v) => (v >= 0.65 ? 'visible' : 'hidden'));
 
   const scrollToSection = (id: string) => {
     const el = document.getElementById(id);
@@ -57,25 +64,35 @@ export function Hero() {
         id="hero-sticky-viewport"
         className="sticky top-0 w-full h-screen h-[100dvh] overflow-hidden flex flex-col justify-between"
       >
-        {/* Ambient Radial Lighting Spot behind primary 3D canvas */}
-        <div 
-          aria-hidden="true"
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-blue-500/10 dark:bg-blue-500/15 blur-[140px] rounded-full pointer-events-none z-0" 
-        />
+        {/* Subtle Ethereal Abstract 3D Backdrop with Soft Blur Filter */}
+        <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none select-none">
+          <img
+            src={etherealBackdrop}
+            alt="Ethereal abstract 3D backdrop"
+            referrerPolicy="no-referrer"
+            className="w-full h-full object-cover object-center opacity-30 dark:opacity-20 blur-2xl scale-110 transition-opacity duration-700"
+          />
+          {/* Subtle luminous glow & gradient scrims ensuring pristine typography readability */}
+          <div className="absolute inset-0 bg-gradient-to-b from-zinc-50/75 via-zinc-50/30 to-zinc-50/85 dark:from-zinc-950/75 dark:via-zinc-950/30 dark:to-zinc-950/85" />
+          <div 
+            aria-hidden="true"
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[650px] h-[650px] bg-blue-500/10 dark:bg-blue-500/15 blur-[140px] rounded-full" 
+          />
+        </div>
 
         {/* 3D WebGL Canvas Layer (Active throughout the entire track) */}
-        <div className="absolute inset-0 w-full h-full z-0 pointer-events-auto">
+        <div className="absolute inset-0 w-full h-full z-10 pointer-events-none touch-pan-y">
           <LogoCanvas
             modelUrl="/logo.glb"
             scrollWrapperId="hero-scroll-track"
             defaultMode="hybrid"
             showControls={true}
-            className="w-full h-full"
+            className="w-full h-full touch-pan-y"
           />
         </div>
 
         {/* Ambient Subtle Vignette */}
-        <div className="absolute inset-0 bg-radial-gradient from-transparent via-zinc-900/10 to-zinc-950/60 dark:via-zinc-950/30 dark:to-zinc-950/80 pointer-events-none z-10" />
+        <div className="absolute inset-0 bg-radial-gradient from-transparent via-zinc-900/[0.02] to-zinc-900/[0.06] dark:via-zinc-950/20 dark:to-zinc-950/70 pointer-events-none z-15" />
 
         {/* ========================================================================= */}
         {/* BEAT 1: The Identity & Hook (0% - 28%) - Logo Centered                     */}
@@ -85,16 +102,21 @@ export function Hero() {
             opacity: beat1Opacity,
             y: beat1Y,
             scale: beat1Scale,
-            display: beat1Display,
-            pointerEvents: beat1PointerEvents,
+            visibility: beat1Visibility,
           }}
-          className="absolute inset-0 z-20 flex flex-col items-center justify-start pt-28 sm:pt-36 px-6 max-w-4xl mx-auto text-center pointer-events-none"
+          className="relative absolute inset-0 z-20 flex flex-col items-center justify-start pt-24 sm:pt-32 md:pt-36 px-6 max-w-4xl mx-auto text-center pointer-events-none"
         >
+          {/* Subtle Radial Gradient Glow Behind the Text Block (Invisible "Halo" that pushes 3D watermark into background) */}
+          <div
+            aria-hidden="true"
+            className="absolute top-12 sm:top-16 left-1/2 -translate-x-1/2 w-[95vw] max-w-3xl h-[420px] sm:h-[480px] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(255,255,255,0.94)_0%,rgba(255,255,255,0.78)_38%,rgba(255,255,255,0)_72%)] dark:bg-[radial-gradient(ellipse_at_center,rgba(9,9,11,0.92)_0%,rgba(9,9,11,0.75)_38%,rgba(9,9,11,0)_72%)] blur-2xl pointer-events-none -z-10"
+          />
+
           {/* Glass Capsule Eyebrow with SF Symbols */}
-          <div className="mb-6 flex items-center gap-2 px-4 py-1.5 rounded-full border border-zinc-200/80 dark:border-white/10 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-2xl text-xs font-mono tracking-widest text-zinc-600 dark:text-white/60 shadow-sm">
+          <div className="mb-6 flex items-center gap-2 px-4 py-1.5 rounded-full border border-zinc-200/80 dark:border-white/10 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-2xl text-xs font-mono tracking-widest text-zinc-600 dark:text-white/60 shadow-sm pointer-events-auto">
             <span className="text-zinc-900 dark:text-white font-semibold">AX07 SERVICES</span>
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-            <span className="text-zinc-500 dark:text-white/40">{t.hero.beat1.eyebrow}</span>
+            <span className="text-zinc-500 dark:text-white/40">{badgeLocation}</span>
           </div>
 
           <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-zinc-950 dark:text-white mb-6 leading-[1.08] font-display">
@@ -103,7 +125,7 @@ export function Hero() {
           </h1>
 
           <p className="text-base sm:text-lg md:text-xl text-zinc-600 dark:text-white/60 max-w-2xl font-sans mb-8 leading-relaxed">
-            {t.hero.beat1.subtitle}
+            {heroSubtitle}
           </p>
 
           <div className="flex items-center gap-2 text-xs font-mono tracking-widest text-zinc-500 dark:text-white/40 uppercase">
@@ -119,10 +141,9 @@ export function Hero() {
           style={{
             opacity: beat2Opacity,
             y: beat2Y,
-            display: beat2Display,
-            pointerEvents: beat2PointerEvents,
+            visibility: beat2Visibility,
           }}
-          className="absolute inset-0 z-20 flex items-center pointer-events-none px-6 md:px-16"
+          className="absolute inset-0 z-20 flex items-end md:items-center pointer-events-none px-4 sm:px-6 md:px-16 pb-12 sm:pb-16 md:pb-0"
         >
           <div className="w-full max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between">
             {/* Left Spacer: Preserves open space for the 3D logo shifted to the left */}
@@ -131,7 +152,7 @@ export function Hero() {
             {/* Right Column: Apple Squircle Glass Card */}
             <motion.div 
               whileHover={appleGestures.cardHover}
-              className="w-full md:max-w-xl pointer-events-auto rounded-[32px] bg-white/85 dark:bg-white/[0.04] backdrop-blur-xl border border-zinc-200/80 dark:border-white/10 p-8 shadow-2xl transition-colors"
+              className="w-full md:max-w-xl pointer-events-auto rounded-[28px] sm:rounded-[32px] bg-white/85 dark:bg-white/[0.04] backdrop-blur-xl border border-zinc-200/80 dark:border-white/10 p-6 sm:p-8 shadow-2xl transition-colors"
             >
               <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-zinc-200 dark:border-white/10 bg-zinc-100 dark:bg-white/[0.06] text-zinc-600 dark:text-white/60 text-xs font-mono tracking-tight uppercase mb-4">
                 <span>{t.hero.beat2.badge}</span>
@@ -172,8 +193,7 @@ export function Hero() {
           style={{
             opacity: beat3Opacity,
             y: beat3Y,
-            display: beat3Display,
-            pointerEvents: beat3PointerEvents,
+            visibility: beat3Visibility,
           }}
           className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none px-6"
         >
@@ -206,7 +226,7 @@ export function Hero() {
                   if (pricingEl) {
                     pricingEl.scrollIntoView({ behavior: 'smooth' });
                   } else {
-                    window.open(`https://wa.me/351912345678?text=${encodeURIComponent(whatsappMessage)}`, '_blank');
+                    window.open(`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(whatsappMessage)}`, '_blank');
                   }
                 }}
                 className="w-full sm:w-auto rounded-full bg-zinc-950 text-white dark:bg-white dark:text-black font-semibold text-sm px-6 py-3 flex items-center justify-center gap-2 cursor-pointer shadow-lg hover:shadow-[0_0_25px_rgba(0,0,0,0.15)] dark:hover:shadow-[0_0_25px_rgba(255,255,255,0.3)] transition-all"

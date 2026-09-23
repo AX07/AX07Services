@@ -3,13 +3,21 @@ import { motion, useScroll, useMotionValueEvent, useTransform, AnimatePresence }
 import { Clock, ShieldCheck, Rocket, ArrowRight, CheckCircle2, ChevronDown, MousePointer } from 'lucide-react';
 import { appleSprings } from '../lib/design-system';
 import { useApp } from '../context/ThemeLanguageContext';
+import { CountryContent } from '../lib/content';
 
 const stepIcons = [Clock, ShieldCheck, Rocket];
 
-export function Process() {
-  const { t } = useApp();
+export interface ProcessProps {
+  countryContent?: CountryContent;
+}
+
+export function Process({ countryContent }: ProcessProps = {}) {
+  const { t, lang } = useApp();
   const sectionRef = useRef<HTMLDivElement>(null);
   const [activeIndex, setActiveIndex] = useState(0);
+
+  const pricingUpfront = countryContent?.pricingUpfront || (lang === 'pt' ? '€500' : '€1,800');
+  const pricingRetainer = countryContent?.pricingRetainer || (lang === 'pt' ? '€25/mo' : '€75/mo');
 
   // Scroll progress through the 240vh section
   const { scrollYProgress } = useScroll({
@@ -28,11 +36,35 @@ export function Process() {
     }
   });
 
-  const steps = (t.process?.steps || []).map((st, idx) => ({
-    ...st,
-    icon: stepIcons[idx] || stepIcons[0],
-    highlights: st.highlights || [],
-  }));
+  const steps = (t.process?.steps || []).map((st, idx) => {
+    if (idx === 2) {
+      return {
+        ...st,
+        desc:
+          lang === 'pt'
+            ? `Pague ${pricingUpfront} apenas após aprovar. Depois, ${pricingRetainer} para alojamento edge global de alta velocidade na Vercel, certificados SSL automáticos e suporte contínuo.`
+            : `Only pay ${pricingUpfront} once approved. Then ${pricingRetainer} for ultra-fast Vercel edge global hosting, continuous SSL certificates, and on-demand content updates.`,
+        highlights:
+          lang === 'pt'
+            ? [
+                'Conexão do seu domínio em 1 clique',
+                'CDN Edge global e SSL incluídos',
+                `Manutenção fixa de ${pricingRetainer}`,
+              ]
+            : [
+                '1-click DNS domain attach',
+                'Global Edge CDN & SSL included',
+                `${pricingRetainer} flat maintenance`,
+              ],
+        icon: stepIcons[idx] || stepIcons[0],
+      };
+    }
+    return {
+      ...st,
+      icon: stepIcons[idx] || stepIcons[0],
+      highlights: st.highlights || [],
+    };
+  });
 
   // Smooth click navigation to jump to a specific step along the scroll track
   const handleStepClick = (index: number) => {

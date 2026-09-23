@@ -8,6 +8,12 @@
 }
 
 :root {
+  --bg-canvas: #fafafa;
+  --text-main: #09090b;
+  color-scheme: light;
+}
+
+html.dark {
   --bg-canvas: #070708;
   --text-main: #ededed;
   color-scheme: dark;

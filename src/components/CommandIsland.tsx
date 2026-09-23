@@ -1,30 +1,54 @@
+'use client';
+
 import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
-import { ArrowUpRight, Sparkles, Sun, Moon, Globe } from 'lucide-react';
+import { ArrowUpRight, Sparkles, Sun, Moon, Globe, MapPin } from 'lucide-react';
 import { appleGestures, appleSprings } from '../lib/design-system';
 import { useApp } from '../context/ThemeLanguageContext';
+import { CountryContent, CountryCode } from '../lib/content';
 
-export function CommandIsland() {
+export interface CommandIslandProps {
+  countryContent?: CountryContent;
+  onSelectCountry?: (country: CountryCode) => void;
+  activePage?: 'home' | 'work' | 'about';
+}
+
+export function CommandIsland({ countryContent, onSelectCountry, activePage = 'home' }: CommandIslandProps = {}) {
   const { lang, setLang, theme, toggleTheme, t } = useApp();
-  const [activeSection, setActiveSection] = useState<string>('project-showcase');
+  const [activeSection, setActiveSection] = useState<string>(activePage);
+
+  const currentCountry = countryContent?.countrySlug || 'ie';
+  const whatsappNumber = countryContent?.whatsappNumber || (lang === 'pt' ? '351912345678' : '353871234567');
 
   const navItems = [
-    { id: 'project-showcase', label: t.nav.works },
-    { id: 'process', label: t.nav.process },
-    { id: 'pricing', label: t.nav.pricing },
-    { id: 'faq', label: t.nav.faq },
+    { id: 'work', label: t.nav.works, type: 'page', route: `/${currentCountry}/work` },
+    { id: 'process', label: t.nav.process, type: 'section', route: `/${currentCountry}#process` },
+    { id: 'pricing', label: t.nav.pricing, type: 'section', route: `/${currentCountry}#pricing` },
+    { id: 'about', label: t.nav.about || (lang === 'pt' ? 'Sobre' : 'About'), type: 'page', route: `/${currentCountry}/about` },
   ];
 
   useEffect(() => {
+    if (activePage !== 'home') {
+      setActiveSection(activePage);
+      return;
+    }
+
     const handleScroll = () => {
       const scrollPos = window.scrollY + 250;
-      for (const item of navItems) {
-        const el = document.getElementById(item.id);
+      const sectionIds = ['project-showcase', 'process', 'pricing', 'faq'];
+      for (const sid of sectionIds) {
+        const el = document.getElementById(sid);
         if (el) {
           const top = el.offsetTop;
           const height = el.offsetHeight;
           if (scrollPos >= top && scrollPos < top + height) {
-            setActiveSection(item.id);
+            if (sid === 'project-showcase') {
+              setActiveSection('work');
+            } else if (sid === 'process') {
+              setActiveSection('process');
+            } else if (sid === 'pricing') {
+              setActiveSection('pricing');
+            }
             break;
           }
         }
@@ -33,12 +57,60 @@ export function CommandIsland() {
 
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [t]);
+  }, [t, activePage]);
 
-  const scrollTo = (id: string) => {
-    const element = document.getElementById(id);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
+  const navigateTo = (targetPath: string) => {
+    if (typeof window !== 'undefined') {
+      window.history.pushState({}, '', targetPath);
+      window.dispatchEvent(new PopStateEvent('popstate'));
+    }
+  };
+
+  const handleNavClick = (item: (typeof navItems)[0]) => {
+    if (item.type === 'page') {
+      if (activePage === item.id) {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      } else {
+        navigateTo(item.route);
+      }
+      return;
+    }
+
+    // Section scroll or redirect
+    if (activePage === 'home') {
+      const element = document.getElementById(item.id);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+      } else {
+        navigateTo(item.route);
+      }
+    } else {
+      navigateTo(item.route);
+    }
+  };
+
+  const handleBrandClick = () => {
+    if (activePage === 'home') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      navigateTo(`/${currentCountry}`);
+    }
+  };
+
+  const handleCountryChange = (targetCountry: CountryCode) => {
+    if (onSelectCountry) {
+      onSelectCountry(targetCountry);
+    }
+
+    if (typeof window !== 'undefined') {
+      let targetPath = `/${targetCountry}`;
+      if (activePage === 'work') {
+        targetPath = `/${targetCountry}/work`;
+      } else if (activePage === 'about') {
+        targetPath = `/${targetCountry}/about`;
+      }
+      window.history.pushState({}, '', targetPath);
+      window.dispatchEvent(new PopStateEvent('popstate'));
     }
   };
 
@@ -58,7 +130,7 @@ export function CommandIsland() {
         {/* Brand Anchor */}
         <button
           type="button"
-          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+          onClick={handleBrandClick}
           className="flex items-center gap-1.5 sm:gap-2 px-2 py-1 rounded-full text-zinc-900 dark:text-white hover:opacity-80 transition-opacity cursor-pointer group"
           aria-label="AX07 Home"
         >
@@ -77,18 +149,18 @@ export function CommandIsland() {
         {/* Vertical divider */}
         <div className="w-px h-4 bg-zinc-200 dark:bg-white/10 hidden md:block" />
 
-        {/* Navigation Segmented Tray */}
+        {/* Navigation Segmented Tray: Works | Process | Pricing | About */}
         <nav className="hidden sm:flex items-center gap-0.5 bg-zinc-100/90 dark:bg-white/[0.04] p-1 rounded-full border border-zinc-200/60 dark:border-white/10">
           {navItems.map((item) => {
-            const isActive = activeSection === item.id;
+            const isActive = activeSection === item.id || (item.id === 'work' && activePage === 'work') || (item.id === 'about' && activePage === 'about');
             return (
               <button
                 key={item.id}
                 type="button"
-                onClick={() => scrollTo(item.id)}
+                onClick={() => handleNavClick(item)}
                 className={`relative px-2.5 sm:px-3 py-1 rounded-full text-xs font-medium transition-colors cursor-pointer ${
                   isActive
-                    ? 'text-zinc-950 dark:text-white'
+                    ? 'text-zinc-950 dark:text-white font-semibold'
                     : 'text-zinc-500 dark:text-white/60 hover:text-zinc-900 dark:hover:text-white'
                 }`}
               >
@@ -108,10 +180,42 @@ export function CommandIsland() {
         {/* Vertical divider */}
         <div className="w-px h-4 bg-zinc-200 dark:bg-white/10" />
 
-        {/* 1. Language Toggle Segmented Pill (EN | PT) */}
+        {/* 1. Country Subpath Toggle (/ie | /pt) - Preserving active page */}
+        <div
+          id="country-toggle-container"
+          className="flex items-center bg-zinc-100 dark:bg-white/[0.06] p-0.5 rounded-full border border-zinc-200/80 dark:border-white/10 text-[11px] font-mono"
+          title="Subpath Region Route (/ie vs /pt)"
+        >
+          <button
+            type="button"
+            onClick={() => handleCountryChange('ie')}
+            className={`px-2 py-1 rounded-full font-semibold transition-all cursor-pointer flex items-center gap-1 ${
+              currentCountry === 'ie'
+                ? 'bg-zinc-950 text-white dark:bg-white dark:text-black shadow-sm'
+                : 'text-zinc-500 dark:text-white/50 hover:text-zinc-900 dark:hover:text-white'
+            }`}
+          >
+            <span>🇮🇪</span>
+            <span>IE</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => handleCountryChange('pt')}
+            className={`px-2 py-1 rounded-full font-semibold transition-all cursor-pointer flex items-center gap-1 ${
+              currentCountry === 'pt'
+                ? 'bg-zinc-950 text-white dark:bg-white dark:text-black shadow-sm'
+                : 'text-zinc-500 dark:text-white/50 hover:text-zinc-900 dark:hover:text-white'
+            }`}
+          >
+            <span>🇵🇹</span>
+            <span>PT</span>
+          </button>
+        </div>
+
+        {/* 2. Language Toggle Segmented Pill (EN | PT) */}
         <div
           id="lang-toggle-container"
-          className="flex items-center bg-zinc-100 dark:bg-white/[0.06] p-0.5 rounded-full border border-zinc-200/80 dark:border-white/10 text-[11px] font-mono"
+          className="hidden xs:flex items-center bg-zinc-100 dark:bg-white/[0.06] p-0.5 rounded-full border border-zinc-200/80 dark:border-white/10 text-[11px] font-mono"
           title="Toggle Language (English / Português)"
         >
           <button
@@ -138,45 +242,30 @@ export function CommandIsland() {
           </button>
         </div>
 
-        {/* 2. Light / Dark Theme Switcher Button */}
-        <button
+        {/* 3. Theme Toggle Switcher */}
+        <motion.button
           type="button"
           onClick={toggleTheme}
-          id="theme-toggle-btn"
-          aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
-          title={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
-          className="w-8 h-8 rounded-full bg-zinc-100 dark:bg-white/[0.06] border border-zinc-200/80 dark:border-white/10 flex items-center justify-center text-zinc-700 dark:text-white/80 hover:text-zinc-950 dark:hover:text-white hover:bg-zinc-200 dark:hover:bg-white/15 transition-all cursor-pointer shadow-sm shrink-0"
+          whileTap={appleGestures.tapButton}
+          aria-label={theme === 'dark' ? t.nav.themeLight : t.nav.themeDark}
+          className="p-1.5 rounded-full text-zinc-600 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white bg-zinc-100/90 dark:bg-white/[0.06] border border-zinc-200/70 dark:border-white/10 transition-colors cursor-pointer"
         >
-          <motion.div
-            key={theme}
-            initial={{ rotate: -90, scale: 0.7, opacity: 0 }}
-            animate={{ rotate: 0, scale: 1, opacity: 1 }}
-            transition={{ type: 'spring', stiffness: 350, damping: 25 }}
-          >
-            {theme === 'dark' ? (
-              <Sun className="w-3.5 h-3.5 stroke-[1.75] text-amber-400" />
-            ) : (
-              <Moon className="w-3.5 h-3.5 stroke-[1.75] text-indigo-600" />
-            )}
-          </motion.div>
-        </button>
+          {theme === 'dark' ? <Sun className="w-3.5 h-3.5" /> : <Moon className="w-3.5 h-3.5" />}
+        </motion.button>
 
-        {/* Primary Capsule Action CTA */}
-        <motion.a
-          href={`https://wa.me/351912345678?text=${encodeURIComponent(whatsappMessage)}`}
+        {/* 4. Action: 48h Spec CTA on WhatsApp */}
+        <a
+          href={`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(whatsappMessage)}`}
           target="_blank"
           rel="noopener noreferrer"
-          whileHover={appleGestures.primaryButton.hover}
-          whileTap={appleGestures.primaryButton.tap}
-          className="rounded-full bg-zinc-950 text-white dark:bg-white dark:text-black font-semibold text-xs sm:text-sm px-3 sm:px-4 py-1.5 sm:py-2 flex items-center gap-1.5 cursor-pointer shadow-md hover:shadow-[0_0_20px_rgba(0,0,0,0.15)] dark:hover:shadow-[0_0_25px_rgba(255,255,255,0.3)] transition-all shrink-0"
+          className="rounded-full bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 text-xs font-semibold px-3 sm:px-4 py-1.5 flex items-center gap-1 shadow-sm hover:opacity-90 transition-opacity cursor-pointer whitespace-nowrap"
         >
-          <Sparkles className="w-3 h-3 text-emerald-400 stroke-[2]" />
-          <span>{t.nav.claim48h}</span>
-          <ArrowUpRight className="w-3.5 h-3.5 stroke-[2] hidden xs:inline" />
-        </motion.a>
+          <Sparkles className="w-3 h-3 text-emerald-400 dark:text-emerald-600" />
+          <span className="hidden sm:inline">{t.nav.claim48h}</span>
+          <span className="sm:hidden">48h</span>
+          <ArrowUpRight className="w-3 h-3" />
+        </a>
       </motion.div>
     </header>
   );
 }
-
-export default CommandIsland;

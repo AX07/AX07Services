@@ -9,6 +9,7 @@ export interface Translations {
     process: string;
     pricing: string;
     faq: string;
+    about: string;
     claim48h: string;
     langToggle: string;
     themeDark: string;
@@ -193,6 +194,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
       process: 'Process',
       pricing: 'Pricing',
       faq: 'FAQ',
+      about: 'About',
       claim48h: '48h Spec',
       langToggle: 'PT',
       themeDark: 'Dark Mode',
@@ -204,7 +206,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
         titlePart1: 'We build custom 3D web experiences',
         titlePart2: 'that convert.',
         subtitle:
-          'Interactive 3D visuals, sub-second edge performance, and direct 1-click WhatsApp booking systems crafted in Tavira & Algarve, Portugal.',
+          'Interactive 3D visuals, sub-second edge performance, and direct 1-click WhatsApp booking systems crafted for business owners.',
         badge: 'ZERO DEPOSIT RISK · LIVE IN 48 HOURS',
         primaryCta: 'Claim Your 48h 3D Preview',
         secondaryCta: 'Explore Case Studies',
@@ -258,16 +260,16 @@ const TRANSLATIONS: Record<Language, Translations> = {
         },
         {
           num: '02',
-          stepLabel: 'Step 02 // Phone Testing',
-          title: 'Test It on Your Phone',
-          shortTitle: '02 Phone Test',
-          desc: 'You receive a private staging URL. Open it directly on your mobile device, test the 1-click WhatsApp booking flow, and inspect the kinetic 3D visuals with zero pressure.',
+          stepLabel: 'Step 02 // The Test',
+          title: 'The Test',
+          shortTitle: '02 The Test',
+          desc: 'You receive a private staging URL. Open it directly on your device, test the 1-click WhatsApp booking flow, and inspect the kinetic 3D visuals with zero pressure.',
           badge: 'Zero Risk Trial',
           timeline: 'Days 3 – 10',
           highlights: [
             'Private Vercel preview link',
             'Live 3D kinetic interaction test',
-            '60 FPS smooth mobile experience',
+            '60 FPS smooth interactive experience',
           ],
         },
         {
@@ -543,6 +545,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
       process: 'Processo',
       pricing: 'Preços',
       faq: 'Perguntas',
+      about: 'Sobre',
       claim48h: 'Amostra 48h',
       langToggle: 'EN',
       themeDark: 'Modo Escuro',
@@ -554,7 +557,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
         titlePart1: 'Criamos experiências web 3D sob medida',
         titlePart2: 'que convertem.',
         subtitle:
-          'Visuais 3D interativos, performance edge abaixo de um segundo e sistemas de reserva direta por WhatsApp criados em Tavira e no Algarve, Portugal.',
+          'Visuais 3D interativos, performance edge abaixo de um segundo e sistemas de reserva direta por WhatsApp criados para donos de negócios.',
         badge: 'RISCO ZERO · DISPONÍVEL EM 48 HORAS',
         primaryCta: 'Pedir Amostra 3D em 48h',
         secondaryCta: 'Explorar Projetos',
@@ -608,16 +611,16 @@ const TRANSLATIONS: Record<Language, Translations> = {
         },
         {
           num: '02',
-          stepLabel: 'Passo 02 // Teste no Telemóvel',
-          title: 'Teste no Seu Telemóvel',
-          shortTitle: '02 Testar Telemóvel',
-          desc: 'Recebe um link de teste privado. Abra diretamente no telemóvel, teste o fluxo de reservas em 1 clique por WhatsApp e veja a fluidez dos gráficos 3D sem qualquer pressão.',
+          stepLabel: 'Passo 02 // O Teste',
+          title: 'O Teste',
+          shortTitle: '02 O Teste',
+          desc: 'Recebe um link de teste privado. Abra diretamente no seu dispositivo, teste o fluxo de reservas em 1 clique por WhatsApp e veja a fluidez dos gráficos 3D sem qualquer pressão.',
           badge: 'Teste Sem Risco',
           timeline: 'Dias 3 – 10',
           highlights: [
             'Link privado na Vercel',
             'Teste de interação cinética 3D ao vivo',
-            'Experiência fluida a 60 FPS no telemóvel',
+            'Experiência interativa fluida a 60 FPS',
           ],
         },
         {
@@ -901,8 +904,14 @@ interface AppContextType {
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
-export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export interface AppProviderProps {
+  children: React.ReactNode;
+  initialLang?: Language;
+}
+
+export const AppProvider: React.FC<AppProviderProps> = ({ children, initialLang }) => {
   const [lang, setLangState] = useState<Language>(() => {
+    if (initialLang) return initialLang;
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('ax07_lang') as Language;
       if (saved === 'en' || saved === 'pt') return saved;
@@ -913,10 +922,17 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const [theme, setThemeState] = useState<Theme>(() => {
     if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('ax07_theme') as Theme;
-      if (saved === 'dark' || saved === 'light') return saved;
+      const initialized = localStorage.getItem('ax07_theme_init_v2');
+      if (initialized === 'true') {
+        const saved = localStorage.getItem('ax07_theme') as Theme;
+        if (saved === 'dark' || saved === 'light') return saved;
+      } else {
+        localStorage.setItem('ax07_theme_init_v2', 'true');
+        localStorage.setItem('ax07_theme', 'light');
+        return 'light';
+      }
     }
-    return 'dark';
+    return 'light';
   });
 
   useEffect(() => {

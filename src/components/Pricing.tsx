@@ -3,9 +3,18 @@ import { motion } from 'motion/react';
 import { Check, ShieldCheck, Zap, ArrowUpRight, MessageSquare, Sparkles } from 'lucide-react';
 import { appleGestures } from '../lib/design-system';
 import { useApp } from '../context/ThemeLanguageContext';
+import { CountryContent } from '../lib/content';
 
-export function Pricing() {
-  const { t } = useApp();
+export interface PricingProps {
+  countryContent?: CountryContent;
+}
+
+export function Pricing({ countryContent }: PricingProps = {}) {
+  const { t, lang } = useApp();
+
+  const pricingUpfront = countryContent?.pricingUpfront || '€500';
+  const pricingRetainer = countryContent?.pricingRetainer || '€25/mo';
+  const whatsappNumber = countryContent?.whatsappNumber || '351912345678';
 
   const fallbackReassurance = {
     card1Title: 'Zero-Deposit Guarantee',
@@ -72,7 +81,7 @@ export function Pricing() {
               <div className="p-6 rounded-[24px] bg-zinc-100 dark:bg-zinc-900/80 border border-zinc-200 dark:border-white/10 mb-8 backdrop-blur-md">
                 <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-2 pb-4 border-b border-zinc-200 dark:border-white/10">
                   <div>
-                    <span className="text-4xl sm:text-5xl font-display font-bold text-zinc-900 dark:text-white tracking-tight">€500</span>
+                    <span className="text-4xl sm:text-5xl font-display font-bold text-zinc-900 dark:text-white tracking-tight">{pricingUpfront}</span>
                     <span className="text-zinc-500 dark:text-white/60 text-xs sm:text-sm font-mono ml-2">{t.pricing.signature.oneTime}</span>
                   </div>
                   <span className="text-[11px] font-mono text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-500/20 self-start sm:self-auto font-semibold">
@@ -82,7 +91,7 @@ export function Pricing() {
 
                 <div className="flex items-center justify-between pt-4">
                   <div className="flex items-baseline gap-1.5">
-                    <span className="text-2xl font-display font-bold text-zinc-900 dark:text-white tracking-tight">+ €20</span>
+                    <span className="text-2xl font-display font-bold text-zinc-900 dark:text-white tracking-tight">+ {pricingRetainer}</span>
                     <span className="text-zinc-500 dark:text-white/60 text-xs font-mono">{t.pricing.signature.perMonth}</span>
                   </div>
                   <span className="text-xs text-zinc-500 dark:text-white/40 font-mono">
@@ -109,7 +118,11 @@ export function Pricing() {
               <motion.a
                 whileHover={appleGestures.primaryButton.hover}
                 whileTap={appleGestures.primaryButton.tap}
-                href="https://wa.me/351912345678?text=Hello%20AX07,%20I%20would%20like%20to%20request%20the%20€500%20Signature%203D%20Spec%20with%20zero%20deposit."
+                href={`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
+                  lang === 'pt'
+                    ? `Olá AX07, gostaria de pedir o protótipo 3D ${pricingUpfront} com risco zero.`
+                    : `Hello AX07, I would like to request the ${pricingUpfront} Signature 3D Spec with zero deposit.`
+                )}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-full py-3.5 px-6 rounded-full bg-zinc-900 dark:bg-white text-white dark:text-black font-medium text-sm flex items-center justify-center gap-2 shadow-xl hover:shadow-[0_0_25px_rgba(0,0,0,0.15)] dark:hover:shadow-[0_0_25px_rgba(255,255,255,0.3)] transition-shadow cursor-pointer"
@@ -251,7 +264,11 @@ export function Pricing() {
               </p>
               <div className="pt-1">
                 <a
-                  href="https://wa.me/351912345678?text=Hello%20AX07,%20I%20would%20like%20to%20chat%20directly%20about%20a%2048h%203D%20spec%20build."
+                  href={`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
+                    lang === 'pt'
+                      ? 'Olá AX07, gostaria de falar diretamente sobre o protótipo 3D em 48h.'
+                      : 'Hello AX07, I would like to chat directly about a 48h 3D spec build.'
+                  )}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1.5 text-[10px] font-mono uppercase tracking-wider text-emerald-700 dark:text-white bg-emerald-500/15 dark:bg-emerald-500/20 hover:bg-emerald-500/25 dark:hover:bg-emerald-500/30 border border-emerald-500/40 px-3.5 py-1 rounded-full transition-colors cursor-pointer group font-semibold"

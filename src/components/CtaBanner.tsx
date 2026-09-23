@@ -4,10 +4,16 @@ import { ArrowUpRight, MessageSquare, ShieldCheck, Zap, Sparkles } from 'lucide-
 import { LogoCanvas } from './LogoCanvas';
 import { appleGestures } from '../lib/design-system';
 import { useApp } from '../context/ThemeLanguageContext';
+import { CountryContent } from '../lib/content';
 
-export function CtaBanner() {
+export interface CtaBannerProps {
+  countryContent?: CountryContent;
+}
+
+export function CtaBanner({ countryContent }: CtaBannerProps = {}) {
   const { t, lang } = useApp();
   const [businessInput, setBusinessInput] = useState('');
+  const whatsappNumber = countryContent?.whatsappNumber || '351912345678';
 
   const badges = t.cta?.badges || {
     riskFree: '100% Risk-Free Staging',
@@ -28,7 +34,7 @@ export function CtaBanner() {
             ? 'Olá AX07, gostaria de pedir o meu link de teste 3D gratuito em 48h.'
             : 'Hello AX07, I would like to claim my free 48h 3D preview staging link.'
         );
-    window.open(`https://wa.me/351912345678?text=${query}`, '_blank');
+    window.open(`https://wa.me/${whatsappNumber}?text=${query}`, '_blank');
   };
 
   return (
