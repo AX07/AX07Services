@@ -85,7 +85,7 @@ export function Hero({ countryContent }: HeroProps = {}) {
           <LogoCanvas
             modelUrl="/logo.glb"
             scrollWrapperId="hero-scroll-track"
-            defaultMode="hybrid"
+            defaultMode="particles"
             showControls={true}
             className="w-full h-full touch-pan-y"
           />
@@ -106,10 +106,10 @@ export function Hero({ countryContent }: HeroProps = {}) {
           }}
           className="relative absolute inset-0 z-20 flex flex-col items-center justify-start pt-24 sm:pt-32 md:pt-36 px-6 max-w-4xl mx-auto text-center pointer-events-none"
         >
-          {/* Subtle Radial Gradient Glow Behind the Text Block (Invisible "Halo" that pushes 3D watermark into background) */}
+          {/* Gentle luminous glow behind text ensuring readability while letting the large 3D asset shine through */}
           <div
             aria-hidden="true"
-            className="absolute top-12 sm:top-16 left-1/2 -translate-x-1/2 w-[95vw] max-w-3xl h-[420px] sm:h-[480px] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(255,255,255,0.94)_0%,rgba(255,255,255,0.78)_38%,rgba(255,255,255,0)_72%)] dark:bg-[radial-gradient(ellipse_at_center,rgba(9,9,11,0.92)_0%,rgba(9,9,11,0.75)_38%,rgba(9,9,11,0)_72%)] blur-2xl pointer-events-none -z-10"
+            className="absolute top-12 sm:top-16 left-1/2 -translate-x-1/2 w-[95vw] max-w-3xl h-[420px] sm:h-[480px] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(255,255,255,0.40)_0%,rgba(255,255,255,0.15)_45%,rgba(255,255,255,0)_75%)] dark:bg-[radial-gradient(ellipse_at_center,rgba(9,9,11,0.45)_0%,rgba(9,9,11,0.15)_45%,rgba(9,9,11,0)_75%)] blur-3xl pointer-events-none -z-10"
           />
 
           {/* Glass Capsule Eyebrow with SF Symbols */}

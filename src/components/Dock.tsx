@@ -1,4 +1,4 @@
-import { useState, FormEvent } from 'react';
+import { useState, useEffect, FormEvent } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Sparkles, Link as LinkIcon, X, Search, Terminal, ArrowUpRight } from 'lucide-react';
 import { toast } from 'sonner';
@@ -10,6 +10,16 @@ export function Dock() {
   const [activeTab, setActiveTab] = useState<'none' | 'ai' | 'magic'>('none');
   const [inputValue, setInputValue] = useState('');
   const [iframeUrl, setIframeUrl] = useState('');
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 40);
+    };
+    handleScroll();
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const handleMagicSubmit = (e: FormEvent) => {
     e.preventDefault();
@@ -34,61 +44,66 @@ export function Dock() {
   return (
     <>
       {/* Floating Glass Control Dock */}
-      <div className="fixed bottom-6 sm:bottom-8 left-1/2 -translate-x-1/2 z-50">
-        <motion.div 
-          initial={{ y: 50, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ ...appleSprings.default, delay: 0.8 }}
-          className="flex items-center gap-1.5 p-1.5 rounded-full shadow-2xl border border-zinc-200 dark:border-white/10 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-2xl"
-        >
-          <motion.button
-            whileHover={appleGestures.circularButton.hover}
-            whileTap={appleGestures.circularButton.tap}
-            onClick={() => {
-              setActiveTab(activeTab === 'ai' ? 'none' : 'ai');
-              setInputValue('');
-              setIframeUrl('');
-            }}
-            className={`relative p-2.5 rounded-full flex items-center justify-center transition-colors cursor-pointer ${
-              activeTab === 'ai' ? 'text-zinc-900 dark:text-white' : 'text-zinc-500 dark:text-white/60 hover:text-zinc-900 dark:hover:text-white'
-            }`}
-            title={t.dock.aiTooltip}
-          >
-            {activeTab === 'ai' && (
-              <motion.div
-                layoutId="activeDockPill"
-                className="absolute inset-0 bg-zinc-200/70 dark:bg-white/15 rounded-full border border-zinc-300 dark:border-white/20"
-                transition={appleSprings.snappy}
-              />
-            )}
-            <Sparkles className="w-4 h-4 relative z-10 stroke-[1.75]" />
-          </motion.button>
-          
-          <div className="w-px h-4 bg-zinc-200 dark:bg-white/10 mx-0.5" />
-          
-          <motion.button
-            whileHover={appleGestures.circularButton.hover}
-            whileTap={appleGestures.circularButton.tap}
-            onClick={() => {
-              setActiveTab(activeTab === 'magic' ? 'none' : 'magic');
-              setInputValue('');
-              setIframeUrl('');
-            }}
-            className={`relative p-2.5 rounded-full flex items-center justify-center transition-colors cursor-pointer ${
-              activeTab === 'magic' ? 'text-zinc-900 dark:text-white' : 'text-zinc-500 dark:text-white/60 hover:text-zinc-900 dark:hover:text-white'
-            }`}
-            title={t.dock.magicTooltip}
-          >
-            {activeTab === 'magic' && (
-              <motion.div
-                layoutId="activeDockPill"
-                className="absolute inset-0 bg-zinc-200/70 dark:bg-white/15 rounded-full border border-zinc-300 dark:border-white/20"
-                transition={appleSprings.snappy}
-              />
-            )}
-            <LinkIcon className="w-4 h-4 relative z-10 stroke-[1.75]" />
-          </motion.button>
-        </motion.div>
+      <div className="fixed bottom-6 sm:bottom-8 left-1/2 -translate-x-1/2 z-50 pointer-events-none">
+        <AnimatePresence>
+          {isScrolled && (
+            <motion.div 
+              initial={{ y: 50, opacity: 0, scale: 0.94 }}
+              animate={{ y: 0, opacity: 1, scale: 1 }}
+              exit={{ y: 50, opacity: 0, scale: 0.94 }}
+              transition={{ type: 'spring', stiffness: 280, damping: 26 }}
+              className="pointer-events-auto flex items-center gap-1.5 p-1.5 rounded-full shadow-2xl border border-zinc-200 dark:border-white/10 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-2xl"
+            >
+              <motion.button
+                whileHover={appleGestures.circularButton.hover}
+                whileTap={appleGestures.circularButton.tap}
+                onClick={() => {
+                  setActiveTab(activeTab === 'ai' ? 'none' : 'ai');
+                  setInputValue('');
+                  setIframeUrl('');
+                }}
+                className={`relative p-2.5 rounded-full flex items-center justify-center transition-colors cursor-pointer ${
+                  activeTab === 'ai' ? 'text-zinc-900 dark:text-white' : 'text-zinc-500 dark:text-white/60 hover:text-zinc-900 dark:hover:text-white'
+                }`}
+                title={t.dock.aiTooltip}
+              >
+                {activeTab === 'ai' && (
+                  <motion.div
+                    layoutId="activeDockPill"
+                    className="absolute inset-0 bg-zinc-200/70 dark:bg-white/15 rounded-full border border-zinc-300 dark:border-white/20"
+                    transition={appleSprings.snappy}
+                  />
+                )}
+                <Sparkles className="w-4 h-4 relative z-10 stroke-[1.75]" />
+              </motion.button>
+              
+              <div className="w-px h-4 bg-zinc-200 dark:bg-white/10 mx-0.5" />
+              
+              <motion.button
+                whileHover={appleGestures.circularButton.hover}
+                whileTap={appleGestures.circularButton.tap}
+                onClick={() => {
+                  setActiveTab(activeTab === 'magic' ? 'none' : 'magic');
+                  setInputValue('');
+                  setIframeUrl('');
+                }}
+                className={`relative p-2.5 rounded-full flex items-center justify-center transition-colors cursor-pointer ${
+                  activeTab === 'magic' ? 'text-zinc-900 dark:text-white' : 'text-zinc-500 dark:text-white/60 hover:text-zinc-900 dark:hover:text-white'
+                }`}
+                title={t.dock.magicTooltip}
+              >
+                {activeTab === 'magic' && (
+                  <motion.div
+                    layoutId="activeDockPill"
+                    className="absolute inset-0 bg-zinc-200/70 dark:bg-white/15 rounded-full border border-zinc-300 dark:border-white/20"
+                    transition={appleSprings.snappy}
+                  />
+                )}
+                <LinkIcon className="w-4 h-4 relative z-10 stroke-[1.75]" />
+              </motion.button>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       {/* Modal Overlay with Apple HIG Squircle Dialog Physics */}

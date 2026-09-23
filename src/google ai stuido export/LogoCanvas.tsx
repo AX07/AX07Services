@@ -28,7 +28,7 @@ export interface LogoCanvasProps {
 export const LogoCanvas: React.FC<LogoCanvasProps> = ({
   modelUrl = '/logo.glb',
   scrollWrapperId,
-  mode = 'hybrid',
+  mode = 'particles',
   className = '',
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);

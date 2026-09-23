@@ -104,19 +104,18 @@ export function init3DLogo(options = {}) {
   scene.add(logoGroup);
 
   // Responsive scale & position:
-  // Desktop: Prominent, elegant display size (1.30) filling the hero viewport with architectural luxury.
-  // Mobile: Scaled down (~40% smaller) at 0.58, with Y-position shifted upward (+0.58) so the "X" shape sits higher
-  // up behind the main headline, leaving the descriptive paragraph underneath completely clear.
-  const isMobileInitial = typeof window !== 'undefined' && window.innerWidth < 768;
-  const initialBaseScale = isMobileInitial ? 0.58 : 1.30;
-  const initialBaseY = isMobileInitial ? 0.58 : 0.08;
+  // Desktop: Prominent, commanding display size (1.55) filling the hero viewport with architectural presence.
+  // Mobile: Scaled to 1.05 as requested, positioned cleanly behind the headline.
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+  const initialBaseScale = isMobile ? 1.05 : 1.55;
+  const initialBaseY = isMobile ? 0.42 : 0.08;
   logoGroup.position.set(0, initialBaseY, 0);
   logoGroup.scale.set(initialBaseScale, initialBaseScale, initialBaseScale);
 
   let meshAsset = null;
   let pivot = null;
   let particles = null;
-  let currentMode = mode || 'hybrid';
+  let currentMode = mode || 'particles';
   let currentTheme = theme;
   let originalPositions = null;
   let currentPositions = null;
@@ -128,8 +127,9 @@ export function init3DLogo(options = {}) {
 
   function updateAssetOpacities() {
     const isDark = currentTheme === 'dark';
-    const baseMeshOp = isDark ? 0.20 : 0.16;
-    const basePartOp = isDark ? 0.25 : 0.20;
+    // Clear, prominent presence on desktop (0.65 - 0.85); soft elegant watermark on mobile
+    const baseMeshOp = isMobile ? (isDark ? 0.35 : 0.28) : (isDark ? 0.70 : 0.60);
+    const basePartOp = isMobile ? (isDark ? 0.45 : 0.38) : (isDark ? 0.85 : 0.75);
     const currentVal = assetOpacity.value;
 
     if (meshAsset) {
@@ -149,17 +149,15 @@ export function init3DLogo(options = {}) {
 
   function applyTheme(isDark) {
     currentTheme = isDark ? 'dark' : 'light';
-    // User request:
-    // Color: Icy off-white / very soft blue-tinted gray (#E2E8F0 in light, #CBD5E1 in dark)
-    const meshColor = new THREE.Color(isDark ? 0xcbd5e1 : 0xe2e8f0);
+    const meshColor = new THREE.Color(isDark ? 0xdbeafe : 0xe2e8f0);
 
     if (meshAsset) {
       meshAsset.traverse((child) => {
         if (child.isMesh && child.material) {
           child.material.color = meshColor;
           child.material.transparent = true;
-          child.material.metalness = isDark ? 0.45 : 0.10;
-          child.material.roughness = isDark ? 0.35 : 0.55;
+          child.material.metalness = isDark ? 0.50 : 0.15;
+          child.material.roughness = isDark ? 0.30 : 0.50;
           child.material.depthWrite = false;
           child.material.needsUpdate = true;
         }
@@ -172,12 +170,12 @@ export function init3DLogo(options = {}) {
       if (isDark) {
         particles.material.color = new THREE.Color(0xf1f5f9);
         particles.material.blending = THREE.AdditiveBlending;
-        particles.material.size = 0.038;
+        particles.material.size = isMobile ? 0.046 : 0.038;
       } else {
-        // Soft stippled watermark with clean subtle visibility on bright canvas
-        particles.material.color = new THREE.Color(0x64748b);
+        // Soft stippled watermark with clean visibility on bright canvas
+        particles.material.color = new THREE.Color(0x475569);
         particles.material.blending = THREE.NormalBlending;
-        particles.material.size = 0.040;
+        particles.material.size = isMobile ? 0.042 : 0.036;
       }
       particles.material.needsUpdate = true;
     }
@@ -226,7 +224,7 @@ export function init3DLogo(options = {}) {
   }
 
   // 4. Mouse Tracking, Dynamic Velocity Radius & Raycasting
-  const mouse3D = new THREE.Vector3(9999, 9999, 0);
+  const mouse3D = new THREE.Vector3(9999, 9999, 9999);
   const raycaster = new THREE.Raycaster();
   const planeZ = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
   const pointer = new THREE.Vector2();
@@ -234,10 +232,34 @@ export function init3DLogo(options = {}) {
   let targetRotY = 0;
   let currentTiltX = 0;
   let currentTiltY = 0;
+  let hasActivePointer = false;
+  let isTouchActive = false;
 
-  // Velocity-based radius: small cursor-sized (~0.18) when slow, expanding up to 1.15 on fast movement
-  const baseDispersalRadius = 0.18;
-  const maxDispersalRadius = 1.15;
+  // Cached container rect to eliminate DOM layout thrashing during touch moves
+  let cachedRect = {
+    left: 0,
+    top: 0,
+    width: width,
+    height: height,
+  };
+
+  function updateRect() {
+    if (container) {
+      const r = container.getBoundingClientRect();
+      cachedRect = {
+        left: r.left,
+        top: r.top,
+        width: r.width || window.innerWidth || 1,
+        height: r.height || window.innerHeight || 1,
+      };
+    }
+  }
+  updateRect();
+
+  // Dispersal radii:
+  // Mobile dispersal radius is tuned to max 1.35 (resting base 0.65)
+  const baseDispersalRadius = isMobile ? 0.65 : 0.28;
+  const maxDispersalRadius = isMobile ? 1.35 : 1.25;
   let targetDispersalRadius = baseDispersalRadius;
   let currentDispersalRadius = baseDispersalRadius;
   let lastPointerTime = performance.now();
@@ -247,7 +269,19 @@ export function init3DLogo(options = {}) {
   // Scroll rotation (0 to 360 degrees / Math.PI * 2)
   const scrollRotation = { y: 0 };
 
+  function updatePointerCoords(clientX, clientY) {
+    hasActivePointer = true;
+    pointer.x = ((clientX - cachedRect.left) / cachedRect.width) * 2 - 1;
+    pointer.y = -((clientY - cachedRect.top) / cachedRect.height) * 2 + 1;
+
+    targetRotY = pointer.x * (isMobile ? 0.22 : 0.38);
+    targetRotX = -pointer.y * (isMobile ? 0.22 : 0.38);
+  }
+
   function onPointerMove(e) {
+    if (isTouchActive && e.pointerType === 'touch') {
+      return; // Handled directly by touch events
+    }
     const now = performance.now();
     const dt = Math.max(now - lastPointerTime, 8);
     const dx = e.clientX - lastClientX;
@@ -258,57 +292,66 @@ export function init3DLogo(options = {}) {
     lastClientY = e.clientY;
     lastPointerTime = now;
 
-    // Velocity boost
     const velocityBoost = Math.min(Math.max((speedPxPerMs - 0.15) * 0.48, 0), maxDispersalRadius - baseDispersalRadius);
     targetDispersalRadius = baseDispersalRadius + velocityBoost;
 
-    const rect = container.getBoundingClientRect();
-    pointer.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
-    pointer.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
-
-    targetRotY = pointer.x * 0.38;
-    targetRotX = -pointer.y * 0.38;
-
-    raycaster.setFromCamera(pointer, camera);
-    const intersect = new THREE.Vector3();
-    raycaster.ray.intersectPlane(planeZ, intersect);
-    if (intersect) {
-      cursorLight.position.set(intersect.x, intersect.y, 1.5);
-      cursorLight.distance = Math.max(currentDispersalRadius * 4.5, 3.0);
-      mouse3D.x = intersect.x - logoGroup.position.x;
-      mouse3D.y = intersect.y - logoGroup.position.y;
-      mouse3D.z = intersect.z - logoGroup.position.z;
-    }
+    updatePointerCoords(e.clientX, e.clientY);
   }
 
   function onPointerLeave() {
-    mouse3D.set(9999, 9999, 0);
+    hasActivePointer = false;
+    mouse3D.set(9999, 9999, 9999);
     targetRotX = 0;
     targetRotY = 0;
     targetDispersalRadius = baseDispersalRadius;
   }
 
-  // Mobile Touch Finger Tracking
+  // Mobile Touch Finger Tracking: Instantaneous, zero-lag response & precise alignment
   function onTouchStart(e) {
+    isTouchActive = true;
+    updateRect();
     if (e.touches && e.touches[0]) {
-      onPointerMove({
-        clientX: e.touches[0].clientX,
-        clientY: e.touches[0].clientY,
-      });
+      const touch = e.touches[0];
+      lastClientX = touch.clientX;
+      lastClientY = touch.clientY;
+      lastPointerTime = performance.now();
+      updatePointerCoords(touch.clientX, touch.clientY);
+      // Immediately open the generous mobile distortion bubble with zero delay
+      targetDispersalRadius = baseDispersalRadius;
+      currentDispersalRadius = baseDispersalRadius;
     }
   }
 
   function onTouchMove(e) {
+    isTouchActive = true;
     if (e.touches && e.touches[0]) {
-      onPointerMove({
-        clientX: e.touches[0].clientX,
-        clientY: e.touches[0].clientY,
-      });
+      const touch = e.touches[0];
+      const now = performance.now();
+      const dt = Math.max(now - lastPointerTime, 8);
+      const dx = touch.clientX - lastClientX;
+      const dy = touch.clientY - lastClientY;
+      const speedPxPerMs = Math.hypot(dx, dy) / dt;
+
+      lastClientX = touch.clientX;
+      lastClientY = touch.clientY;
+      lastPointerTime = now;
+
+      const velocityBoost = Math.min(Math.max((speedPxPerMs - 0.10) * 0.55, 0), maxDispersalRadius - baseDispersalRadius);
+      targetDispersalRadius = baseDispersalRadius + velocityBoost;
+
+      updatePointerCoords(touch.clientX, touch.clientY);
     }
   }
 
   function onTouchEnd() {
-    onPointerLeave();
+    hasActivePointer = false;
+    mouse3D.set(9999, 9999, 9999);
+    targetRotX = 0;
+    targetRotY = 0;
+    targetDispersalRadius = baseDispersalRadius;
+    setTimeout(() => {
+      isTouchActive = false;
+    }, 250);
   }
 
   window.addEventListener('pointermove', onPointerMove, { passive: true });
@@ -317,6 +360,7 @@ export function init3DLogo(options = {}) {
   window.addEventListener('touchmove', onTouchMove, { passive: true });
   window.addEventListener('touchend', onTouchEnd, { passive: true });
   window.addEventListener('touchcancel', onTouchEnd, { passive: true });
+  window.addEventListener('scroll', updateRect, { passive: true });
 
   // 5. Circular Particle Glow Texture
   function createParticleTexture() {
@@ -372,7 +416,7 @@ export function init3DLogo(options = {}) {
       }
     });
 
-    // Extract contour points while excluding backplate (Normal Z < -0.05) to keep gaps hollow
+    // Extract contour points & front face vertices with high density
     const points = [];
     meshAsset.traverse((child) => {
       if (child.isMesh && child.geometry && child.geometry.attributes.position) {
@@ -381,12 +425,36 @@ export function init3DLogo(options = {}) {
         const norm = child.geometry.attributes.normal;
         const matrix = child.matrixWorld;
         const v = new THREE.Vector3();
-        const stride = pos.count > 50000 ? Math.ceil(pos.count / 45000) : 1;
+        const v2 = new THREE.Vector3();
+        const v3 = new THREE.Vector3();
+        const isMobileScreen = typeof window !== 'undefined' && window.innerWidth < 768;
+        // High density: stride 1 on desktop (~38k front vertices), stride 3 on mobile (~16k)
+        const stride = isMobileScreen ? Math.max(1, Math.ceil(pos.count / 28000)) : 1;
 
         for (let i = 0; i < pos.count; i += stride) {
-          if (norm && norm.getZ(i) < -0.05) continue; // skip backplate
+          if (norm && norm.getZ(i) < -0.08) continue; // skip backplate
           v.fromBufferAttribute(pos, i).applyMatrix4(matrix);
           points.push(v.x, v.y, v.z);
+        }
+
+        // Add additional interior face centroid samples on desktop for ultra-dense crystalline particle volume
+        if (!isMobileScreen && child.geometry.index) {
+          const index = child.geometry.index;
+          const idxCount = index.count;
+          // Sample every 4th triangle face centroid
+          for (let t = 0; t < idxCount; t += 12) {
+            const i0 = index.getX(t);
+            const i1 = index.getX(t + 1);
+            const i2 = index.getX(t + 2);
+            if (norm) {
+              const avgNz = (norm.getZ(i0) + norm.getZ(i1) + norm.getZ(i2)) / 3;
+              if (avgNz < -0.05) continue;
+            }
+            v.fromBufferAttribute(pos, i0).applyMatrix4(matrix);
+            v2.fromBufferAttribute(pos, i1).applyMatrix4(matrix);
+            v3.fromBufferAttribute(pos, i2).applyMatrix4(matrix);
+            points.push((v.x + v2.x + v3.x) / 3, (v.y + v2.y + v3.y) / 3, (v.z + v2.z + v3.z) / 3);
+          }
         }
       }
     });
@@ -420,10 +488,10 @@ export function init3DLogo(options = {}) {
 
     const pMat = new THREE.PointsMaterial({
       color: isDarkInit ? 0xf1f5f9 : 0x64748b,
-      size: isDarkInit ? 0.038 : 0.040,
+      size: isMobile ? (isDarkInit ? 0.046 : 0.042) : (isDarkInit ? 0.038 : 0.036),
       map: createParticleTexture(),
       transparent: true,
-      opacity: isDarkInit ? 0.25 : 0.20,
+      opacity: isDarkInit ? 0.28 : 0.22,
       blending: isDarkInit ? THREE.AdditiveBlending : THREE.NormalBlending,
       depthWrite: false,
     });
@@ -440,9 +508,9 @@ export function init3DLogo(options = {}) {
     const activeScrollTrigger = _ScrollTrigger || (typeof window !== 'undefined' && window.ScrollTrigger);
 
     if (scrollTriggerEl && activeGsap && activeScrollTrigger) {
-      const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+      const getIsMobile = () => typeof window !== 'undefined' && window.innerWidth < 768;
       // On mobile, scrub: 0.15 makes the 3D model track swipe gestures immediately without delay
-      const scrubSpeed = isMobile ? 0.15 : 0.4;
+      const scrubSpeed = getIsMobile() ? 0.15 : 0.4;
 
       const tl = activeGsap.timeline({
         scrollTrigger: {
@@ -454,13 +522,10 @@ export function init3DLogo(options = {}) {
         },
       });
 
-      // Desktop: Prominent 1.30 base scale, shifts clearly to left (-1.65) during Beat 2
-      // Mobile: Compact 0.58 scale, shifted up (+0.58) behind headline
-      const baseScale = isMobile ? 0.58 : 1.30;
-      const baseY = isMobile ? 0.58 : 0.08;
-      const leftShiftX = isMobile ? 0 : -1.65;
-      const shiftY = isMobile ? 0.88 : 0.0;
-      const beat2Scale = isMobile ? 0.55 : 1.15;
+      // Desktop: Prominent, commanding scale (1.55), shifts clearly to left (-1.85) during Beat 2
+      // Mobile: 1.05 base scale, positioned cleanly behind headline
+      const baseScale = getIsMobile() ? 1.05 : 1.55;
+      const baseY = getIsMobile() ? 0.42 : 0.08;
 
       // Ensure starting position & scale & reset opacity
       logoGroup.position.set(0, baseY, 0);
@@ -472,18 +537,18 @@ export function init3DLogo(options = {}) {
       // 1. Continuous smooth 360-degree rotation across 0% -> 100%
       tl.to(scrollRotation, { y: Math.PI * 2, duration: 1.0, ease: 'none' }, 0);
 
-      // 2. Beat 2: Shift to the left on desktop (-1.65) between ~18% and ~34%
+      // 2. Beat 2: Shift clearly to the left on desktop (-1.85) between ~18% and ~34%
       // Ensures the 3D asset is already framing the left side when Beat 2 card fades in!
       tl.to(logoGroup.position, {
-        x: leftShiftX,
-        y: shiftY,
+        x: () => (window.innerWidth < 768 ? 0 : -1.85),
+        y: () => (window.innerWidth < 768 ? 0.75 : 0.0),
         duration: 0.16,
         ease: 'power2.inOut',
       }, 0.18)
       .to(logoGroup.scale, {
-        x: beat2Scale,
-        y: beat2Scale,
-        z: beat2Scale,
+        x: () => (window.innerWidth < 768 ? 0.95 : 1.40),
+        y: () => (window.innerWidth < 768 ? 0.95 : 1.40),
+        z: () => (window.innerWidth < 768 ? 0.95 : 1.40),
         duration: 0.16,
         ease: 'power2.inOut',
       }, 0.18);
@@ -492,7 +557,7 @@ export function init3DLogo(options = {}) {
       // Smoothly re-center horizontally between 0.62 and 0.70
       tl.to(logoGroup.position, {
         x: 0,
-        y: isMobile ? 0.18 : 0.0,
+        y: () => (window.innerWidth < 768 ? 0.18 : 0.0),
         duration: 0.08,
         ease: 'power1.inOut',
       }, 0.62);
@@ -506,9 +571,9 @@ export function init3DLogo(options = {}) {
 
       // Expand logo scale continuously on every scroll tick from 0.66 all the way to 1.00
       tl.to(logoGroup.scale, {
-        x: isMobile ? 3.2 : 6.0,
-        y: isMobile ? 3.2 : 6.0,
-        z: isMobile ? 3.2 : 6.0,
+        x: () => (window.innerWidth < 768 ? 2.5 : 6.0),
+        y: () => (window.innerWidth < 768 ? 2.5 : 6.0),
+        z: () => (window.innerWidth < 768 ? 2.5 : 6.0),
         duration: 0.34,
         ease: 'none',
       }, 0.66);
@@ -537,17 +602,18 @@ export function init3DLogo(options = {}) {
 
     // Decay target radius back to small cursor size if stationary
     const timeSinceMove = performance.now() - lastPointerTime;
-    if (timeSinceMove > 50) {
+    if (timeSinceMove > 60) {
       targetDispersalRadius += (baseDispersalRadius - targetDispersalRadius) * 0.08;
     }
 
     // Smoothly interpolate current dispersal radius
-    currentDispersalRadius += (targetDispersalRadius - currentDispersalRadius) * 0.12;
+    currentDispersalRadius += (targetDispersalRadius - currentDispersalRadius) * (isMobile ? 0.22 : 0.15);
     const dynamicRadiusSq = currentDispersalRadius * currentDispersalRadius;
 
-    // Smooth tilt
-    currentTiltY += (targetRotY - currentTiltY) * 0.08;
-    currentTiltX += (targetRotX - currentTiltX) * 0.08;
+    // Smooth tilt: Responsive (0.18) on mobile to eliminate any feeling of input delay
+    const tiltLerp = isMobile ? 0.18 : 0.08;
+    currentTiltY += (targetRotY - currentTiltY) * tiltLerp;
+    currentTiltX += (targetRotX - currentTiltX) * tiltLerp;
 
     // Continuous smooth rotation if autoRotate is true and no scrollTrigger
     if (autoRotate && !scrollTriggerEl) {
@@ -557,10 +623,42 @@ export function init3DLogo(options = {}) {
     // Combine 360-degree scroll rotation with mouse tilt
     logoGroup.rotation.y = scrollRotation.y + currentTiltY;
     logoGroup.rotation.x = currentTiltX;
+    logoGroup.updateMatrixWorld(true);
 
-    // Dispersal and smooth lerp return
+    // Raycast & Transform: convert screen touch directly into particles' local coordinate space!
+    // This perfectly cancels out logoGroup.position (mobile Y offset), logoGroup.scale (mobile 0.58 scale),
+    // and logoGroup rotation, locking the distortion bubble dead-center under the fingertip.
+    if (hasActivePointer && particles) {
+      raycaster.setFromCamera(pointer, camera);
+
+      const normal = new THREE.Vector3(0, 0, 1).applyQuaternion(logoGroup.quaternion);
+      const logoPlane = new THREE.Plane().setFromNormalAndCoplanarPoint(normal, logoGroup.position);
+      const worldIntersect = new THREE.Vector3();
+
+      if (raycaster.ray.intersectPlane(logoPlane, worldIntersect)) {
+        cursorLight.position.set(worldIntersect.x, worldIntersect.y, worldIntersect.z + 0.5);
+        cursorLight.distance = Math.max(currentDispersalRadius * (isMobile ? 2.5 : 4.5), 2.5);
+
+        // Convert world hit point directly into local coordinates of particles
+        const localMouse = worldIntersect.clone();
+        particles.worldToLocal(localMouse);
+        mouse3D.copy(localMouse);
+      }
+    } else {
+      mouse3D.set(9999, 9999, 9999);
+    }
+
+    // Particle dispersal & smooth restorative lerp
     if (particles && particles.visible && positionAttribute) {
-      const mx = mouse3D.x, my = mouse3D.y, mz = mouse3D.z;
+      const mx = mouse3D.x;
+      const my = mouse3D.y;
+      const mz = mouse3D.z;
+      const r = currentDispersalRadius;
+      const rSq = dynamicRadiusSq;
+      const activeReturnLerp = isMobile ? 0.12 : returnLerp;
+      const pushBase = isMobile ? 0.16 : 0.12;
+      const pushMultiplier = isMobile ? 0.14 : 0.10;
+      let hasChanges = false;
 
       for (let i = 0; i < particleCount; i++) {
         const idx = i * 3;
@@ -568,23 +666,45 @@ export function init3DLogo(options = {}) {
         const py = currentPositions[idx + 1];
         const pz = currentPositions[idx + 2];
 
-        const dx = px - mx, dy = py - my, dz = pz - mz;
-        const distSq = dx * dx + dy * dy + dz * dz;
+        const ox = originalPositions[idx];
+        const oy = originalPositions[idx + 1];
+        const oz = originalPositions[idx + 2];
 
-        if (distSq < dynamicRadiusSq && distSq > 0.00001) {
-          const dist = Math.sqrt(distSq);
-          const force = (currentDispersalRadius - dist) / currentDispersalRadius;
-          const push = force * (0.12 + (currentDispersalRadius / maxDispersalRadius) * 0.10);
-          currentPositions[idx] += (dx / dist) * push;
-          currentPositions[idx + 1] += (dy / dist) * push;
-          currentPositions[idx + 2] += (dz / dist) * push;
-        } else {
-          currentPositions[idx] += (originalPositions[idx] - px) * returnLerp;
-          currentPositions[idx + 1] += (originalPositions[idx + 1] - py) * returnLerp;
-          currentPositions[idx + 2] += (originalPositions[idx + 2] - pz) * returnLerp;
+        const dx = px - mx;
+        const dy = py - my;
+
+        // Fast bounding-box rejection: skips 90%+ calculations before 3D hypotenuse
+        if (Math.abs(dx) < r && Math.abs(dy) < r) {
+          const dz = pz - mz;
+          const distSq = dx * dx + dy * dy + dz * dz;
+
+          if (distSq < rSq && distSq > 0.00001) {
+            const dist = Math.sqrt(distSq);
+            const force = (r - dist) / r;
+            const push = force * (pushBase + (r / maxDispersalRadius) * pushMultiplier);
+            currentPositions[idx] += (dx / dist) * push;
+            currentPositions[idx + 1] += (dy / dist) * push;
+            currentPositions[idx + 2] += (dz / dist) * push;
+            hasChanges = true;
+            continue;
+          }
+        }
+
+        // Smooth restorative lerp back to resting lattice
+        const diffX = ox - px;
+        const diffY = oy - py;
+        const diffZ = oz - pz;
+        if (Math.abs(diffX) > 0.001 || Math.abs(diffY) > 0.001 || Math.abs(diffZ) > 0.001) {
+          currentPositions[idx] += diffX * activeReturnLerp;
+          currentPositions[idx + 1] += diffY * activeReturnLerp;
+          currentPositions[idx + 2] += diffZ * activeReturnLerp;
+          hasChanges = true;
         }
       }
-      positionAttribute.needsUpdate = true;
+
+      if (hasChanges) {
+        positionAttribute.needsUpdate = true;
+      }
     }
 
     renderer.render(scene, camera);
@@ -603,6 +723,7 @@ export function init3DLogo(options = {}) {
     camera.aspect = w / h;
     camera.updateProjectionMatrix();
     renderer.setSize(w, h);
+    updateRect();
     if (widthChanged && window.ScrollTrigger) {
       window.ScrollTrigger.refresh();
     }
@@ -616,6 +737,7 @@ export function init3DLogo(options = {}) {
         themeObserver.disconnect();
       }
       window.removeEventListener('resize', onResize);
+      window.removeEventListener('scroll', updateRect);
       window.removeEventListener('pointermove', onPointerMove);
       window.removeEventListener('touchstart', onTouchStart);
       window.removeEventListener('touchmove', onTouchMove);

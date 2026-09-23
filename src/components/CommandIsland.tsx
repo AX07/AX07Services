@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { motion } from 'motion/react';
+import { motion, AnimatePresence } from 'motion/react';
 import { ArrowUpRight, Sparkles, Sun, Moon, Globe, MapPin } from 'lucide-react';
 import { appleGestures, appleSprings } from '../lib/design-system';
 import { useApp } from '../context/ThemeLanguageContext';
@@ -16,6 +16,16 @@ export interface CommandIslandProps {
 export function CommandIsland({ countryContent, onSelectCountry, activePage = 'home' }: CommandIslandProps = {}) {
   const { lang, setLang, theme, toggleTheme, t } = useApp();
   const [activeSection, setActiveSection] = useState<string>(activePage);
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 40);
+    };
+    handleScroll();
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const currentCountry = countryContent?.countrySlug || 'ie';
   const whatsappNumber = countryContent?.whatsappNumber || (lang === 'pt' ? '351912345678' : '353871234567');
@@ -121,13 +131,16 @@ export function CommandIsland({ countryContent, onSelectCountry, activePage = 'h
 
   return (
     <header className="fixed top-5 left-1/2 -translate-x-1/2 z-50 pointer-events-none select-none w-max max-w-[96vw]">
-      <motion.div
-        initial={{ y: -24, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={appleSprings.default}
-        className="pointer-events-auto bg-white/80 dark:bg-zinc-900/85 backdrop-blur-2xl border border-zinc-200/80 dark:border-white/10 px-2.5 sm:px-4 py-2 rounded-full shadow-xl dark:shadow-2xl flex items-center gap-1.5 sm:gap-2.5 transition-colors duration-300"
-      >
-        {/* Brand Anchor */}
+      <AnimatePresence>
+        {isScrolled && (
+          <motion.div
+            initial={{ y: -32, opacity: 0, scale: 0.95 }}
+            animate={{ y: 0, opacity: 1, scale: 1 }}
+            exit={{ y: -32, opacity: 0, scale: 0.95 }}
+            transition={{ type: 'spring', stiffness: 280, damping: 26 }}
+            className="pointer-events-auto bg-white/80 dark:bg-zinc-900/85 backdrop-blur-2xl border border-zinc-200/80 dark:border-white/10 px-2.5 sm:px-4 py-2 rounded-full shadow-xl dark:shadow-2xl flex items-center gap-1.5 sm:gap-2.5 transition-colors duration-300"
+          >
+            {/* Brand Anchor */}
         <button
           type="button"
           onClick={handleBrandClick}
@@ -266,6 +279,8 @@ export function CommandIsland({ countryContent, onSelectCountry, activePage = 'h
           <ArrowUpRight className="w-3 h-3" />
         </a>
       </motion.div>
-    </header>
+    )}
+  </AnimatePresence>
+</header>
   );
 }

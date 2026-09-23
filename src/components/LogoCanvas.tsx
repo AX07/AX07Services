@@ -17,7 +17,7 @@ export interface LogoCanvasProps {
 export const LogoCanvas: React.FC<LogoCanvasProps> = ({
   modelUrl = '/logo.glb',
   scrollWrapperId,
-  defaultMode = 'hybrid',
+  defaultMode = 'particles',
   showControls = true,
   showHint = true,
   autoRotate,
@@ -29,6 +29,16 @@ export const LogoCanvas: React.FC<LogoCanvasProps> = ({
   const controllerRef = useRef<ReturnType<typeof init3DLogo> | null>(null);
   const [mode, setMode] = useState<'hybrid' | 'particles' | 'mesh'>(defaultMode);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 40);
+    };
+    handleScroll();
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -95,7 +105,9 @@ export const LogoCanvas: React.FC<LogoCanvasProps> = ({
 
       {/* Floating Interactive 3D Mode Switcher (Bottom Right of Canvas) */}
       {showControls && isLoaded && (
-        <div className="flex absolute bottom-5 right-4 sm:bottom-8 sm:right-8 z-40 items-center gap-1 sm:gap-1.5 p-1 sm:p-1.5 rounded-full border border-zinc-200/80 dark:border-white/10 bg-white/90 dark:bg-zinc-900/90 backdrop-blur-2xl shadow-xl dark:shadow-2xl pointer-events-auto transition-colors duration-300">
+        <div className={`flex absolute bottom-5 right-4 sm:bottom-8 sm:right-8 z-40 items-center gap-1 sm:gap-1.5 p-1 sm:p-1.5 rounded-full border border-zinc-200/80 dark:border-white/10 bg-white/90 dark:bg-zinc-900/90 backdrop-blur-2xl shadow-xl dark:shadow-2xl transition-all duration-300 ${
+          isScrolled ? 'opacity-100 translate-y-0 pointer-events-auto' : 'opacity-0 translate-y-4 pointer-events-none'
+        }`}>
           <button
             type="button"
             id="mode-btn-hybrid"
