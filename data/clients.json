@@ -1,0 +1,38 @@
+[
+  {
+    "slug": "8to8dental",
+    "name": "8to8 Dental Balbriggan",
+    "stagingUrl": "https://8to8dental-demo.vercel.app",
+    "bookingUrl": "https://booking.uk.hsone.app/soe/new/%20?pid=UKBBC01",
+    "whatsappNumber": "+353871234567",
+    "marketTier": "Ireland (€1,800)",
+    "createdAt": "2026-09-25T10:00:00.000Z"
+  },
+  {
+    "slug": "ocean-charters",
+    "name": "Ocean Charters Luxury Marine",
+    "stagingUrl": "https://ocean-charters.vercel.app",
+    "bookingUrl": "https://wa.me/351912345678?text=Luxury%20Catamaran%20Charter%20Booking",
+    "whatsappNumber": "+351912345678",
+    "marketTier": "Algarve (€500)",
+    "createdAt": "2026-09-24T14:30:00.000Z"
+  },
+  {
+    "slug": "flyfoil",
+    "name": "FlyFoil Formosa",
+    "stagingUrl": "https://flyfoil-formosa.vercel.app",
+    "bookingUrl": "https://wa.me/351912345678?text=Book%20eFoil%20Session",
+    "whatsappNumber": "+351912345678",
+    "marketTier": "Algarve (€500)",
+    "createdAt": "2026-09-23T09:15:00.000Z"
+  },
+  {
+    "slug": "altura-kites",
+    "name": "Altura Kitesurf Academy",
+    "stagingUrl": "https://altura-kites.vercel.app",
+    "bookingUrl": "https://wa.me/351912345678?text=Kitesurf%20Course%20Reservation",
+    "whatsappNumber": "+351912345678",
+    "marketTier": "Algarve (€500)",
+    "createdAt": "2026-09-22T16:45:00.000Z"
+  }
+]

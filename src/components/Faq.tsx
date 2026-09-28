@@ -13,7 +13,11 @@ export function Faq() {
   };
 
   return (
-    <section id="faq" className="py-24 sm:py-32 px-4 sm:px-6 bg-zinc-50 dark:bg-zinc-950 border-t border-zinc-200 dark:border-white/10 relative z-20 transition-colors duration-300">
+    <section 
+      id="faq" 
+      className="py-24 sm:py-32 px-4 sm:px-6 bg-zinc-50 dark:bg-zinc-950 border-t border-zinc-200 dark:border-white/10 relative z-20 transition-colors duration-300"
+      style={{ contentVisibility: 'auto', containIntrinsicSize: '800px' }}
+    >
       <div className="max-w-4xl mx-auto">
         
         {/* Section Header */}
@@ -31,14 +35,14 @@ export function Faq() {
         </div>
 
         {/* Interactive Accordion in Squircle Container */}
-        <div className="rounded-[32px] border border-zinc-200 dark:border-white/10 bg-white/80 dark:bg-white/[0.04] backdrop-blur-xl p-4 sm:p-6 shadow-2xl space-y-3">
+        <div className="rounded-[32px] border border-zinc-200 dark:border-white/10 bg-white/95 dark:bg-zinc-900/90 sm:dark:bg-white/[0.04] backdrop-blur-md sm:backdrop-blur-xl p-4 sm:p-6 shadow-2xl space-y-3">
           {(t.faq?.items || []).map((faq, index) => {
             const isOpen = openIndex === index;
 
             return (
               <div
                 key={faq.id}
-                className={`rounded-[24px] border transition-all duration-300 backdrop-blur-md overflow-hidden ${
+                className={`rounded-[24px] border transition-all duration-300 backdrop-blur-none sm:backdrop-blur-md overflow-hidden ${
                   isOpen
                     ? 'border-emerald-500/30 bg-zinc-50/90 dark:bg-white/[0.04] shadow-lg ring-1 ring-emerald-500/20'
                     : 'border-zinc-200/80 dark:border-white/5 bg-white/50 dark:bg-white/[0.02] hover:border-zinc-300 dark:hover:border-white/15 hover:bg-white/80 dark:hover:bg-white/[0.03]'
@@ -97,7 +101,7 @@ export function Faq() {
         </div>
 
         {/* Objection Crushing Bottom Card */}
-        <div className="mt-10 p-6 sm:p-8 rounded-[28px] border border-zinc-200 dark:border-white/10 bg-white/80 dark:bg-white/[0.04] backdrop-blur-xl shadow-xl flex flex-col sm:flex-row items-center justify-between gap-6 text-center sm:text-left">
+        <div className="mt-10 p-6 sm:p-8 rounded-[28px] border border-zinc-200 dark:border-white/10 bg-white/95 dark:bg-zinc-900/90 sm:dark:bg-white/[0.04] backdrop-blur-md sm:backdrop-blur-xl shadow-xl flex flex-col sm:flex-row items-center justify-between gap-6 text-center sm:text-left">
           <div>
             <h4 className="text-base font-bold text-zinc-900 dark:text-white font-display tracking-tight">{t.faq.bottomCardTitle}</h4>
             <p className="text-xs sm:text-sm text-zinc-600 dark:text-white/60 mt-1 font-sans">{t.faq.bottomCardSubtitle}</p>

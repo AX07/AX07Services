@@ -135,6 +135,20 @@ export function Dock() {
                   ? t.dock.aiDesc 
                   : t.dock.magicDesc}
               </p>
+              {activeTab === 'magic' && (
+                <a
+                  href="/admin"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    window.history.pushState({}, '', '/admin');
+                    window.dispatchEvent(new PopStateEvent('popstate'));
+                    setActiveTab('none');
+                  }}
+                  className="inline-flex items-center gap-1 text-[11px] font-mono text-emerald-600 dark:text-emerald-400 hover:underline mt-2 font-semibold"
+                >
+                  <span>Open Full Admin Manager (/admin) →</span>
+                </a>
+              )}
             </div>
 
             <form onSubmit={activeTab === 'ai' ? handleAiSubmit : handleMagicSubmit} className="flex gap-2.5 mb-4">

@@ -43,30 +43,38 @@ export function CommandIsland({ countryContent, onSelectCountry, activePage = 'h
       return;
     }
 
+    let rAF = 0;
     const handleScroll = () => {
-      const scrollPos = window.scrollY + 250;
-      const sectionIds = ['project-showcase', 'process', 'pricing', 'faq'];
-      for (const sid of sectionIds) {
-        const el = document.getElementById(sid);
-        if (el) {
-          const top = el.offsetTop;
-          const height = el.offsetHeight;
-          if (scrollPos >= top && scrollPos < top + height) {
-            if (sid === 'project-showcase') {
-              setActiveSection('work');
-            } else if (sid === 'process') {
-              setActiveSection('process');
-            } else if (sid === 'pricing') {
-              setActiveSection('pricing');
+      if (rAF) return;
+      rAF = requestAnimationFrame(() => {
+        rAF = 0;
+        const scrollPos = window.scrollY + 250;
+        const sectionIds = ['project-showcase', 'process', 'pricing', 'faq'];
+        for (const sid of sectionIds) {
+          const el = document.getElementById(sid);
+          if (el) {
+            const top = el.offsetTop;
+            const height = el.offsetHeight;
+            if (scrollPos >= top && scrollPos < top + height) {
+              if (sid === 'project-showcase') {
+                setActiveSection('work');
+              } else if (sid === 'process') {
+                setActiveSection('process');
+              } else if (sid === 'pricing') {
+                setActiveSection('pricing');
+              }
+              break;
             }
-            break;
           }
         }
-      }
+      });
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
+    return () => {
+      cancelAnimationFrame(rAF);
+      window.removeEventListener('scroll', handleScroll);
+    };
   }, [t, activePage]);
 
   const navigateTo = (targetPath: string) => {

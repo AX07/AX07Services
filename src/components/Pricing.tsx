@@ -11,6 +11,13 @@ export interface PricingProps {
 
 export function Pricing({ countryContent }: PricingProps = {}) {
   const { t, lang } = useApp();
+  const [canHover, setCanHover] = React.useState(false);
+
+  React.useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setCanHover(window.matchMedia('(hover: hover) and (pointer: fine)').matches);
+    }
+  }, []);
 
   const pricingUpfront = countryContent?.pricingUpfront || '€500';
   const pricingRetainer = countryContent?.pricingRetainer || '€25/mo';
@@ -34,7 +41,11 @@ export function Pricing({ countryContent }: PricingProps = {}) {
   const reassurance = t.pricing?.reassurance || fallbackReassurance;
 
   return (
-    <section id="pricing" className="py-24 sm:py-32 px-4 sm:px-6 border-t border-zinc-200 dark:border-white/10 relative z-20 bg-zinc-50 dark:bg-zinc-950 transition-colors duration-300">
+    <section 
+      id="pricing" 
+      className="py-24 sm:py-32 px-4 sm:px-6 border-t border-zinc-200 dark:border-white/10 relative z-20 bg-zinc-50 dark:bg-zinc-950 transition-colors duration-300"
+      style={{ contentVisibility: 'auto', containIntrinsicSize: '900px' }}
+    >
       <div className="max-w-6xl mx-auto">
         
         {/* Section Header */}
@@ -56,8 +67,8 @@ export function Pricing({ countryContent }: PricingProps = {}) {
           
           {/* Main Hero Tier: The €500 + €20/mo Signature Package (Span 7) */}
           <motion.div 
-            whileHover={appleGestures.cardHover}
-            className="lg:col-span-7 relative rounded-[32px] p-8 sm:p-10 border border-emerald-500/40 bg-white/90 dark:bg-white/[0.04] backdrop-blur-xl shadow-2xl flex flex-col justify-between"
+            whileHover={canHover ? appleGestures.cardHover : undefined}
+            className="lg:col-span-7 relative rounded-[32px] p-8 sm:p-10 border border-emerald-500/40 bg-white/95 dark:bg-zinc-900/90 sm:dark:bg-white/[0.04] backdrop-blur-md sm:backdrop-blur-xl shadow-2xl flex flex-col justify-between"
           >
             {/* Top Ribbon */}
             <div className="flex items-center justify-between mb-6">
@@ -139,8 +150,8 @@ export function Pricing({ countryContent }: PricingProps = {}) {
 
           {/* Secondary Plan: Growth & AI Automation (Span 5) */}
           <motion.div 
-            whileHover={appleGestures.cardHover}
-            className="lg:col-span-5 relative rounded-[32px] p-8 sm:p-10 border border-zinc-200 dark:border-white/10 bg-white/80 dark:bg-white/[0.04] backdrop-blur-xl shadow-2xl flex flex-col justify-between"
+            whileHover={canHover ? appleGestures.cardHover : undefined}
+            className="lg:col-span-5 relative rounded-[32px] p-8 sm:p-10 border border-zinc-200 dark:border-white/10 bg-white/95 dark:bg-zinc-900/90 sm:dark:bg-white/[0.04] backdrop-blur-md sm:backdrop-blur-xl shadow-2xl flex flex-col justify-between"
           >
             <div>
               <div className="flex items-center justify-between mb-6">
@@ -162,7 +173,7 @@ export function Pricing({ countryContent }: PricingProps = {}) {
               {/* Price Box */}
               <div className="p-6 rounded-[24px] bg-zinc-100 dark:bg-zinc-900/80 border border-zinc-200 dark:border-white/10 mb-8 backdrop-blur-md">
                 <div className="flex items-baseline justify-between pb-3 border-b border-zinc-200 dark:border-white/10">
-                  <span className="text-3xl font-display font-bold text-zinc-900 dark:text-white tracking-tight">€1,200</span>
+                  <span className="text-3xl font-display font-bold text-zinc-900 dark:text-white tracking-tight">€2,400</span>
                   <span className="text-xs font-mono text-zinc-500 dark:text-white/60">{t.pricing.growth.oneTime}</span>
                 </div>
                 <div className="flex items-center justify-between pt-3">
@@ -199,7 +210,7 @@ export function Pricing({ countryContent }: PricingProps = {}) {
         </div>
 
         {/* The Zero-Risk Reassurance & Direct Delivery Bar */}
-        <div className="mt-12 max-w-5xl mx-auto rounded-[32px] border border-zinc-200 dark:border-white/10 bg-white/80 dark:bg-white/[0.04] backdrop-blur-xl p-8 sm:p-10 shadow-2xl">
+        <div className="mt-12 max-w-5xl mx-auto rounded-[32px] border border-zinc-200 dark:border-white/10 bg-white/95 dark:bg-zinc-900/90 sm:dark:bg-white/[0.04] backdrop-blur-md sm:backdrop-blur-xl p-8 sm:p-10 shadow-2xl">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 divide-y md:divide-y-0 md:divide-x divide-zinc-200 dark:divide-white/10">
             
             {/* 1. Zero-Risk Guarantee */}

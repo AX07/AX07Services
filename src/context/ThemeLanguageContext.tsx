@@ -461,7 +461,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
       tag: 'CLARITY & ASSURANCE',
       title: 'Frequently Asked Questions.',
       subtitle:
-        'Everything you need to know about our 48-hour 3D spec build, ownership rights, and the €500 + €20/month model.',
+        'Everything you need to know about our 48-hour 3D spec build, ownership rights, and the €75/month maintenance model.',
       items: [
         {
           id: 'faq-1',
@@ -475,7 +475,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
           id: 'faq-2',
           num: '02',
           tag: 'Maintenance & Edge Ops',
-          question: 'What is included in the €20/month fee?',
+          question: 'What is included in the €75/month fee?',
           answer:
             'Our monthly subscription covers high-speed Vercel global edge hosting, automatic SSL security certificates, 24/7 uptime monitoring, and ongoing content updates (such as updating seasonal prices, swapping menu items, or adding new photos whenever you need).',
         },
@@ -812,7 +812,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
       tag: 'CLAREZA E CONFIANÇA',
       title: 'Perguntas Frequentes.',
       subtitle:
-        'Tudo o que precisa de saber sobre a amostra 3D em 48 horas, direitos de autor e o modelo de €500 + €20/mês.',
+        'Tudo o que precisa de saber sobre a amostra 3D em 48 horas, direitos de autor e o modelo de manutenção de €75/mês.',
       items: [
         {
           id: 'faq-1',
@@ -826,7 +826,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
           id: 'faq-2',
           num: '02',
           tag: 'Manutenção & Edge',
-          question: 'O que está incluído na mensalidade de €20/mês?',
+          question: 'O que está incluído na mensalidade de €75/mês?',
           answer:
             'A nossa subscrição mensal cobre alojamento global de alta velocidade na Vercel Edge, certificados SSL automáticos, monitorização 24/7 e alterações de conteúdos (como atualizar preços de época, trocar itens do menu ou adicionar novas fotografias).',
         },

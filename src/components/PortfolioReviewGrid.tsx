@@ -42,9 +42,19 @@ export function PortfolioReviewGrid() {
   const [activeIndex, setActiveIndex] = useState(0);
   const [direction, setDirection] = useState<number>(1); // 1 = down, -1 = up
   const [selectedProject, setSelectedProject] = useState<PortfolioProject | null>(null);
+  const [isMobileScreen, setIsMobileScreen] = useState(false);
   
   const containerRef = useRef<HTMLDivElement>(null);
   const prevIndexRef = useRef<number>(0);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobileScreen(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile, { passive: true });
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   // Combine translated text with project imagery
   const projects: PortfolioProject[] = (t.portfolio?.projects || []).map((p) => ({
@@ -61,8 +71,8 @@ export function PortfolioReviewGrid() {
 
   // =========================================================================
   // SCROLL-DRIVEN STICKY PIN TRACKING
-  // Responsive track depth: 220vh (~24vh scroll per card) so each project card
-  // passes briskly and sooner without requiring excessive scroll effort.
+  // Calibrated track depth: 800vh (700vh scroll travel across 5 projects = 140vh per card)
+  // Each project card requires precisely two deliberate scrolls / two swipes to advance.
   // =========================================================================
   const { scrollYProgress } = useScroll({
     target: containerRef,
@@ -205,12 +215,12 @@ export function PortfolioReviewGrid() {
     <section
       id="project-showcase"
       ref={containerRef}
-      className="relative w-full h-[220vh] bg-zinc-950 text-white select-none z-20"
+      className="relative w-full h-[800vh] bg-zinc-950 text-white select-none z-20"
     >
       {/* ========================================================================= */}
       {/* STICKY VIEWPORT CONTAINER                                                  */}
-      {/* Stays pinned to 100vh during the responsive 220vh scroll depth.            */}
-      {/* The section does not move; instead, the projects pass by as you scroll!    */}
+      {/* Stays pinned to 100vh during the calibrated 800vh scroll depth.            */}
+      {/* 700vh scroll travel / 5 projects = 140vh per card (2 deliberate scrolls).  */}
       {/* ========================================================================= */}
       <div className="sticky top-0 w-full h-screen h-[100dvh] overflow-hidden bg-zinc-950 text-white flex flex-col justify-between">
         
@@ -224,9 +234,9 @@ export function PortfolioReviewGrid() {
 
         {/* Dynamic Background Media Layer */}
         <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
-          <AnimatePresence custom={direction} mode="wait">
-            {isLastProject ? (
-              /* Project 5: Interactive 3D WebGL Canvas in Background */
+          <AnimatePresence custom={direction} mode="popLayout">
+            {isLastProject && !isMobileScreen ? (
+              /* Project 5 Desktop: Interactive 3D WebGL Canvas in Background */
               <motion.div
                 key="cryptoax07-3d-bg"
                 custom={direction}
@@ -257,7 +267,7 @@ export function PortfolioReviewGrid() {
                 />
               </motion.div>
             ) : (
-              /* Projects 1-4: High-Resolution Edge Media */
+              /* Projects 1-4 (and Project 5 on mobile): High-Resolution Edge Media */
               <motion.div
                 key={currentProject.id}
                 custom={direction}
@@ -272,6 +282,12 @@ export function PortfolioReviewGrid() {
                   alt={currentProject.title}
                   className="w-full h-full object-cover brightness-[0.45] contrast-[1.15]"
                 />
+                {isLastProject && (
+                  <div
+                    aria-hidden="true"
+                    className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90vw] max-w-[500px] h-[350px] bg-gradient-to-r from-blue-500/20 to-emerald-500/20 blur-[100px] rounded-full pointer-events-none z-10"
+                  />
+                )}
               </motion.div>
             )}
           </AnimatePresence>

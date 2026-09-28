@@ -41,7 +41,10 @@ export function BrandTicker() {
 
       {/* Sliding Marquee Track */}
       <div className="relative flex overflow-hidden select-none">
-        <div className="animate-marquee flex items-center gap-8 sm:gap-12">
+        <div 
+          className="animate-marquee flex items-center gap-8 sm:gap-12"
+          style={{ animationPlayState: 'running' }}
+        >
           {/* Double list for seamless 100% to -50% loop */}
           {[...tickerItems, ...tickerItems].map((item, index) => (
             <div

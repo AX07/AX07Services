@@ -594,10 +594,16 @@ export function init3DLogo(options = {}) {
     onLoad({ meshAsset, particles, logoGroup, camera, scene });
   });
 
-  // 8. Physics & Render Loop
+  // 8. Physics & Render Loop with Viewport Visibility Observer (Saves mobile GPU & CPU when offscreen)
   let animId = null;
+  let isVisible = true;
+  let isDestroyed = false;
 
   function animate() {
+    if (isDestroyed || !isVisible) {
+      animId = null;
+      return;
+    }
     animId = requestAnimationFrame(animate);
 
     // Decay target radius back to small cursor size if stationary
@@ -712,6 +718,33 @@ export function init3DLogo(options = {}) {
 
   animate();
 
+  // Viewport IntersectionObserver to pause Three.js render loop when offscreen
+  let visibilityObserver = null;
+  if (typeof IntersectionObserver !== 'undefined') {
+    try {
+      visibilityObserver = new IntersectionObserver(
+        (entries) => {
+          const entry = entries[0];
+          const nowVisible = entry ? entry.isIntersecting : true;
+          if (nowVisible !== isVisible) {
+            isVisible = nowVisible;
+            if (isVisible && !animId && !isDestroyed) {
+              animId = requestAnimationFrame(animate);
+            }
+          }
+        },
+        {
+          rootMargin: '150px 0px 150px 0px',
+          threshold: 0,
+        }
+      );
+      visibilityObserver.observe(container);
+    } catch (e) {
+      // Fallback: stay visible if IntersectionObserver fails
+      isVisible = true;
+    }
+  }
+
   // Resize handler: ignore vertical address-bar jitter on mobile
   let lastResizeWidth = typeof window !== 'undefined' ? window.innerWidth : 0;
   function onResize() {
@@ -732,7 +765,15 @@ export function init3DLogo(options = {}) {
 
   return {
     destroy: () => {
-      cancelAnimationFrame(animId);
+      isDestroyed = true;
+      if (visibilityObserver) {
+        visibilityObserver.disconnect();
+        visibilityObserver = null;
+      }
+      if (animId) {
+        cancelAnimationFrame(animId);
+        animId = null;
+      }
       if (themeObserver) {
         themeObserver.disconnect();
       }

@@ -75,13 +75,14 @@ h1, h2, h3, h4, h5, h6 {
   }
 }
 
-.animate-marquee {
+.animate-marquee,
+.animate-marquee:hover,
+.animate-marquee:active,
+.animate-marquee:focus,
+.animate-marquee:focus-within {
   display: flex;
   width: max-content;
   animation: marquee 28s linear infinite;
-}
-
-.animate-marquee:hover {
-  animation-play-state: paused;
+  animation-play-state: running !important;
 }
 
