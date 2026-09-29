@@ -249,7 +249,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
           stepLabel: 'Step 01 // The Build',
           title: 'We Build Before You Pay',
           shortTitle: '01 Build Spec',
-          desc: 'We extract your brand assets, Google Business profile, and customer reviews to craft an interactive 3D WebGL website prototype tailored to your Algarve business.',
+          desc: 'We extract your brand assets, Google Business profile, and customer reviews to craft an interactive 3D WebGL website prototype tailored to your business.',
           badge: '48H Turnaround',
           timeline: 'Hours 0 – 48',
           highlights: [
@@ -307,7 +307,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
           statLabel: 'Direct Bookings',
           verifiedBadge: 'VERIFIED RESULT: +40% Direct Bookings',
           metadataLabel: 'Cabanas de Tavira, Portugal · High-Motion E-Foil Spec',
-          link: 'https://ax07services.com/preview/flyfoil',
+          link: 'https://flyfoilformosa.com/',
           review: {
             quote:
               'Direct WhatsApp bookings increased by +40% in our first month. The 3D board visualizer lets clients inspect our hydrofoil gear before booking.',
@@ -326,7 +326,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
           statLabel: 'Tourist Rentals',
           verifiedBadge: 'VERIFIED RESULT: 65+ Direct Tourist Bookings',
           metadataLabel: 'Altura Beach, Algarve · 0.6s Edge Load & Live Wind API',
-          link: 'https://ax07services.com/preview/altura',
+          link: 'https://altura-kite-school.vercel.app/',
           review: {
             quote:
               'During peak wind season, over 65 tourist rentals were secured directly through the 1-click WhatsApp funnel. Loads in 0.6s and looks like a €10,000 build.',
@@ -345,7 +345,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
           statLabel: 'Direct Bookings',
           verifiedBadge: 'VERIFIED RESULT: 3.2x Direct Bookings',
           metadataLabel: 'Tavira Historic Center · Kinetic Table Atmosphere',
-          link: 'https://ax07services.com/preview/lakafeteria',
+          link: 'https://ax07.dev/preview/lakafeteria',
           review: {
             quote:
               'Our daily table reservations jumped 3.2x. Guests love previewing our brunch space in kinetic 3D right on their iPhones. Zero deposit risk.',
@@ -364,7 +364,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
           statLabel: 'Direct Sales',
           verifiedBadge: 'VERIFIED RESULT: €4.2K First 14-Day Sales',
           metadataLabel: 'Tirana & Riviera · 3D Topographical Expedition Explorer',
-          link: 'https://ax07services.com/preview/albania',
+          link: 'https://albania-facil.vercel.app/',
           review: {
             quote:
               'Over €4,200 in private group expeditions were closed via WhatsApp within two weeks of launch. The smooth 3D route previews gave our brand instant authority.',
@@ -383,7 +383,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
           statLabel: 'Simulations Run',
           verifiedBadge: 'VERIFIED RESULT: 100K+ Edge Stress-Test Simulations',
           metadataLabel: 'AX07 Labs Core · Real-Time Kinetic Market Topologies',
-          link: 'https://ax07services.com/preview/cryptoax07',
+          link: 'https://cryptoax07.com/',
           review: {
             quote:
               'Proprietary in-house algorithmic engine with kinetic WebGL 3D asset topologies and sub-second edge telemetry. 100K+ live simulation cycles stress-tested.',
@@ -400,7 +400,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
         'Zero upfront cost. You only pay after you hold the working 3D site on your phone and decide to launch.',
       signature: {
         badge: 'SIGNATURE SPEC // 48-HOUR LAUNCH',
-        subBadge: 'Most Popular for Algarve Businesses',
+        subBadge: 'Most Popular for Irish Businesses',
         title: 'High-Motion 3D Web Spec',
         desc: 'Complete bespoke 3D WebGL website tailored to your business, optimized for instant mobile booking conversions.',
         oneTime: 'One-time build fee (paid AFTER approval)',
@@ -424,7 +424,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
         title: 'Multi-Service & AI Booking Suite',
         desc: 'For rental fleets, boutique hotels, or multi-location venues needing custom automation and multi-language funnels.',
         oneTime: 'One-time build fee',
-        perMonth: '+ €45/mo priority edge ops',
+        perMonth: '+ €75/mo priority edge ops',
         features: [
           'Multiple 3D Interactive Asset Viewers (e.g. board models, villas)',
           'Bilingual (EN / PT / ES / FR) Conversion Routing',
@@ -461,7 +461,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
       tag: 'CLARITY & ASSURANCE',
       title: 'Frequently Asked Questions.',
       subtitle:
-        'Everything you need to know about our 48-hour 3D spec build, ownership rights, and the €75/month maintenance model.',
+        'Everything you need to know about our 48-hour 3D spec build, ownership rights, and the €45/month maintenance model.',
       items: [
         {
           id: 'faq-1',
@@ -475,9 +475,9 @@ const TRANSLATIONS: Record<Language, Translations> = {
           id: 'faq-2',
           num: '02',
           tag: 'Maintenance & Edge Ops',
-          question: 'What is included in the €75/month fee?',
+          question: 'What is included in the €45/month fee (and €75/mo Growth tier)?',
           answer:
-            'Our monthly subscription covers high-speed Vercel global edge hosting, automatic SSL security certificates, 24/7 uptime monitoring, and ongoing content updates (such as updating seasonal prices, swapping menu items, or adding new photos whenever you need).',
+            'Our monthly subscription (€45/mo for Signature, €75/mo for Growth & AI Suite) covers high-speed Vercel global edge hosting, automatic SSL security certificates, 24/7 uptime monitoring, and ongoing content updates (such as updating seasonal prices, swapping menu items, or adding new photos whenever you need).',
         },
         {
           id: 'faq-3',
@@ -532,7 +532,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
       aiTitle: 'AI Inspiration Search',
       magicTitle: 'Client Magic Link Generator',
       aiDesc: 'Input a business niche or competitor to pull high-converting motion benchmarks.',
-      magicDesc: 'Input Vercel URL to generate a live ax07services.com/preview staging iframe.',
+      magicDesc: 'Input Vercel URL to generate a live ax07.dev/preview staging iframe.',
       aiPlaceholder: "e.g., 'Luxury Kitesurf School'...",
       magicPlaceholder: 'https://project-id.vercel.app',
       execute: 'Execute',
@@ -658,7 +658,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
           statLabel: 'Reservas Diretas',
           verifiedBadge: 'RESULTADO COMPROVADO: +40% Reservas Diretas',
           metadataLabel: 'Cabanas de Tavira, Portugal · Especificação E-Foil 3D',
-          link: 'https://ax07services.com/preview/flyfoil',
+          link: 'https://flyfoilformosa.com/',
           review: {
             quote:
               'As reservas diretas por WhatsApp aumentaram +40% logo no primeiro mês. O visualizador 3D permite que os clientes inspecionem as pranchas antes de reservar.',
@@ -677,7 +677,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
           statLabel: 'Alugueres a Turistas',
           verifiedBadge: 'RESULTADO COMPROVADO: 65+ Alugueres Diretos',
           metadataLabel: 'Praia de Altura, Algarve · Carregamento em 0,6s & API de Vento',
-          link: 'https://ax07services.com/preview/altura',
+          link: 'https://altura-kite-school.vercel.app/',
           review: {
             quote:
               'Durante o pico de vento, mais de 65 alugueres de turistas foram fechados diretamente pelo WhatsApp. Abre em 0,6s e parece um projeto de €10.000.',
@@ -696,7 +696,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
           statLabel: 'Reservas de Mesas',
           verifiedBadge: 'RESULTADO COMPROVADO: 3.2x Reservas Diretas',
           metadataLabel: 'Centro Histórico de Tavira · Atmosfera 3D de Brunch',
-          link: 'https://ax07services.com/preview/lakafeteria',
+          link: 'https://ax07.dev/preview/lakafeteria',
           review: {
             quote:
               'As nossas reservas diárias saltaram 3,2x. Os clientes adoram explorar o espaço em 3D interativo logo no telemóvel antes de nos visitar.',
@@ -715,7 +715,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
           statLabel: 'Vendas Diretas',
           verifiedBadge: 'RESULTADO COMPROVADO: €4.2K nas Primeiras 2 Semanas',
           metadataLabel: 'Tirana & Riviera · Explorador Topográfico 3D',
-          link: 'https://ax07services.com/preview/albania',
+          link: 'https://albania-facil.vercel.app/',
           review: {
             quote:
               'Fechámos mais de €4.200 em expedições privadas pelo WhatsApp em apenas 14 dias. A apresentação 3D das rotas transmitiu confiança imediata.',
@@ -734,7 +734,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
           statLabel: 'Simulações',
           verifiedBadge: 'RESULTADO COMPROVADO: 100K+ Simulações Edge',
           metadataLabel: 'AX07 Labs Core · Topologias Cinéticas de Mercado em Tempo Real',
-          link: 'https://ax07services.com/preview/cryptoax07',
+          link: 'https://cryptoax07.com/',
           review: {
             quote:
               'Motor algorítmico interno com topologias cinéticas WebGL 3D e telemetria edge em milissegundos. Mais de 100.000 ciclos de simulação stress-testados.',
@@ -812,7 +812,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
       tag: 'CLAREZA E CONFIANÇA',
       title: 'Perguntas Frequentes.',
       subtitle:
-        'Tudo o que precisa de saber sobre a amostra 3D em 48 horas, direitos de autor e o modelo de manutenção de €75/mês.',
+        'Tudo o que precisa de saber sobre a amostra 3D em 48 horas, direitos de autor e o modelo de manutenção desde €25/mês.',
       items: [
         {
           id: 'faq-1',
@@ -826,7 +826,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
           id: 'faq-2',
           num: '02',
           tag: 'Manutenção & Edge',
-          question: 'O que está incluído na mensalidade de €75/mês?',
+          question: 'O que está incluído na mensalidade (€25/mês a €75/mês)?',
           answer:
             'A nossa subscrição mensal cobre alojamento global de alta velocidade na Vercel Edge, certificados SSL automáticos, monitorização 24/7 e alterações de conteúdos (como atualizar preços de época, trocar itens do menu ou adicionar novas fotografias).',
         },
@@ -883,7 +883,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
       aiTitle: 'Pesquisa de Inspiração IA',
       magicTitle: 'Gerador de Links de Demonstração',
       aiDesc: 'Indique um setor de negócio ou concorrente para encontrar referências visuais de alta conversão.',
-      magicDesc: 'Insira o URL da Vercel para gerar uma janela de teste no ax07services.com/preview.',
+      magicDesc: 'Insira o URL da Vercel para gerar uma janela de teste no ax07.dev/preview.',
       aiPlaceholder: 'ex: "Escola de Kitesurf de Luxo"...',
       magicPlaceholder: 'https://projeto-id.vercel.app',
       execute: 'Executar',

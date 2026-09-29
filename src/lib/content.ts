@@ -24,7 +24,7 @@ export const countryDictionary: Record<CountryCode, CountryContent> = {
     currency: 'EUR',
     pricingUpfront: '€500',
     pricingRetainer: '€25/mo',
-    whatsappNumber: '351912345678',
+    whatsappNumber: '353894419127',
     heroSubtitle:
       'Visuais 3D interativos, performance edge abaixo de um segundo e sistemas de reserva direta por WhatsApp criados para donos de negócios.',
     badgeLocation: 'PORTUGAL · RISCO ZERO EM 48 HORAS',
@@ -38,8 +38,8 @@ export const countryDictionary: Record<CountryCode, CountryContent> = {
     flag: '🇮🇪',
     currency: 'EUR',
     pricingUpfront: '€1,800',
-    pricingRetainer: '€75/mo',
-    whatsappNumber: '353871234567',
+    pricingRetainer: '€45/mo',
+    whatsappNumber: '353894419127',
     heroSubtitle:
       'Interactive 3D visuals, sub-second edge performance, and direct 1-click WhatsApp booking systems crafted for Irish business owners.',
     badgeLocation: 'IRELAND & UK · ZERO DEPOSIT RISK',

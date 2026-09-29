@@ -13,7 +13,7 @@ export interface CtaBannerProps {
 export function CtaBanner({ countryContent }: CtaBannerProps = {}) {
   const { t, lang } = useApp();
   const [businessInput, setBusinessInput] = useState('');
-  const whatsappNumber = countryContent?.whatsappNumber || '351912345678';
+  const whatsappNumber = countryContent?.whatsappNumber || '353894419127';
 
   const badges = t.cta?.badges || {
     riskFree: '100% Risk-Free Staging',

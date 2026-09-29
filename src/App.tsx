@@ -9,7 +9,6 @@ import { Pricing } from './components/Pricing';
 import { Faq } from './components/Faq';
 import { CtaBanner } from './components/CtaBanner';
 import { Footer } from './components/Footer';
-import { Dock } from './components/Dock';
 import { Toaster } from 'sonner';
 import { getCountryContent, CountryCode, isValidCountry, defaultCountry } from './lib/content';
 import { ArrowLeft, ArrowUpRight, Terminal, Link as LinkIcon, ShieldCheck, Smartphone, Sparkles, ExternalLink } from 'lucide-react';
@@ -18,6 +17,7 @@ import { WorkPortfolioPage } from './components/WorkPortfolioPage';
 import { AboutStudioPage } from './components/AboutStudioPage';
 import AdminPage from '@/app/admin/page';
 import DynamicDemoPage from '@/app/demo/[client]/page';
+import etherealBackdrop from './assets/images/ethereal_hero_backdrop.jpg';
 
 function MainExperience({ country, onSelectCountry }: { country: CountryCode; onSelectCountry: (c: CountryCode) => void }) {
   const { theme } = useApp();
@@ -25,6 +25,19 @@ function MainExperience({ country, onSelectCountry }: { country: CountryCode; on
 
   return (
     <div className="bg-zinc-50 dark:bg-zinc-950 min-h-screen text-zinc-900 dark:text-white overflow-x-clip selection:bg-zinc-900/10 dark:selection:bg-white/20 selection:text-zinc-900 dark:selection:text-white relative transition-colors duration-300">
+      {/* Ambient Ethereal Backdrop Image */}
+      <div 
+        aria-hidden="true"
+        className="fixed inset-0 z-0 overflow-hidden pointer-events-none select-none"
+      >
+        <img
+          src={etherealBackdrop}
+          alt="Ethereal 3D Backdrop"
+          className="w-full h-full object-cover object-center opacity-70 dark:opacity-40 blur-[2px] scale-105 transition-opacity duration-700"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-zinc-50/60 via-zinc-50/20 to-zinc-50/75 dark:from-zinc-950/75 dark:via-zinc-950/30 dark:to-zinc-950/85" />
+      </div>
+
       {/* Ambient Radial Lighting - Hardware accelerated with GPU layer separation */}
       <div 
         aria-hidden="true"
@@ -77,7 +90,6 @@ function MainExperience({ country, onSelectCountry }: { country: CountryCode; on
       </main>
 
       <Footer />
-      <Dock />
     </div>
   );
 }
@@ -99,9 +111,15 @@ export default function App() {
   });
 
   useEffect(() => {
+    // Scroll to the very top whenever the path changes
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+  }, [currentPath]);
+
+  useEffect(() => {
     const handleLocationChange = () => {
       const path = window.location.pathname;
       setCurrentPath(path);
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
       const seg = path.split('/').filter(Boolean)[0]?.toLowerCase();
       if (isValidCountry(seg)) {
         setCountry(seg);
@@ -121,6 +139,7 @@ export default function App() {
     setCountry(targetCountry);
     window.history.pushState({}, '', `/${targetCountry}`);
     setCurrentPath(`/${targetCountry}`);
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
   };
 
   // Route evaluation

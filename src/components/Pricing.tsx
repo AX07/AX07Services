@@ -21,7 +21,7 @@ export function Pricing({ countryContent }: PricingProps = {}) {
 
   const pricingUpfront = countryContent?.pricingUpfront || '€500';
   const pricingRetainer = countryContent?.pricingRetainer || '€25/mo';
-  const whatsappNumber = countryContent?.whatsappNumber || '351912345678';
+  const whatsappNumber = countryContent?.whatsappNumber || '353894419127';
 
   const fallbackReassurance = {
     card1Title: 'Zero-Deposit Guarantee',
@@ -177,7 +177,7 @@ export function Pricing({ countryContent }: PricingProps = {}) {
                   <span className="text-xs font-mono text-zinc-500 dark:text-white/60">{t.pricing.growth.oneTime}</span>
                 </div>
                 <div className="flex items-center justify-between pt-3">
-                  <span className="text-xl font-display font-bold text-zinc-900 dark:text-white/90 tracking-tight">+ €45/mo</span>
+                  <span className="text-xl font-display font-bold text-zinc-900 dark:text-white/90 tracking-tight">+ €75/mo</span>
                   <span className="text-xs font-mono text-zinc-400 dark:text-white/40">priority edge ops</span>
                 </div>
               </div>
@@ -197,7 +197,7 @@ export function Pricing({ countryContent }: PricingProps = {}) {
             <motion.a
               whileHover={appleGestures.secondaryButton.hover}
               whileTap={appleGestures.secondaryButton.tap}
-              href="https://wa.me/351912345678?text=Hello%20AX07,%20I%20am%20interested%20in%20the%20Growth%20&%20AI%20Automation%20system."
+              href={`https://wa.me/${whatsappNumber}?text=Hello%20AX07,%20I%20am%20interested%20in%20the%20Growth%20&%20AI%20Automation%20system.`}
               target="_blank"
               rel="noopener noreferrer"
               className="w-full py-3.5 px-6 rounded-full bg-zinc-200/80 dark:bg-white/10 backdrop-blur-md border border-zinc-300 dark:border-white/15 text-zinc-900 dark:text-white font-medium text-sm hover:bg-zinc-300 dark:hover:bg-white/20 transition-colors flex items-center justify-center gap-2 cursor-pointer"

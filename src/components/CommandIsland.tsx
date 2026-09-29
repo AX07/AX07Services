@@ -6,6 +6,7 @@ import { ArrowUpRight, Sparkles, Sun, Moon, Globe, MapPin } from 'lucide-react';
 import { appleGestures, appleSprings } from '../lib/design-system';
 import { useApp } from '../context/ThemeLanguageContext';
 import { CountryContent, CountryCode } from '../lib/content';
+import { BrandLogo } from './BrandLogo';
 
 export interface CommandIslandProps {
   countryContent?: CountryContent;
@@ -28,7 +29,7 @@ export function CommandIsland({ countryContent, onSelectCountry, activePage = 'h
   }, []);
 
   const currentCountry = countryContent?.countrySlug || 'ie';
-  const whatsappNumber = countryContent?.whatsappNumber || (lang === 'pt' ? '351912345678' : '353871234567');
+  const whatsappNumber = countryContent?.whatsappNumber || '353894419127';
 
   const navItems = [
     { id: 'work', label: t.nav.works, type: 'page', route: `/${currentCountry}/work` },
@@ -81,6 +82,7 @@ export function CommandIsland({ countryContent, onSelectCountry, activePage = 'h
     if (typeof window !== 'undefined') {
       window.history.pushState({}, '', targetPath);
       window.dispatchEvent(new PopStateEvent('popstate'));
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
     }
   };
 
@@ -90,6 +92,7 @@ export function CommandIsland({ countryContent, onSelectCountry, activePage = 'h
         window.scrollTo({ top: 0, behavior: 'smooth' });
       } else {
         navigateTo(item.route);
+        window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
       }
       return;
     }
@@ -112,6 +115,7 @@ export function CommandIsland({ countryContent, onSelectCountry, activePage = 'h
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } else {
       navigateTo(`/${currentCountry}`);
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
     }
   };
 
@@ -129,6 +133,7 @@ export function CommandIsland({ countryContent, onSelectCountry, activePage = 'h
       }
       window.history.pushState({}, '', targetPath);
       window.dispatchEvent(new PopStateEvent('popstate'));
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
     }
   };
 
@@ -153,13 +158,15 @@ export function CommandIsland({ countryContent, onSelectCountry, activePage = 'h
           type="button"
           onClick={handleBrandClick}
           className="flex items-center gap-1.5 sm:gap-2 px-2 py-1 rounded-full text-zinc-900 dark:text-white hover:opacity-80 transition-opacity cursor-pointer group"
-          aria-label="AX07 Home"
+          aria-label="ax07.dev Home"
         >
-          <div className="w-6 h-6 rounded-full bg-zinc-900/10 dark:bg-white/10 border border-zinc-900/10 dark:border-white/15 flex items-center justify-center font-display font-bold text-[11px] text-zinc-900 dark:text-white">
-            A
-          </div>
+          <BrandLogo
+            imgClassName="w-5 h-5 sm:w-6 sm:h-6 object-contain"
+            className="flex items-center"
+            themeOverride={theme}
+          />
           <span className="font-display font-bold text-xs sm:text-sm tracking-tight text-zinc-900 dark:text-white hidden xs:inline">
-            AX07
+            ax07.dev
           </span>
           <span className="relative flex h-2 w-2">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />

@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { useApp } from '../context/ThemeLanguageContext';
 import { appleGestures, appleSprings } from '../lib/design-system';
+import { BrandLogo } from './BrandLogo';
 
 type PolicyType = 'cookies' | 'terms' | 'privacy' | 'contact' | null;
 
@@ -33,7 +34,7 @@ export function Footer() {
   const [activeModal, setActiveModal] = useState<PolicyType>(null);
 
   const isPt = lang === 'pt';
-  const whatsappNumber = isPt ? '351912345678' : '353871234567';
+  const whatsappNumber = '353894419127';
 
   const handleNavClick = (e: React.MouseEvent, targetIdOrPath: string) => {
     if (targetIdOrPath.startsWith('#')) {
@@ -50,7 +51,7 @@ export function Footer() {
       e.preventDefault();
       window.history.pushState({}, '', targetIdOrPath);
       window.dispatchEvent(new PopStateEvent('popstate'));
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
     }
   };
 
@@ -60,28 +61,29 @@ export function Footer() {
     { label: isPt ? 'Tabela de Preços' : 'Transparent Pricing', target: '#pricing' },
     { label: isPt ? 'Perguntas Frequentes' : 'FAQ', target: '#faq' },
     { label: isPt ? 'Sobre o Estúdio' : 'About Studio', target: isPt ? '/pt/about' : '/ie/about' },
+    { label: isPt ? 'Painel Admin' : 'Admin Management', target: '/admin' },
   ];
 
   const socialLinks = [
     {
       name: 'LinkedIn',
-      handle: 'AX07 Services',
-      subtext: isPt ? 'Rede Profissional & Atualizações' : 'Enterprise & Venture Updates',
-      href: 'https://www.linkedin.com/company/ax07services',
+      handle: 'Alex Pinto Smollahan',
+      subtext: isPt ? 'Rede Profissional & Fundador' : 'Professional Profile & Updates',
+      href: 'https://www.linkedin.com/in/alexpintosmollahan/',
       icon: <Linkedin className="w-4 h-4 text-blue-500" />,
     },
     {
       name: 'Google',
       handle: 'Google Business Profile',
       subtext: isPt ? 'Avaliações Verificadas & Localização' : 'Verified Reviews & Search Presence',
-      href: 'https://www.google.com/search?q=AX07+Services',
+      href: 'https://share.google/1em5V7FtwTtUx9awY',
       icon: <GoogleIcon className="w-4 h-4 text-emerald-500 dark:text-emerald-400" />,
     },
     {
       name: 'GitHub',
-      handle: 'ax07services',
+      handle: 'AX07',
       subtext: isPt ? 'Repositórios & Shaders WebGL' : 'Open Shaders & WebGL Repos',
-      href: 'https://github.com/ax07services',
+      href: 'https://github.com/AX07',
       icon: <Github className="w-4 h-4 text-zinc-800 dark:text-white" />,
     },
   ];
@@ -99,8 +101,9 @@ export function Footer() {
           <div className="lg:col-span-4 flex flex-col justify-between">
             <div>
               <div className="flex items-center gap-3 mb-4">
+                <BrandLogo imgClassName="w-8 h-8 object-contain" className="flex items-center" />
                 <span className="text-2xl font-bold font-display tracking-tight text-zinc-950 dark:text-white">
-                  AX07
+                  ax07.dev
                 </span>
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                 <span className="text-[11px] font-mono uppercase tracking-widest text-zinc-500 dark:text-white/40">
@@ -170,11 +173,11 @@ export function Footer() {
               </li>
               <li>
                 <a
-                  href="mailto:contact@ax07services.com"
+                  href="mailto:contact@ax07.dev"
                   className="text-zinc-700 dark:text-white/80 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors inline-flex items-center gap-2 group cursor-pointer"
                 >
                   <Mail className="w-4 h-4 text-zinc-400 dark:text-white/50 stroke-[1.75]" />
-                  <span>contact@ax07services.com</span>
+                  <span>contact@ax07.dev</span>
                 </a>
               </li>
               <li className="pt-1">
@@ -228,8 +231,8 @@ export function Footer() {
         <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-mono">
           {/* Attribution */}
           <div className="text-zinc-500 dark:text-white/50 text-center sm:text-left">
-            <span>© {new Date().getFullYear()} AX07 Services. </span>
-            <span className="font-semibold text-zinc-800 dark:text-white/80">Developed by AX07services.</span>
+            <span>© {new Date().getFullYear()} ax07.dev. </span>
+            <span className="font-semibold text-zinc-800 dark:text-white/80">Developed by ax07.dev.</span>
             <span className="hidden md:inline"> {isPt ? 'Todos os direitos reservados.' : 'All rights reserved.'}</span>
           </div>
 
@@ -320,8 +323,8 @@ export function Footer() {
                     <div className="space-y-4 text-sm text-zinc-600 dark:text-white/70 font-sans leading-relaxed">
                       <p>
                         {isPt
-                          ? 'A AX07 Services compromete-se com a máxima privacidade e respeito digital. Não utilizamos cookies invasivos de rastreamento de terceiros nem vendemos os seus dados de navegação a anunciantes.'
-                          : 'AX07 Services adheres to strict European ePrivacy and GDPR standards. We do not employ intrusive third-party cross-site advertising trackers or data-broker cookies.'}
+                          ? 'A ax07.dev compromete-se com a máxima privacidade e respeito digital. Não utilizamos cookies invasivos de rastreamento de terceiros nem vendemos os seus dados de navegação a anunciantes.'
+                          : 'ax07.dev adheres to strict European ePrivacy and GDPR standards. We do not employ intrusive third-party cross-site advertising trackers or data-broker cookies.'}
                       </p>
                       <div className="p-4 rounded-2xl bg-zinc-100 dark:bg-white/5 border border-zinc-200 dark:border-white/10 space-y-2">
                         <h4 className="text-xs font-mono uppercase font-bold text-zinc-900 dark:text-white">
@@ -352,7 +355,7 @@ export function Footer() {
                       {isPt ? 'Termos e Condições do Serviço' : 'Terms of Service & Spec Guarantee'}
                     </h3>
                     <p className="text-xs font-mono text-zinc-500 dark:text-white/40 mb-4">
-                      {isPt ? 'Protocolo AX07 48h // Sem Depósito' : 'AX07 Protocol // Zero-Deposit Delivery'}
+                      {isPt ? 'Protocolo ax07.dev 48h // Sem Depósito' : 'ax07.dev Protocol // Zero-Deposit Delivery'}
                     </p>
 
                     <div className="space-y-4 text-sm text-zinc-600 dark:text-white/70 font-sans leading-relaxed">
@@ -391,8 +394,8 @@ export function Footer() {
                     <div className="space-y-4 text-sm text-zinc-600 dark:text-white/70 font-sans leading-relaxed">
                       <p>
                         {isPt
-                          ? 'A AX07 Services cumpre integralmente o Regulamento Geral sobre a Proteção de Dados (RGPD). Recolhemos apenas os dados estritamente necessários para desenvolver a sua solução digital (ex: nome, link do negócio e número de WhatsApp para contacto direto).'
-                          : 'AX07 Services complies strictly with the General Data Protection Regulation (GDPR). We collect only necessary contact details to build your private 3D preview and coordinate project specifications.'}
+                          ? 'A ax07.dev cumpre integralmente o Regulamento Geral sobre a Proteção de Dados (RGPD). Recolhemos apenas os dados estritamente necessários para desenvolver a sua solução digital (ex: nome, link do negócio e número de WhatsApp para contacto direto).'
+                          : 'ax07.dev complies strictly with the General Data Protection Regulation (GDPR). We collect only necessary contact details to build your private 3D preview and coordinate project specifications.'}
                       </p>
                       <p>
                         {isPt
@@ -401,8 +404,8 @@ export function Footer() {
                       </p>
                       <p>
                         {isPt
-                          ? 'Para solicitar a eliminação ou consulta dos seus dados, envie um email para <strong>contact@ax07services.com</strong>.'
-                          : 'To exercise your rights to review, modify, or permanently erase your data, contact our lead engineer directly at <strong>contact@ax07services.com</strong>.'}
+                          ? 'Para solicitar a eliminação ou consulta dos seus dados, envie um email para <strong>contact@ax07.dev</strong>.'
+                          : 'To exercise your rights to review, modify, or permanently erase your data, contact our lead engineer directly at <strong>contact@ax07.dev</strong>.'}
                       </p>
                     </div>
                   </div>
@@ -442,7 +445,7 @@ export function Footer() {
                       </div>
 
                       <div className="space-y-2 text-xs font-mono text-zinc-600 dark:text-white/60">
-                        <p><strong>Email:</strong> contact@ax07services.com</p>
+                        <p><strong>Email:</strong> contact@ax07.dev</p>
                         <p><strong>{isPt ? 'Localizações' : 'Locations'}:</strong> Tavira, Algarve (PT) &amp; Dublin (IE)</p>
                         <p><strong>{isPt ? 'Horário de Suporte' : 'Hours'}:</strong> 08:00 - 20:00 WET / GMT</p>
                       </div>

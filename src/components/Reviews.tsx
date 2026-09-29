@@ -182,7 +182,7 @@ export function Reviews() {
           </div>
 
           <a
-            href="https://wa.me/351912345678?text=Hello%20AX07,%20I%20saw%20your%20portfolio%20reviews%20and%20would%20like%20a%2048h%20spec%20build"
+            href="https://wa.me/353894419127?text=Hello%20AX07,%20I%20saw%20your%20portfolio%20reviews%20and%20would%20like%20a%2048h%20spec%20build"
             target="_blank"
             rel="noopener noreferrer"
             className="w-full sm:w-auto px-5 py-2.5 rounded-full bg-emerald-400 text-black hover:bg-emerald-300 transition-colors text-xs font-mono font-semibold uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer shrink-0"

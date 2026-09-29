@@ -14,6 +14,15 @@ export interface ClientConfig {
 
 const STORAGE_KEY = 'ax07_admin_clients_v1';
 
+export function ensureAbsoluteUrl(url: string): string {
+  if (!url) return '';
+  const trimmed = url.trim();
+  if (/^https?:\/\//i.test(trimmed)) {
+    return trimmed;
+  }
+  return `https://${trimmed}`;
+}
+
 export function getStoredClients(): ClientConfig[] {
   if (typeof window === 'undefined') {
     return seedClients as ClientConfig[];
@@ -25,7 +34,18 @@ export function getStoredClients(): ClientConfig[] {
       return seedClients as ClientConfig[];
     }
     const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) && parsed.length > 0 ? parsed : (seedClients as ClientConfig[]);
+    if (Array.isArray(parsed) && parsed.length > 0) {
+      // Merge with seedClients so any new seed entries (like cryptoax07) are never omitted
+      const existingSlugs = new Set(parsed.map((c: ClientConfig) => c.slug?.toLowerCase()));
+      const merged = [...parsed];
+      for (const s of seedClients) {
+        if (!existingSlugs.has((s as ClientConfig).slug?.toLowerCase())) {
+          merged.push(s as ClientConfig);
+        }
+      }
+      return merged;
+    }
+    return seedClients as ClientConfig[];
   } catch {
     return seedClients as ClientConfig[];
   }
@@ -43,5 +63,5 @@ export function saveStoredClients(clients: ClientConfig[]): void {
 export function getClientBySlug(slug: string): ClientConfig | undefined {
   const clients = getStoredClients();
   const normalized = slug.trim().toLowerCase();
-  return clients.find((c) => c.slug.toLowerCase() === normalized);
+  return clients.find((c) => c.slug?.toLowerCase() === normalized);
 }

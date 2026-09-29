@@ -20,11 +20,11 @@ import {
 } from 'lucide-react';
 import { CommandIsland } from './CommandIsland';
 import { Footer } from './Footer';
-import { Dock } from './Dock';
 import { LogoCanvas } from './LogoCanvas';
 import { CountryContent } from '../lib/content';
 import { useApp } from '../context/ThemeLanguageContext';
 import { appleSprings } from '../lib/design-system';
+import etherealBackdrop from '../assets/images/ethereal_hero_backdrop.jpg';
 
 export interface CaseStudy {
   id: string;
@@ -48,25 +48,6 @@ export interface CaseStudy {
 
 const CASE_STUDIES: CaseStudy[] = [
   {
-    id: 'ocean-charters',
-    slug: 'ocean-charters',
-    title: 'Ocean Charters',
-    client: 'Ocean Charters Algarve',
-    nicheBadge: 'Ocean Charters — Luxury Marine',
-    category: 'marine',
-    tagline: 'Direct luxury yacht booking engine with 3D ocean depth simulation.',
-    description:
-      'Replaced an antiquated WordPress booking form with an interactive WebGL catamaran customizer, 1-click WhatsApp VIP concierge, and sub-second global edge distribution.',
-    speedMetric: '⚡ 340ms Speed',
-    growthMetric: '📈 +48% Direct Inquiries',
-    feeMetric: '💼 0% OTA Fees',
-    previewImage: 'https://images.unsplash.com/photo-1567899378494-47b22a2ae96a?auto=format&fit=crop&w=2000&q=85',
-    defaultCanvasMode: 'fluid',
-    demoUrl: '/demo/ocean-charters',
-    techTags: ['React Three Fiber', 'Next.js 15', 'WhatsApp API', 'GLSL Water Shader'],
-    launchYear: '2025',
-  },
-  {
     id: 'flyfoil',
     slug: 'flyfoil',
     title: 'FlyFoil Formosa',
@@ -82,7 +63,7 @@ const CASE_STUDIES: CaseStudy[] = [
     previewImage: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=2000&q=85',
     defaultCanvasMode: 'particles',
     demoUrl: '/demo/flyfoil',
-    externalUrl: 'https://flyfoil-formosa.vercel.app',
+    externalUrl: 'https://flyfoilformosa.com/',
     techTags: ['Three.js', 'Framer Motion', 'Vercel Edge', 'Tailwind CSS'],
     launchYear: '2024',
   },
@@ -102,9 +83,29 @@ const CASE_STUDIES: CaseStudy[] = [
     previewImage: 'https://images.unsplash.com/photo-1518837695005-2083093ee35b?auto=format&fit=crop&w=2000&q=85',
     defaultCanvasMode: 'wireframe',
     demoUrl: '/demo/altura',
-    externalUrl: 'https://altura-kites.vercel.app',
+    externalUrl: 'https://altura-kite-school.vercel.app/',
     techTags: ['Next.js App Router', 'WebGL Particles', 'Stripe & WhatsApp', 'Edge Middleware'],
     launchYear: '2024',
+  },
+  {
+    id: 'albania-facil',
+    slug: 'albania',
+    title: 'Albania Fácil',
+    client: 'Albania Fácil Expeditions',
+    nicheBadge: 'Albania Fácil — Expeditions & Tours',
+    category: 'hospitality',
+    tagline: 'High-motion 3D route explorer & direct WhatsApp booking concierge.',
+    description:
+      'Engineered an interactive 3D topographical expedition portal connecting travelers directly to local guides, generating over €4,200 in direct WhatsApp sales in the first 14 days.',
+    speedMetric: '⚡ 320ms Speed',
+    growthMetric: '📈 €4.2K First 14 Days',
+    feeMetric: '💼 0% Intermediary Fee',
+    previewImage: 'https://images.unsplash.com/photo-1533105079780-92b9be482077?auto=format&fit=crop&w=2000&q=85',
+    defaultCanvasMode: 'particles',
+    demoUrl: '/demo/albania',
+    externalUrl: 'https://albania-facil.vercel.app/',
+    techTags: ['WebGL 3D', 'Next.js 15', 'WhatsApp Engine', 'Edge Speed'],
+    launchYear: '2026',
   },
   {
     id: 'fintrack',
@@ -161,7 +162,7 @@ const CASE_STUDIES: CaseStudy[] = [
     previewImage: 'https://images.unsplash.com/photo-1639762681485-074b7f938ba0?auto=format&fit=crop&w=2000&q=85',
     defaultCanvasMode: 'particles',
     demoUrl: '/demo/cryptoax07',
-    externalUrl: 'https://cryptoax07.vercel.app',
+    externalUrl: 'https://cryptoax07.com/',
     techTags: ['R3F Fiber', 'GLSL Kernels', 'Wagmi / Viem', 'Edge Streaming'],
     launchYear: '2025',
   },
@@ -173,13 +174,14 @@ export interface WorkPortfolioPageProps {
 
 export function WorkPortfolioPage({ countryContent }: WorkPortfolioPageProps = {}) {
   const { lang } = useApp();
-  const [selectedFilter, setSelectedFilter] = useState<'all' | 'marine' | 'sports' | 'fintech' | 'hospitality'>('all');
-  const [canvasModeMap, setCanvasModeMap] = useState<Record<string, boolean>>({
-    'ocean-charters': true,
-    'flyfoil': true,
-  });
+  const [selectedFilter, setSelectedFilter] = useState<'all' | 'sports' | 'fintech' | 'hospitality'>('all');
+  const [canvasModeMap, setCanvasModeMap] = useState<Record<string, boolean>>({});
 
-  const whatsappNumber = countryContent?.whatsappNumber || (lang === 'pt' ? '351912345678' : '353871234567');
+  React.useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+  }, []);
+
+  const whatsappNumber = countryContent?.whatsappNumber || '353894419127';
   const countrySlug = countryContent?.countrySlug || 'ie';
 
   const filteredStudies = selectedFilter === 'all' 
@@ -199,7 +201,20 @@ export function WorkPortfolioPage({ countryContent }: WorkPortfolioPageProps = {
       {/* Top Floating Command Island Navbar */}
       <CommandIsland countryContent={countryContent} activePage="work" />
 
-      {/* Ambient background glows */}
+      {/* Ambient background glows & ethereal backdrop */}
+      <div 
+        aria-hidden="true"
+        className="fixed inset-0 z-0 overflow-hidden pointer-events-none select-none"
+      >
+        <img
+          src={etherealBackdrop}
+          alt="Ethereal 3D Backdrop"
+          className="w-full h-full object-cover object-center opacity-85 dark:opacity-50 blur-[2px] scale-105 transition-opacity duration-700"
+        />
+        {/* Soft atmospheric gradient scrims ensuring crisp typography readability */}
+        <div className="absolute inset-0 bg-gradient-to-b from-zinc-50/50 via-zinc-50/20 to-zinc-50/70 dark:from-zinc-950/75 dark:via-zinc-950/30 dark:to-zinc-950/85" />
+      </div>
+
       <div 
         aria-hidden="true" 
         className="fixed top-20 left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-blue-500/5 dark:bg-blue-500/10 blur-[150px] rounded-full pointer-events-none" 
@@ -232,7 +247,6 @@ export function WorkPortfolioPage({ countryContent }: WorkPortfolioPageProps = {
           <div className="flex items-center justify-center gap-1.5 sm:gap-2 flex-wrap mt-10">
             {[
               { id: 'all', label: lang === 'pt' ? 'Todos os Projetos' : 'All Work' },
-              { id: 'marine', label: lang === 'pt' ? 'Náutica & Turismo' : 'Luxury Marine' },
               { id: 'sports', label: lang === 'pt' ? 'Desportos & Atividades' : 'Watersports' },
               { id: 'fintech', label: lang === 'pt' ? 'Fintech & Web3' : 'Fintech & AI' },
               { id: 'hospitality', label: lang === 'pt' ? 'Hotelaria & Café' : 'Hospitality' },
@@ -260,7 +274,7 @@ export function WorkPortfolioPage({ countryContent }: WorkPortfolioPageProps = {
               const is3DActive = !!canvasModeMap[study.id];
 
               const whatsappInquiryUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
-                `Hi Alex, I was viewing the ${study.title} case study on AX07 and would love to build a similar 3D experience for my business.`
+                `Hi Alex, I was viewing the ${study.title} case study on ax07.dev and would love to build a similar 3D experience for my business.`
               )}`;
 
               return (
@@ -399,24 +413,37 @@ export function WorkPortfolioPage({ countryContent }: WorkPortfolioPageProps = {
                     </div>
 
                     {/* Action Buttons */}
-                    <div className="pt-4 border-t border-zinc-100 dark:border-white/10 flex items-center justify-between gap-3">
+                    <div className="pt-4 border-t border-zinc-100 dark:border-white/10 flex items-center justify-between gap-2.5">
                       <a
                         href={study.demoUrl}
-                        className="flex-1 px-4 py-2.5 rounded-full bg-zinc-900 dark:bg-white text-white dark:text-zinc-950 font-bold text-xs sm:text-sm hover:opacity-90 transition-opacity flex items-center justify-center gap-1.5 shadow-sm cursor-pointer"
+                        className="flex-1 px-4 py-2.5 rounded-full bg-zinc-900 dark:bg-white text-white dark:text-zinc-950 font-bold text-xs sm:text-sm hover:opacity-90 transition-opacity flex items-center justify-center gap-1.5 shadow-sm cursor-pointer whitespace-nowrap"
                       >
-                        <span>{lang === 'pt' ? 'Ver Staging 3D' : 'Open Staging Demo'}</span>
+                        <span>{lang === 'pt' ? 'Staging 3D' : 'Staging Demo'}</span>
                         <ArrowUpRight className="w-3.5 h-3.5 stroke-[2.2]" />
                       </a>
+
+                      {study.externalUrl && (
+                        <a
+                          href={study.externalUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="px-3.5 py-2.5 rounded-full bg-zinc-100 dark:bg-white/10 hover:bg-zinc-200 dark:hover:bg-white/15 text-zinc-900 dark:text-white font-medium text-xs sm:text-sm transition-colors flex items-center justify-center gap-1.5 border border-zinc-200/80 dark:border-white/10 cursor-pointer whitespace-nowrap"
+                          title={`Visit live site: ${study.externalUrl}`}
+                        >
+                          <ExternalLink className="w-3.5 h-3.5" />
+                          <span className="hidden sm:inline">{lang === 'pt' ? 'Site' : 'Live Site'}</span>
+                        </a>
+                      )}
 
                       <a
                         href={whatsappInquiryUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="px-4 py-2.5 rounded-full bg-zinc-100 dark:bg-white/10 hover:bg-zinc-200 dark:hover:bg-white/15 text-zinc-900 dark:text-white font-semibold text-xs sm:text-sm transition-colors flex items-center justify-center gap-1.5 border border-zinc-200/80 dark:border-white/10"
+                        className="px-3.5 py-2.5 rounded-full bg-zinc-100 dark:bg-white/10 hover:bg-zinc-200 dark:hover:bg-white/15 text-zinc-900 dark:text-white font-semibold text-xs sm:text-sm transition-colors flex items-center justify-center gap-1.5 border border-zinc-200/80 dark:border-white/10 cursor-pointer"
                         title="Inquire Similar Build"
                       >
                         <MessageSquare className="w-3.5 h-3.5 text-emerald-500" />
-                        <span className="hidden sm:inline">{lang === 'pt' ? 'Pedir Semelhante' : 'Inquire Similar'}</span>
+                        <span className="hidden md:inline">{lang === 'pt' ? 'Pedir' : 'Inquire'}</span>
                       </a>
                     </div>
 
@@ -475,7 +502,6 @@ export function WorkPortfolioPage({ countryContent }: WorkPortfolioPageProps = {
       </main>
 
       <Footer />
-      <Dock />
     </div>
   );
 }

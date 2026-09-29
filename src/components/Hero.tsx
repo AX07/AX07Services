@@ -5,7 +5,8 @@ import { LogoCanvas } from './LogoCanvas';
 import { appleGestures } from '../lib/design-system';
 import { useApp } from '../context/ThemeLanguageContext';
 import { CountryContent } from '../lib/content';
-import etherealBackdrop from '../assets/images/ethereal_hero_backdrop_1790087265626.jpg';
+import { BrandLogo } from './BrandLogo';
+import etherealBackdrop from '../assets/images/ethereal_hero_backdrop.jpg';
 
 export interface HeroProps {
   countryContent?: CountryContent;
@@ -20,7 +21,7 @@ export function Hero({ countryContent }: HeroProps = {}) {
   });
 
   const heroSubtitle = countryContent?.heroSubtitle || t.hero.beat1.subtitle;
-  const whatsappNumber = countryContent?.whatsappNumber || '351912345678';
+  const whatsappNumber = countryContent?.whatsappNumber || '353894419127';
   const badgeLocation = countryContent?.badgeLocation || t.hero.beat1.eyebrow;
 
   // =========================================================================
@@ -104,31 +105,34 @@ export function Hero({ countryContent }: HeroProps = {}) {
             scale: beat1Scale,
             visibility: beat1Visibility,
           }}
-          className="relative absolute inset-0 z-20 flex flex-col items-center justify-start pt-24 sm:pt-32 md:pt-36 px-6 max-w-4xl mx-auto text-center pointer-events-none"
+          className="absolute inset-0 z-20 flex flex-col items-center justify-start pt-20 sm:pt-24 md:pt-28 px-4 sm:px-6 max-w-4xl mx-auto text-center pointer-events-none"
         >
           {/* Gentle luminous glow behind text ensuring readability while letting the large 3D asset shine through */}
           <div
             aria-hidden="true"
-            className="absolute top-12 sm:top-16 left-1/2 -translate-x-1/2 w-[95vw] max-w-3xl h-[420px] sm:h-[480px] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(255,255,255,0.40)_0%,rgba(255,255,255,0.15)_45%,rgba(255,255,255,0)_75%)] dark:bg-[radial-gradient(ellipse_at_center,rgba(9,9,11,0.45)_0%,rgba(9,9,11,0.15)_45%,rgba(9,9,11,0)_75%)] blur-3xl pointer-events-none -z-10"
+            className="absolute top-8 sm:top-12 left-1/2 -translate-x-1/2 w-[95vw] max-w-3xl h-[380px] sm:h-[440px] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(255,255,255,0.40)_0%,rgba(255,255,255,0.15)_45%,rgba(255,255,255,0)_75%)] dark:bg-[radial-gradient(ellipse_at_center,rgba(9,9,11,0.45)_0%,rgba(9,9,11,0.15)_45%,rgba(9,9,11,0)_75%)] blur-3xl pointer-events-none -z-10"
           />
 
           {/* Glass Capsule Eyebrow with SF Symbols */}
-          <div className="mb-6 flex items-center gap-2 px-4 py-1.5 rounded-full border border-zinc-200/80 dark:border-white/10 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-2xl text-xs font-mono tracking-widest text-zinc-600 dark:text-white/60 shadow-sm pointer-events-auto">
-            <span className="text-zinc-900 dark:text-white font-semibold">AX07 SERVICES</span>
+          <div className="mb-4 sm:mb-6 flex items-center gap-2 px-3 sm:px-4 py-1.5 rounded-full border border-zinc-200/80 dark:border-white/10 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-2xl text-xs font-mono tracking-widest text-zinc-600 dark:text-white/60 shadow-sm pointer-events-auto">
+            <BrandLogo imgClassName="w-4 h-4 object-contain" className="flex items-center" />
+            <span className="text-zinc-900 dark:text-white font-semibold">ax07.dev</span>
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
             <span className="text-zinc-500 dark:text-white/40">{badgeLocation}</span>
           </div>
 
-          <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-zinc-950 dark:text-white mb-6 leading-[1.08] font-display">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold font-display tracking-tight text-zinc-950 dark:text-white mb-4 sm:mb-6 leading-[1.12]">
             {t.hero.beat1.titlePart1}{' '}
-            <span className="text-zinc-500 dark:text-white/60 block sm:inline">{t.hero.beat1.titlePart2}</span>
+            <span className="text-zinc-500 dark:text-zinc-400 font-serif italic block sm:inline">
+              {t.hero.beat1.titlePart2}
+            </span>
           </h1>
 
-          <p className="text-base sm:text-lg md:text-xl text-zinc-600 dark:text-white/60 max-w-2xl font-sans mb-8 leading-relaxed">
+          <p className="text-sm sm:text-base md:text-lg text-zinc-600 dark:text-zinc-400 max-w-xl sm:max-w-2xl font-sans mb-6 sm:mb-8 leading-relaxed">
             {heroSubtitle}
           </p>
 
-          <div className="flex items-center gap-2 text-xs font-mono tracking-widest text-zinc-500 dark:text-white/40 uppercase">
+          <div className="flex items-center gap-2 text-xs font-mono tracking-widest text-zinc-500 dark:text-white/40 uppercase pointer-events-auto">
             <span>{t.hero.beat1.scrollHint}</span>
             <ChevronDown className="w-4 h-4 text-emerald-500 dark:text-emerald-400 animate-bounce stroke-[1.75]" />
           </div>
@@ -158,11 +162,11 @@ export function Hero({ countryContent }: HeroProps = {}) {
                 <span>{t.hero.beat2.badge}</span>
               </div>
 
-              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight text-zinc-950 dark:text-white mb-4 font-display leading-[1.18]">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold font-display tracking-tight text-zinc-950 dark:text-white mb-4 leading-[1.18]">
                 {t.hero.beat2.title}
               </h2>
 
-              <p className="text-zinc-600 dark:text-white/60 text-sm sm:text-base leading-relaxed mb-6 font-sans">
+              <p className="text-zinc-600 dark:text-zinc-400 text-sm sm:text-base leading-relaxed mb-6 font-sans">
                 {t.hero.beat2.desc}
               </p>
 
@@ -207,11 +211,11 @@ export function Hero({ countryContent }: HeroProps = {}) {
               <span>{t.hero.beat3.badge}</span>
             </div>
 
-            <h2 className="text-2xl sm:text-4xl md:text-5xl font-bold tracking-tight text-zinc-950 dark:text-white mb-5 font-display leading-[1.12]">
+            <h2 className="text-2xl sm:text-4xl md:text-5xl font-extrabold font-display tracking-tight text-zinc-950 dark:text-white mb-5 leading-[1.12]">
               {t.hero.beat3.title}
             </h2>
 
-            <p className="text-zinc-600 dark:text-white/60 text-sm sm:text-base md:text-lg max-w-xl mb-8 leading-relaxed font-sans">
+            <p className="text-zinc-600 dark:text-zinc-400 text-sm sm:text-base md:text-lg max-w-xl mb-8 leading-relaxed font-sans">
               {t.hero.beat3.desc}
             </p>
 

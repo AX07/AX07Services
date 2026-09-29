@@ -109,7 +109,7 @@ export function Faq() {
           <motion.a
             whileHover={appleGestures.secondaryButton.hover}
             whileTap={appleGestures.secondaryButton.tap}
-            href="https://wa.me/351912345678?text=Hello%20AX07,%20I%20have%20a%20question%20about%20your%203D%20website%20service"
+            href="https://wa.me/353894419127?text=Hello%20AX07,%20I%20have%20a%20question%20about%20your%203D%20website%20service"
             target="_blank"
             rel="noopener noreferrer"
             className="w-full sm:w-auto px-6 py-3 rounded-full bg-zinc-200/80 dark:bg-white/10 backdrop-blur-md border border-zinc-300 dark:border-white/15 hover:bg-zinc-300 dark:hover:bg-white/20 text-zinc-900 dark:text-white font-medium text-xs sm:text-sm transition-colors flex items-center justify-center gap-2 cursor-pointer shrink-0"

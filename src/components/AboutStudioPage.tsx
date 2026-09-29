@@ -23,11 +23,11 @@ import {
 } from 'lucide-react';
 import { CommandIsland } from './CommandIsland';
 import { Footer } from './Footer';
-import { Dock } from './Dock';
 import { LogoCanvas } from './LogoCanvas';
 import { CountryContent } from '../lib/content';
 import { useApp } from '../context/ThemeLanguageContext';
 import { appleSprings } from '../lib/design-system';
+import etherealBackdrop from '../assets/images/ethereal_hero_backdrop.jpg';
 
 export interface AboutStudioPageProps {
   countryContent?: CountryContent;
@@ -86,8 +86,12 @@ const TECH_STACK_ITEMS = [
 
 export function AboutStudioPage({ countryContent }: AboutStudioPageProps = {}) {
   const { lang } = useApp();
-  const whatsappNumber = countryContent?.whatsappNumber || (lang === 'pt' ? '351912345678' : '353871234567');
+  const whatsappNumber = countryContent?.whatsappNumber || '353894419127';
   const countrySlug = countryContent?.countrySlug || 'ie';
+
+  React.useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+  }, []);
 
   return (
     <div className="bg-zinc-50 dark:bg-zinc-950 min-h-screen text-zinc-900 dark:text-white selection:bg-zinc-900/10 dark:selection:bg-white/20 transition-colors duration-300">
@@ -95,7 +99,20 @@ export function AboutStudioPage({ countryContent }: AboutStudioPageProps = {}) {
       {/* Top Floating Command Island Navbar */}
       <CommandIsland countryContent={countryContent} activePage="about" />
 
-      {/* Ambient background glows */}
+      {/* Ambient background glows & ethereal backdrop */}
+      <div 
+        aria-hidden="true"
+        className="fixed inset-0 z-0 overflow-hidden pointer-events-none select-none"
+      >
+        <img
+          src={etherealBackdrop}
+          alt="Ethereal 3D Backdrop"
+          className="w-full h-full object-cover object-center opacity-85 dark:opacity-50 blur-[2px] scale-105 transition-opacity duration-700"
+        />
+        {/* Soft atmospheric gradient scrims ensuring crisp typography readability */}
+        <div className="absolute inset-0 bg-gradient-to-b from-zinc-50/50 via-zinc-50/20 to-zinc-50/70 dark:from-zinc-950/75 dark:via-zinc-950/30 dark:to-zinc-950/85" />
+      </div>
+
       <div 
         aria-hidden="true" 
         className="fixed top-24 left-1/2 -translate-x-1/2 w-[850px] h-[550px] bg-blue-500/5 dark:bg-blue-500/10 blur-[160px] rounded-full pointer-events-none" 
@@ -265,13 +282,13 @@ export function AboutStudioPage({ countryContent }: AboutStudioPageProps = {}) {
               </div>
 
               <h3 className="text-2xl sm:text-3xl font-bold font-display tracking-tight text-zinc-900 dark:text-white mb-4">
-                Alex & The AX07 Spec Engineering Team
+                Alex & The ax07.dev Spec Engineering Team
               </h3>
 
               <p className="text-sm sm:text-base text-zinc-600 dark:text-zinc-400 leading-relaxed mb-4 font-sans">
                 {lang === 'pt'
-                  ? 'Com mais de 8 anos dedicados ao desenvolvimento de gráficos 3D na web, renderizadores WebGL e infraestruturas edge de alta disponibilidade, fundámos a AX07 com uma única missão: libertar os empresários de websites genéricos e lentos.'
-                  : 'With over 8 years dedicated to creative 3D web engineering, WebGL shader programming, and global edge architectures, we founded AX07 on a direct principle: eliminating sluggish legacy site builders and giving local business owners unfair digital advantages.'}
+                  ? 'Com mais de 8 anos dedicados ao desenvolvimento de gráficos 3D na web, renderizadores WebGL e infraestruturas edge de alta disponibilidade, fundámos a ax07.dev com uma única missão: libertar os empresários de websites genéricos e lentos.'
+                  : 'With over 8 years dedicated to creative 3D web engineering, WebGL shader programming, and global edge architectures, we founded ax07.dev on a direct principle: eliminating sluggish legacy site builders and giving local business owners unfair digital advantages.'}
               </p>
 
               <p className="text-xs sm:text-sm text-zinc-500 dark:text-zinc-500 leading-relaxed mb-8 font-sans">
@@ -297,6 +314,12 @@ export function AboutStudioPage({ countryContent }: AboutStudioPageProps = {}) {
 
                 <a
                   href={`/${countrySlug}/work`}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    window.history.pushState({}, '', `/${countrySlug}/work`);
+                    window.dispatchEvent(new PopStateEvent('popstate'));
+                    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+                  }}
                   className="px-5 py-3 rounded-full bg-zinc-100 dark:bg-white/10 hover:bg-zinc-200 dark:hover:bg-white/15 text-zinc-900 dark:text-white font-medium text-xs sm:text-sm transition-colors border border-zinc-200 dark:border-white/10"
                 >
                   {lang === 'pt' ? 'Ver Estudos de Caso' : 'Explore Case Studies'}
@@ -309,7 +332,6 @@ export function AboutStudioPage({ countryContent }: AboutStudioPageProps = {}) {
       </main>
 
       <Footer />
-      <Dock />
     </div>
   );
 }
