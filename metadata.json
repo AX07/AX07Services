@@ -1,0 +1,6 @@
+{
+  "name": "AX07 Services",
+  "description": "Bespoke high-converting 3D web systems, sub-second Vercel edge deployment, and direct WhatsApp booking engines engineered by ax07.dev.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
