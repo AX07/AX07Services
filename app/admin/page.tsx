@@ -376,7 +376,7 @@ export default function AdminPage() {
                   type="text"
                   value={name}
                   onChange={handleNameChange}
-                  placeholder="e.g. 8to8 Dental Balbriggan"
+                  placeholder="e.g. FlyFoil Formosa"
                   className="w-full px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:border-emerald-500 font-sans transition-colors placeholder:text-white/30"
                   required
                 />
@@ -393,7 +393,7 @@ export default function AdminPage() {
                     type="text"
                     value={slug}
                     onChange={(e) => setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-'))}
-                    placeholder="8to8dental"
+                    placeholder="flyfoil"
                     className="w-full pl-18 pr-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:border-emerald-500 font-mono transition-colors placeholder:text-white/30"
                     required
                   />
@@ -411,7 +411,7 @@ export default function AdminPage() {
                     type="url"
                     value={stagingUrl}
                     onChange={(e) => setStagingUrl(e.target.value)}
-                    placeholder="https://8to8dental-demo.vercel.app"
+                    placeholder="https://flyfoilformosa.com"
                     className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:border-emerald-500 font-mono transition-colors placeholder:text-white/30"
                     required
                   />
@@ -474,7 +474,7 @@ export default function AdminPage() {
               <div className="flex items-center gap-2 flex-wrap">
                 <span className="text-[11px] font-mono text-white/40">Presets:</span>
                 {[
-                  { name: '8to8 Dental', s: '8to8dental', tier: 'Ireland (€1,800)' as MarketTier },
+                  { name: 'FinTrack AI', s: 'fintrack', tier: 'Ireland (€1,800)' as MarketTier },
                   { name: 'Ocean Charters', s: 'ocean-charters', tier: 'Algarve (€500)' as MarketTier },
                   { name: 'FlyFoil Formosa', s: 'flyfoil', tier: 'Algarve (€500)' as MarketTier },
                 ].map((preset) => (

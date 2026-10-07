@@ -17,7 +17,7 @@ export function Process({ countryContent }: ProcessProps = {}) {
   const [activeIndex, setActiveIndex] = useState(0);
 
   const pricingUpfront = countryContent?.pricingUpfront || (lang === 'pt' ? '€500' : '€1,800');
-  const pricingRetainer = countryContent?.pricingRetainer || (lang === 'pt' ? '€25/mo' : '€75/mo');
+  const pricingRetainer = countryContent?.pricingRetainer || (lang === 'pt' ? '€25/mo' : '€45/mo');
 
   // Scroll progress through the 240vh section
   const { scrollYProgress } = useScroll({

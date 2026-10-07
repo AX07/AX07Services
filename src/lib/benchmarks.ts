@@ -15,18 +15,18 @@ export interface IndustryBenchmark {
 
 export const INDUSTRY_BENCHMARKS: IndustryBenchmark[] = [
   {
-    id: 'dentist',
-    slug: 'dentist',
-    name: 'Dentist & Medical Clinic',
-    icon: '🦷',
-    category: 'Healthcare',
+    id: 'fintech',
+    slug: 'fintech',
+    name: 'FinTech & Wealth Advisory',
+    icon: '📈',
+    category: 'Wealth & Finance',
     splineUrl: 'https://my.spline.design/interactivegeometricshapes-957fbb11ad5d11f8eec4c5409a633ba4/',
     splineCodeUrl: 'https://prod.spline.design/6Wq1Q7YGyM-iab9i/scene.splinecode',
-    webflowUrl: 'https://8to8dental-demo.vercel.app',
-    description: 'Interactive 3D dental implant visualizer & sub-second patient appointment booking engine.',
-    speedMetric: '⚡ 280ms Load',
-    growthMetric: '📈 +45% Direct Leads',
-    feeMetric: '💼 0% Booking Fee',
+    webflowUrl: 'https://fintrack-ai.vercel.app/',
+    description: 'Interactive 3D quantitative wealth visualizer & sub-second client advisory booking engine.',
+    speedMetric: '⚡ 290ms Load',
+    growthMetric: '📈 +65% Direct Inquiries',
+    feeMetric: '💼 0% Intermediary Fee',
   },
   {
     id: 'landscape',

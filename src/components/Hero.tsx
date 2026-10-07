@@ -29,10 +29,10 @@ export function Hero({ countryContent }: HeroProps = {}) {
   };
 
   useEffect(() => {
-    // Graceful fallback to guarantee hero content fades in even if WebGL is delayed
+    // Graceful fallback to guarantee hero content fades in reliably after initial 3D load phase
     const timer = setTimeout(() => {
       setIs3DLoaded(true);
-    }, 1200);
+    }, 700);
     return () => clearTimeout(timer);
   }, []);
 
@@ -63,21 +63,21 @@ export function Hero({ countryContent }: HeroProps = {}) {
   // THE 3-BEAT SCROLL CHOREOGRAPHY (Slower, More Graceful & Luxurious Pacing)
   // =========================================================================
 
-  // [BEAT 1: 0% - 34%] Logo Centered, The Identity & Hook
-  const beat1Opacity = useTransform(scrollYProgress, [0, 0.18, 0.34], [1, 1, 0]);
-  const beat1Y = useTransform(scrollYProgress, [0, 0.34], [0, -45]);
-  const beat1Scale = useTransform(scrollYProgress, [0, 0.34], [1, 0.94]);
-  const beat1Visibility = useTransform(scrollYProgress, (v) => (v < 0.36 ? 'visible' : 'hidden'));
+  // [BEAT 1: 0% - 36%] Logo Centered, The Identity & Hook (Extended readability duration)
+  const beat1Opacity = useTransform(scrollYProgress, [0, 0.22, 0.36], [1, 1, 0]);
+  const beat1Y = useTransform(scrollYProgress, [0, 0.36], [0, -40]);
+  const beat1Scale = useTransform(scrollYProgress, [0, 0.36], [1, 0.95]);
+  const beat1Visibility = useTransform(scrollYProgress, (v) => (v < 0.38 ? 'visible' : 'hidden'));
 
-  // [BEAT 2: 24% - 72%] Logo Shifts Left (Desktop) or Up (Mobile), Text Slides Up Gracefully
-  const beat2Opacity = useTransform(scrollYProgress, [0.24, 0.38, 0.58, 0.72], [0, 1, 1, 0]);
-  const beat2Y = useTransform(scrollYProgress, [0.24, 0.38, 0.58, 0.72], [50, 0, 0, -45]);
-  const beat2Visibility = useTransform(scrollYProgress, (v) => (v >= 0.22 && v < 0.74 ? 'visible' : 'hidden'));
+  // [BEAT 2: 26% - 74%] Logo Shifts Gracefully, Value Card Slides Up with Slower Decay
+  const beat2Opacity = useTransform(scrollYProgress, [0.26, 0.38, 0.62, 0.74], [0, 1, 1, 0]);
+  const beat2Y = useTransform(scrollYProgress, [0.26, 0.38, 0.62, 0.74], [48, 0, 0, -40]);
+  const beat2Visibility = useTransform(scrollYProgress, (v) => (v >= 0.24 && v < 0.76 ? 'visible' : 'hidden'));
 
-  // [BEAT 3: 62% - 100%] Camera Zooms Through Particles, Business Value & CTA
-  const beat3Opacity = useTransform(scrollYProgress, [0.62, 0.76, 1.0], [0, 1, 1]);
-  const beat3Y = useTransform(scrollYProgress, [0.62, 0.76], [50, 0]);
-  const beat3Visibility = useTransform(scrollYProgress, (v) => (v >= 0.60 ? 'visible' : 'hidden'));
+  // [BEAT 3: 66% - 100%] Camera Zooms Through Particles, Business Value & High-Conversion CTA
+  const beat3Opacity = useTransform(scrollYProgress, [0.66, 0.80, 1.0], [0, 1, 1]);
+  const beat3Y = useTransform(scrollYProgress, [0.66, 0.80], [48, 0]);
+  const beat3Visibility = useTransform(scrollYProgress, (v) => (v >= 0.64 ? 'visible' : 'hidden'));
 
   const scrollToSection = (id: string) => {
     const el = document.getElementById(id);
@@ -93,7 +93,7 @@ export function Hero({ countryContent }: HeroProps = {}) {
     <section
       ref={scrollTrackRef}
       id="hero-scroll-track"
-      className="relative w-full h-[1800px] md:h-auto md:min-h-[340vh] bg-zinc-50 dark:bg-zinc-950 transition-colors duration-300"
+      className="relative w-full h-[2200px] md:h-auto md:min-h-[420vh] bg-zinc-50 dark:bg-zinc-950 transition-colors duration-300"
     >
       {/* Floating Translucent Glassmorphism Mobile Badge (< 768px) - Auto fades past 5% scroll */}
       {!isScrolledPast5Percent && (
@@ -187,31 +187,31 @@ export function Hero({ countryContent }: HeroProps = {}) {
               {/* Centered Backdrop Blur Shield (Radial Glass Overlay with Organic Dissolving Mask) */}
               <div
                 aria-hidden="true"
-                className="absolute top-6 sm:top-10 left-1/2 -translate-x-1/2 w-[94vw] max-w-2xl h-[380px] sm:h-[440px] rounded-full backdrop-blur-md bg-[radial-gradient(circle,rgba(255,255,255,0.65)_0%,rgba(255,255,255,0.30)_40%,transparent_75%)] dark:bg-[radial-gradient(circle,rgba(10,10,12,0.75)_0%,rgba(10,10,12,0.40)_40%,transparent_75%)] [mask-image:radial-gradient(circle,black_55%,transparent_100%)] [-webkit-mask-image:radial-gradient(circle,black_55%,transparent_100%)] pointer-events-none -z-10 select-none"
+                className="absolute top-4 sm:top-8 left-1/2 -translate-x-1/2 w-[95vw] max-w-3xl h-[400px] sm:h-[460px] rounded-full backdrop-blur-xl bg-[radial-gradient(circle,rgba(255,255,255,0.85)_0%,rgba(255,255,255,0.45)_45%,transparent_80%)] dark:bg-[radial-gradient(circle,rgba(10,10,12,0.92)_0%,rgba(10,10,12,0.55)_45%,transparent_80%)] [mask-image:radial-gradient(circle,black_60%,transparent_100%)] [-webkit-mask-image:radial-gradient(circle,black_60%,transparent_100%)] pointer-events-none -z-10 select-none"
               />
 
               {/* Atmospheric subtle color glow behind the blur shield */}
               <div
                 aria-hidden="true"
-                className="absolute top-8 sm:top-12 left-1/2 -translate-x-1/2 w-[85vw] max-w-xl h-[340px] sm:h-[400px] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(59,130,246,0.15)_0%,rgba(16,185,129,0.08)_40%,transparent_75%)] dark:bg-[radial-gradient(ellipse_at_center,rgba(59,130,246,0.18)_0%,rgba(16,185,129,0.10)_40%,transparent_75%)] blur-3xl pointer-events-none -z-20 select-none"
+                className="absolute top-6 sm:top-10 left-1/2 -translate-x-1/2 w-[85vw] max-w-xl h-[340px] sm:h-[400px] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(59,130,246,0.18)_0%,rgba(16,185,129,0.10)_40%,transparent_75%)] dark:bg-[radial-gradient(ellipse_at_center,rgba(59,130,246,0.22)_0%,rgba(16,185,129,0.12)_40%,transparent_75%)] blur-3xl pointer-events-none -z-20 select-none"
               />
 
               {/* Glass Capsule Eyebrow with SF Symbols */}
-              <div className="mb-4 sm:mb-6 flex items-center gap-2 px-3 sm:px-4 py-1.5 rounded-full border border-zinc-200/80 dark:border-white/10 bg-white/85 dark:bg-zinc-900/85 backdrop-blur-2xl text-xs font-mono tracking-widest text-zinc-700 dark:text-white/70 shadow-sm drop-shadow-sm pointer-events-auto">
+              <div className="mb-4 sm:mb-6 flex items-center gap-2 px-3 sm:px-4 py-1.5 rounded-full border border-zinc-200/90 dark:border-white/15 bg-white/90 dark:bg-zinc-900/90 backdrop-blur-2xl text-xs font-mono tracking-widest text-zinc-800 dark:text-white/80 shadow-sm drop-shadow-sm pointer-events-auto">
                 <BrandLogo imgClassName="w-4 h-4 object-contain" className="flex items-center" />
                 <span className="text-zinc-950 dark:text-white font-semibold">ax07.dev</span>
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                <span className="text-zinc-600 dark:text-white/50">{badgeLocation}</span>
+                <span className="text-zinc-700 dark:text-white/60">{badgeLocation}</span>
               </div>
 
-              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold font-display tracking-tight text-zinc-950 dark:text-white drop-shadow-[0_2px_12px_rgba(255,255,255,0.9)] dark:drop-shadow-[0_4px_24px_rgba(0,0,0,0.85)] mb-4 sm:mb-6 leading-[1.12]">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold font-display tracking-tight text-zinc-950 dark:text-white drop-shadow-[0_2px_14px_rgba(255,255,255,1)] dark:drop-shadow-[0_4px_30px_rgba(0,0,0,0.95)] mb-4 sm:mb-6 leading-[1.12]">
                 {t.hero.beat1.titlePart1}{' '}
-                <span className="text-zinc-600 dark:text-zinc-300 font-serif italic block sm:inline drop-shadow-[0_2px_8px_rgba(255,255,255,0.7)] dark:drop-shadow-[0_2px_12px_rgba(0,0,0,0.8)]">
+                <span className="text-zinc-700 dark:text-zinc-200 font-serif italic block sm:inline drop-shadow-[0_2px_10px_rgba(255,255,255,0.85)] dark:drop-shadow-[0_2px_16px_rgba(0,0,0,0.9)]">
                   {t.hero.beat1.titlePart2}
                 </span>
               </h1>
 
-              <p className="text-sm sm:text-base md:text-lg font-medium text-zinc-700 dark:text-zinc-200 drop-shadow-sm max-w-xl sm:max-w-2xl font-sans mb-8 sm:mb-10 leading-relaxed">
+              <p className="text-sm sm:text-base md:text-lg font-medium text-zinc-800 dark:text-zinc-100 drop-shadow-[0_1px_6px_rgba(255,255,255,0.9)] dark:drop-shadow-[0_1px_10px_rgba(0,0,0,0.95)] max-w-xl sm:max-w-2xl font-sans mb-8 sm:mb-10 leading-relaxed">
                 {heroSubtitle}
               </p>
 

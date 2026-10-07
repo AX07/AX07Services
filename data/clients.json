@@ -9,15 +9,6 @@
     "createdAt": "2026-09-28T04:00:00.000Z"
   },
   {
-    "slug": "8to8dental",
-    "name": "8to8 Dental Balbriggan",
-    "stagingUrl": "https://8to8dental-demo.vercel.app",
-    "bookingUrl": "https://booking.uk.hsone.app/soe/new/%20?pid=UKBBC01",
-    "whatsappNumber": "+353894419127",
-    "marketTier": "Ireland (€1,800)",
-    "createdAt": "2026-09-25T10:00:00.000Z"
-  },
-  {
     "slug": "flyfoil",
     "name": "FlyFoil Formosa",
     "stagingUrl": "https://flyfoilformosa.com/",
@@ -36,15 +27,6 @@
     "createdAt": "2026-09-22T16:45:00.000Z"
   },
   {
-    "slug": "altura-kites",
-    "name": "Altura Kitesurf Academy",
-    "stagingUrl": "https://altura-kite-school.vercel.app/",
-    "bookingUrl": "https://wa.me/353894419127?text=Kitesurf%20Course%20Reservation",
-    "whatsappNumber": "+353894419127",
-    "marketTier": "Algarve (€500)",
-    "createdAt": "2026-09-22T16:45:00.000Z"
-  },
-  {
     "slug": "albania",
     "name": "Albania Fácil",
     "stagingUrl": "https://albania-facil.vercel.app/",
@@ -52,24 +34,6 @@
     "whatsappNumber": "+353894419127",
     "marketTier": "Algarve (€500)",
     "createdAt": "2026-09-21T11:00:00.000Z"
-  },
-  {
-    "slug": "albania-facil",
-    "name": "Albania Fácil",
-    "stagingUrl": "https://albania-facil.vercel.app/",
-    "bookingUrl": "https://wa.me/353894419127?text=Albania%20Expedition%20Inquiry",
-    "whatsappNumber": "+353894419127",
-    "marketTier": "Algarve (€500)",
-    "createdAt": "2026-09-21T11:00:00.000Z"
-  },
-  {
-    "slug": "la-kafeteria",
-    "name": "La Kafeteria Tavira",
-    "stagingUrl": "https://la-kafeteria.vercel.app",
-    "bookingUrl": "https://wa.me/353894419127?text=La%20Kafeteria%20Table%20Reservation",
-    "whatsappNumber": "+353894419127",
-    "marketTier": "Algarve (€500)",
-    "createdAt": "2026-09-20T14:00:00.000Z"
   },
   {
     "slug": "fintrack",

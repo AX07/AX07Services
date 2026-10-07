@@ -297,27 +297,8 @@ const TRANSLATIONS: Record<Language, Translations> = {
       modalClose: 'Close modal',
       projects: [
         {
-          id: '8to8dental',
-          index: '01 / 06',
-          title: 'Dental Intake Front Door',
-          client: '8to8 Dental Balbriggan',
-          year: '2025',
-          categories: ['SUB-500MS EDGE ENGINE', 'WHATSAPP TRIAGE INTEGRATED'],
-          stat: 'Sub-500ms',
-          statLabel: 'Triage Load',
-          verifiedBadge: 'VERIFIED RESULT: Sub-500ms Edge Intake & Triage',
-          metadataLabel: 'Dublin North, Ireland · Instant Patient Onboarding Spec',
-          link: 'https://8to8dental-demo.vercel.app',
-          review: {
-            quote:
-              'Patient registrations and emergency intake routing happen instantly with zero friction. Conversion rates doubled within the first month.',
-            author: 'Dr. Sarah K.',
-            role: 'Clinical Director — 8to8 Dental',
-          },
-        },
-        {
           id: 'flyfoil',
-          index: '02 / 06',
+          index: '01 / 06',
           title: 'FlyFoil Formosa',
           client: 'FlyFoil Formosa',
           year: '2025',
@@ -332,6 +313,25 @@ const TRANSLATIONS: Record<Language, Translations> = {
               'Direct WhatsApp bookings increased by +40% in our first month. The 3D board visualizer lets clients inspect our hydrofoil gear before booking.',
             author: 'Nuno',
             role: 'Altura Kites / FlyFoil Formosa',
+          },
+        },
+        {
+          id: 'fintrack',
+          index: '02 / 06',
+          title: 'FinTrack AI',
+          client: 'FinTrack Wealth Advisory',
+          year: '2025',
+          categories: ['FINTECH & 3D', 'SUB-SECOND EDGE'],
+          stat: '+65%',
+          statLabel: 'HNW Leads',
+          verifiedBadge: 'VERIFIED RESULT: +65% High-Net-Worth Leads',
+          metadataLabel: 'Dublin & London · Quantitative Wealth Management Interface',
+          link: 'https://fintrack-ai.vercel.app/',
+          review: {
+            quote:
+              'The dark luxury terminal interface and 60fps WebGL telemetry doubled our high-net-worth client acquisition within weeks.',
+            author: 'Ciarán M.',
+            role: 'Managing Partner — FinTrack Advisory',
           },
         },
         {
@@ -667,27 +667,8 @@ const TRANSLATIONS: Record<Language, Translations> = {
       modalClose: 'Fechar modal',
       projects: [
         {
-          id: '8to8dental',
-          index: '01 / 06',
-          title: 'Dental Intake Front Door',
-          client: '8to8 Dental Balbriggan',
-          year: '2025',
-          categories: ['MOTOR EDGE SUB-500MS', 'TRIAGEM WHATSAPP INTEGRADA'],
-          stat: 'Sub-500ms',
-          statLabel: 'Triagem Rápida',
-          verifiedBadge: 'RESULTADO COMPROVADO: Triagem e Admissão em <500ms',
-          metadataLabel: 'Dublin Norte, Irlanda · Especificação de Entrada Imediata de Pacientes',
-          link: 'https://8to8dental-demo.vercel.app',
-          review: {
-            quote:
-              'O registo de novos pacientes e a triagem de urgências são feitos instantaneamente sem fricção. A taxa de conversão duplicou logo no primeiro mês.',
-            author: 'Dra. Sarah K.',
-            role: 'Diretora Clínica — 8to8 Dental',
-          },
-        },
-        {
           id: 'flyfoil',
-          index: '02 / 06',
+          index: '01 / 06',
           title: 'FlyFoil Formosa',
           client: 'FlyFoil Formosa',
           year: '2025',
@@ -702,6 +683,25 @@ const TRANSLATIONS: Record<Language, Translations> = {
               'As reservas diretas por WhatsApp aumentaram +40% logo no primeiro mês. O visualizador 3D permite que os clientes inspecionem as pranchas antes de reservar.',
             author: 'Nuno',
             role: 'Altura Kites / FlyFoil Formosa',
+          },
+        },
+        {
+          id: 'fintrack',
+          index: '02 / 06',
+          title: 'FinTrack AI',
+          client: 'FinTrack Wealth Advisory',
+          year: '2025',
+          categories: ['FINTECH & 3D', 'MOTOR EDGE SUB-SEGUNDO'],
+          stat: '+65%',
+          statLabel: 'Leads Qualificados',
+          verifiedBadge: 'RESULTADO COMPROVADO: +65% Leads de Alto Valor',
+          metadataLabel: 'Dublin & Londres · Interface de Gestão de Património Quantitativo',
+          link: 'https://fintrack-ai.vercel.app/',
+          review: {
+            quote:
+              'A interface terminal de luxo e a telemetria WebGL a 60fps duplicaram a aquisição de clientes de alto património em semanas.',
+            author: 'Ciarán M.',
+            role: 'Sócio Gestor — FinTrack Advisory',
           },
         },
         {

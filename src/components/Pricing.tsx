@@ -19,8 +19,9 @@ export function Pricing({ countryContent }: PricingProps = {}) {
     }
   }, []);
 
-  const pricingUpfront = countryContent?.pricingUpfront || '€500';
-  const pricingRetainer = countryContent?.pricingRetainer || '€25/mo';
+  const pricingUpfront = countryContent?.pricingUpfront || (lang === 'pt' ? '€500' : '€1,800');
+  const rawRetainer = countryContent?.pricingRetainer || (lang === 'pt' ? '€25/mo' : '€45/mo');
+  const cleanRetainer = rawRetainer.startsWith('+') ? rawRetainer : `+ ${rawRetainer}`;
   const whatsappNumber = countryContent?.whatsappNumber || '353894419127';
 
   const fallbackReassurance = {
@@ -90,7 +91,7 @@ export function Pricing({ countryContent }: PricingProps = {}) {
 
               {/* Price Breakdown */}
               <div className="p-6 rounded-[24px] bg-zinc-100 dark:bg-zinc-900/80 border border-zinc-200 dark:border-white/10 mb-8 backdrop-blur-md">
-                <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-2 pb-4 border-b border-zinc-200 dark:border-white/10">
+                <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-2 pb-3 border-b border-zinc-200 dark:border-white/10">
                   <div>
                     <span className="text-4xl sm:text-5xl font-display font-bold text-zinc-900 dark:text-white tracking-tight">{pricingUpfront}</span>
                     <span className="text-zinc-500 dark:text-white/60 text-xs sm:text-sm font-mono ml-2">{t.pricing.signature.oneTime}</span>
@@ -100,13 +101,12 @@ export function Pricing({ countryContent }: PricingProps = {}) {
                   </span>
                 </div>
 
-                <div className="flex items-center justify-between pt-4">
-                  <div className="flex items-baseline gap-1.5">
-                    <span className="text-2xl font-display font-bold text-zinc-900 dark:text-white tracking-tight">+ {pricingRetainer}</span>
-                    <span className="text-zinc-500 dark:text-white/60 text-xs font-mono">{t.pricing.signature.perMonth}</span>
-                  </div>
-                  <span className="text-xs text-zinc-500 dark:text-white/40 font-mono">
-                    {t.pricing.signature.subNote}
+                <div className="flex items-center justify-between pt-3">
+                  <span className="text-xl font-display font-bold text-zinc-900 dark:text-white/90 tracking-tight">
+                    {cleanRetainer}
+                  </span>
+                  <span className="text-xs font-mono text-zinc-400 dark:text-white/40">
+                    {lang === 'pt' ? 'inclui alojamento & atualizações' : 'includes hosting & updates'}
                   </span>
                 </div>
               </div>
