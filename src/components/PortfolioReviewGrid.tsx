@@ -315,11 +315,15 @@ export function PortfolioReviewGrid() {
                     transform: `translateX(${translateX}%)`,
                     display: isVisible ? 'block' : 'none',
                   }}
-                  className={`absolute w-[78vw] max-w-[325px] sm:w-[84vw] sm:max-w-xl md:w-full md:max-w-4xl lg:max-w-5xl xl:max-w-6xl mx-auto min-h-[580px] sm:min-h-[620px] md:min-h-[660px] overflow-hidden rounded-[32px] sm:rounded-[40px] transition-all duration-700 ease-out cursor-pointer ${
+                  className={`absolute ${
+                    isMobile
+                      ? 'w-[80vw] max-w-[325px] h-[580px] rounded-[48px] border-[6px] border-zinc-800 dark:border-zinc-700/80 shadow-[0_24px_70px_rgba(0,0,0,0.85)] ring-1 ring-white/15'
+                      : 'w-full max-w-4xl lg:max-w-5xl xl:max-w-6xl min-h-[580px] md:min-h-[620px] lg:min-h-[660px] rounded-[28px] border border-white/15 shadow-[0_30px_90px_rgba(0,0,0,0.75)] ring-1 ring-white/10'
+                  } mx-auto overflow-hidden transition-all duration-700 ease-out cursor-pointer ${
                     isActive
-                      ? 'scale-100 opacity-100 z-20 shadow-[0_24px_70px_rgba(0,0,0,0.6)] border-white/20 border-zinc-300 dark:border-white/20 ring-1 ring-zinc-950/15 dark:ring-white/15'
-                      : 'scale-[0.88] sm:scale-[0.92] opacity-45 hover:opacity-75 z-10 filter blur-[0.5px] border-zinc-200/80 dark:border-white/10'
-                  } border bg-zinc-950 group select-none`}
+                      ? 'scale-100 opacity-100 z-20'
+                      : 'scale-[0.88] sm:scale-[0.92] opacity-45 hover:opacity-75 z-10 filter blur-[0.5px]'
+                  } bg-zinc-950 group select-none flex flex-col justify-between`}
                 >
                   {/* Card Background Media */}
                   <img
@@ -328,123 +332,185 @@ export function PortfolioReviewGrid() {
                     className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 ease-out group-hover:scale-105"
                   />
 
-                  {/* Multi-Stop Cinematic Scrim for Complete Text Contrast & Luxury Feel */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/75 via-45% to-black/40 pointer-events-none" />
+                  {/* Multi-Stop Cinematic Scrim for Text Contrast */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/60 via-40% to-black/35 pointer-events-none" />
 
-                  {/* Subtle top subtle mesh glow */}
+                  {/* Subtle ambient mesh glow */}
                   <div className="absolute top-0 right-0 w-80 h-80 bg-emerald-500/10 blur-[100px] pointer-events-none" />
 
-                  {/* Content Container Inside the Big Card */}
-                  <div className="relative z-10 w-full h-full min-h-[580px] sm:min-h-[620px] md:min-h-[660px] p-5 sm:p-9 md:p-12 flex flex-col justify-between text-white pointer-events-auto">
-                    
-                    {/* TOP BAR: Index, Year, Category Badge & 5 Stars */}
-                    <div className="flex flex-wrap items-center justify-between gap-2.5">
-                      <div className="flex items-center gap-2 sm:gap-2.5">
-                        <span className="px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-full bg-white/95 dark:bg-black/70 backdrop-blur-md border border-zinc-200 dark:border-white/20 text-xs font-mono text-zinc-950 dark:text-white/95 shadow-md flex items-center gap-1.5 sm:gap-2">
-                          <span className="text-emerald-600 dark:text-emerald-400 font-bold">{project.index}</span>
-                          <span className="text-zinc-400 dark:text-white/30">·</span>
-                          <span className="font-semibold">{project.year}</span>
-                        </span>
-
-                        <span className="px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-full bg-emerald-500/20 backdrop-blur-md border border-emerald-500/40 text-[10px] sm:text-[11px] font-mono uppercase text-emerald-400 font-bold flex items-center gap-1.5 shadow-sm">
-                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                          <span>{project.categories[0] || 'VERIFIED RESULT'}</span>
-                        </span>
+                  {/* ========================================================================= */}
+                  {/* MOBILE DEVICE FRAME (Smartphone screen preview with Dynamic Island)       */}
+                  {/* ========================================================================= */}
+                  {isMobile ? (
+                    <div className="relative z-10 w-full h-full flex flex-col justify-between text-white pointer-events-auto">
+                      {/* Dynamic Island Pill at Top */}
+                      <div className="absolute top-2.5 left-1/2 -translate-x-1/2 z-30 w-24 h-5 rounded-full bg-black border border-white/15 flex items-center justify-between px-2.5 pointer-events-none shadow-md">
+                        <div className="w-2 h-2 rounded-full bg-[#18181b] border border-white/20 flex items-center justify-center">
+                          <div className="w-1 h-1 rounded-full bg-blue-900/90" />
+                        </div>
+                        <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                       </div>
 
-                      {/* 5 Golden Stars */}
-                      <div className="flex items-center gap-1 bg-black/50 backdrop-blur-md border border-white/10 px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-full">
-                        {[...Array(5)].map((_, i) => (
-                          <Star key={i} className="w-3 sm:w-3.5 h-3 sm:h-3.5 fill-amber-400 text-amber-400" />
-                        ))}
-                        <span className="text-[11px] sm:text-xs font-mono text-white/90 ml-1 font-semibold">5.0</span>
-                      </div>
-                    </div>
-
-                    {/* UPPER MIDDLE: Project Client & Title with minimum height for uniform sleek proportions */}
-                    <div className="my-auto py-3 sm:py-6 max-w-3xl min-h-[140px] sm:min-h-[160px] flex flex-col justify-center">
-                      <p className="text-xs sm:text-sm font-mono text-emerald-400 uppercase tracking-[0.22em] font-semibold mb-1.5 sm:mb-2">
-                        {project.client}
-                      </p>
-                      <h3 className="text-2xl sm:text-4xl md:text-5xl font-extrabold font-display tracking-tight text-white drop-shadow-[0_2px_12px_rgba(0,0,0,0.8)] leading-[1.14]">
-                        {project.title}
-                      </h3>
-                      <div className="mt-2.5 flex flex-wrap items-center gap-2 sm:gap-3 text-xs sm:text-sm font-mono text-white/70">
-                        <span className="text-emerald-300 font-semibold">{project.verifiedBadge}</span>
-                        <span className="text-white/30 hidden sm:inline">|</span>
-                        <span className="text-white/60 text-[11px] sm:text-xs">{project.metadataLabel}</span>
-                      </div>
-                    </div>
-
-                    {/* LOWER SECTION: Integrated Testimonial Glass Block + Full Action CTAs */}
-                    <div className="space-y-4 sm:space-y-6">
-                      
-                      {/* Integrated Testimonial Squircle */}
-                      <div className="rounded-2xl sm:rounded-3xl bg-black/65 backdrop-blur-2xl border border-white/15 p-3.5 sm:p-5 md:p-6 shadow-2xl">
-                        <blockquote className="text-xs sm:text-base md:text-lg font-serif italic text-zinc-100 leading-relaxed line-clamp-3 sm:line-clamp-none">
-                          "{project.review.quote}"
-                        </blockquote>
-                        <div className="mt-2.5 sm:mt-3 flex flex-wrap items-center justify-between gap-1.5 text-xs sm:text-sm text-zinc-300 font-sans border-t border-white/10 pt-2.5 sm:pt-3">
-                          <div className="flex items-center gap-2">
-                            <span className="font-bold text-white font-display text-xs sm:text-base">
-                              {project.review.author}
-                            </span>
-                            <span className="text-white/40">—</span>
-                            <span className="text-zinc-400 text-[11px] sm:text-sm truncate max-w-[140px] sm:max-w-none">{project.review.role}</span>
+                      {/* Phone Top Header: Status Bar + Project Index */}
+                      <div className="w-full">
+                        {/* Status bar */}
+                        <div className="pt-3 px-6 pb-1 flex items-center justify-between text-[11px] font-mono text-white/90 pointer-events-none">
+                          <span className="font-semibold tracking-tight">9:41</span>
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-[9px] font-mono px-1 rounded bg-white/15 text-emerald-400 font-bold">5G</span>
+                            <div className="w-5 h-2.5 rounded-xs border border-white/70 p-0.5 flex items-center">
+                              <div className="w-full h-full bg-white rounded-2xs" />
+                            </div>
                           </div>
-                          <div className="flex items-center gap-1.5 text-[10px] sm:text-[11px] font-mono text-emerald-400">
-                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                            <span>{lang === 'pt' ? 'Verificado' : 'Verified'}</span>
+                        </div>
+
+                        {/* Top Badges */}
+                        <div className="px-4 pt-1.5 flex items-center justify-between">
+                          <span className="px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md border border-white/15 text-[10px] font-mono text-white/90 shadow-sm flex items-center gap-1.5">
+                            <span className="text-emerald-400 font-bold">{project.index}</span>
+                            <span className="text-white/30">·</span>
+                            <span>{project.year}</span>
+                          </span>
+                          <span className="px-2.5 py-1 rounded-full bg-emerald-500/20 backdrop-blur-md border border-emerald-500/40 text-[10px] font-mono uppercase text-emerald-400 font-bold flex items-center gap-1">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                            <span>{project.stat}</span>
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Phone Bottom Sheet Glass Overlay (Clean: Case review text hidden) */}
+                      <div className="w-full">
+                        <div className="m-3 p-4 rounded-[26px] bg-black/80 backdrop-blur-2xl border border-white/15 shadow-2xl flex flex-col gap-3">
+                          <div>
+                            <p className="text-[10px] font-mono uppercase tracking-[0.2em] text-emerald-400 font-semibold mb-0.5">
+                              {project.client}
+                            </p>
+                            <h3 className="text-xl font-bold font-display text-white tracking-tight leading-tight">
+                              {project.title}
+                            </h3>
+                            <p className="text-[11px] font-mono text-emerald-300 font-medium mt-0.5">
+                              {project.verifiedBadge}
+                            </p>
+                          </div>
+
+                          <div className="flex flex-col gap-2 pt-0.5">
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleOpenDemo(project.id, project.title);
+                              }}
+                              className="w-full py-2.5 px-4 rounded-full bg-white text-zinc-950 font-bold text-xs flex items-center justify-center gap-2 hover:bg-zinc-200 transition-all shadow-md active:scale-98 cursor-pointer"
+                            >
+                              <Sparkles className="w-3.5 h-3.5 text-emerald-600 stroke-[2.2]" />
+                              <span>{lang === 'pt' ? 'Ver Demo Ao Vivo' : 'View Live Demo'}</span>
+                              <ArrowUpRight className="w-3.5 h-3.5 stroke-[2.4]" />
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleOpenReview(project);
+                              }}
+                              className="w-full py-2 px-4 rounded-full border border-white/20 bg-white/10 backdrop-blur-xl text-xs font-semibold text-white flex items-center justify-center gap-2 hover:bg-white/20 transition-all active:scale-98 cursor-pointer"
+                            >
+                              <ShieldCheck className="w-3.5 h-3.5 text-emerald-400 stroke-[2]" />
+                              <span>{t.portfolio.viewCaseReview}</span>
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Phone Home Indicator Bar */}
+                        <div className="pb-2 flex justify-center pointer-events-none">
+                          <div className="w-28 h-1 rounded-full bg-white/40" />
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    /* ========================================================================= */
+                    /* DESKTOP BROWSER FRAME (Mac window chrome with URL bar & clean HUD)        */
+                    /* ========================================================================= */
+                    <div className="relative z-10 w-full h-full flex flex-col justify-between text-white pointer-events-auto">
+                      {/* macOS Window Chrome Header */}
+                      <div className="w-full px-5 py-3.5 bg-black/80 backdrop-blur-xl border-b border-white/10 flex items-center justify-between gap-4">
+                        {/* Traffic lights */}
+                        <div className="flex items-center gap-2 shrink-0">
+                          <span className="w-3 h-3 rounded-full bg-[#FF5F56] border border-[#E0443E]/60 shadow-sm" />
+                          <span className="w-3 h-3 rounded-full bg-[#FFBD2E] border border-[#DEA123]/60 shadow-sm" />
+                          <span className="w-3 h-3 rounded-full bg-[#27C93F] border border-[#1AAB29]/60 shadow-sm" />
+                        </div>
+
+                        {/* Centered browser address pill */}
+                        <div className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/[0.06] border border-white/10 text-xs font-mono text-zinc-300 max-w-md w-full justify-center shadow-inner">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                          <span className="text-zinc-500">https://</span>
+                          <span className="font-medium text-white">{project.link.replace('https://', '').replace(/\/$/, '')}</span>
+                        </div>
+
+                        {/* Right: Badges & 5 Stars */}
+                        <div className="flex items-center gap-3 shrink-0">
+                          <span className="px-2.5 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-[10px] font-mono uppercase text-emerald-400 font-bold">
+                            {project.categories[0] || 'VERIFIED RESULT'}
+                          </span>
+                          <div className="flex items-center gap-1 bg-black/40 border border-white/10 px-2.5 py-1 rounded-full">
+                            {[...Array(5)].map((_, i) => (
+                              <Star key={i} className="w-3 h-3 fill-amber-400 text-amber-400" />
+                            ))}
+                            <span className="text-xs font-mono text-white/90 ml-1 font-semibold">5.0</span>
                           </div>
                         </div>
                       </div>
 
-                      {/* Integrated Action CTAs */}
-                      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 sm:gap-3 pt-1">
-                        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
-                          {/* Primary CTA: Launch Live Demo Sandbox */}
+                      {/* Desktop Bottom Floating HUD (Clean: Case review text hidden) */}
+                      <div className="m-6 md:m-8 p-6 md:p-8 rounded-[24px] bg-black/80 backdrop-blur-2xl border border-white/15 shadow-2xl flex flex-col md:flex-row md:items-center justify-between gap-6">
+                        <div>
+                          <div className="flex items-center gap-2.5 mb-1.5">
+                            <span className="text-xs font-mono text-emerald-400 uppercase tracking-[0.2em] font-semibold">
+                              {project.client}
+                            </span>
+                            <span className="text-white/30">·</span>
+                            <span className="text-xs font-mono px-2.5 py-0.5 rounded-md bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/30">
+                              {project.stat} {project.statLabel}
+                            </span>
+                          </div>
+                          <h3 className="text-3xl md:text-4xl font-extrabold font-display tracking-tight text-white drop-shadow-md">
+                            {project.title}
+                          </h3>
+                          <p className="text-xs sm:text-sm font-mono text-zinc-400 mt-1">
+                            {project.metadataLabel}
+                          </p>
+                        </div>
+
+                        <div className="flex items-center gap-3 shrink-0">
                           <button
                             type="button"
                             onClick={(e) => {
                               e.stopPropagation();
                               handleOpenDemo(project.id, project.title);
                             }}
-                            className="px-5 sm:px-7 py-2.5 sm:py-3 rounded-full bg-white text-zinc-950 font-bold text-xs sm:text-sm flex items-center justify-center gap-2 hover:bg-zinc-200 transition-all shadow-[0_8px_30px_rgba(255,255,255,0.25)] hover:scale-[1.02] cursor-pointer"
-                            title="Open Live Demo Sandbox"
+                            className="px-6 py-3 rounded-full bg-white text-zinc-950 font-bold text-sm flex items-center gap-2 hover:bg-zinc-200 transition-all shadow-[0_8px_30px_rgba(255,255,255,0.25)] hover:scale-[1.02] cursor-pointer"
                           >
-                            <Sparkles className="w-3.5 sm:w-4 h-3.5 sm:h-4 text-emerald-600 stroke-[2.2]" />
+                            <Sparkles className="w-4 h-4 text-emerald-600 stroke-[2.2]" />
                             <span>{lang === 'pt' ? 'Ver Demo Ao Vivo' : 'View Live Demo'}</span>
-                            <ArrowUpRight className="w-3.5 sm:w-4 h-3.5 sm:h-4 stroke-[2.4]" />
+                            <ArrowUpRight className="w-4 h-4 stroke-[2.4]" />
                           </button>
 
-                          {/* Secondary CTA: Full Case Review Modal */}
                           <button
                             type="button"
                             onClick={(e) => {
                               e.stopPropagation();
                               handleOpenReview(project);
                             }}
-                            className="px-4 sm:px-6 py-2 sm:py-3 rounded-full border border-white/20 bg-white/10 backdrop-blur-xl text-xs sm:text-sm font-medium text-white flex items-center justify-center gap-2 hover:bg-white/20 hover:border-white/30 transition-all shadow-md cursor-pointer"
+                            className="px-5 py-3 rounded-full border border-white/20 bg-white/10 backdrop-blur-xl text-sm font-medium text-white flex items-center gap-2 hover:bg-white/20 hover:border-white/30 transition-all shadow-md cursor-pointer"
                           >
-                            <ShieldCheck className="w-3.5 sm:w-4 h-3.5 sm:h-4 text-emerald-400 stroke-[2]" />
+                            <ShieldCheck className="w-4 h-4 text-emerald-400 stroke-[2]" />
                             <span>{t.portfolio.viewCaseReview}</span>
                           </button>
                         </div>
-
-                        {/* Interactive Pause Prompt Notice */}
-                        <div className="text-[10px] sm:text-[11px] font-mono text-white/50 flex items-center justify-center sm:justify-start gap-1.5 self-center sm:self-auto">
-                          <MousePointer className="w-3 h-3 text-emerald-400" />
-                          <span>
-                            {isHovered || isTouching
-                              ? (lang === 'pt' ? 'Pausado' : 'Paused')
-                              : (lang === 'pt' ? 'Toque para pausar' : 'Touch to hold')}
-                          </span>
-                        </div>
                       </div>
-
                     </div>
-
-                  </div>
+                  )}
                 </div>
               );
             })}

@@ -66,6 +66,43 @@ export function Process({ countryContent }: ProcessProps = {}) {
     };
   });
 
+  // Silky smooth programmatic scroll interpolation with cubic easing
+  const isScrollingRef = useRef(false);
+
+  const smoothScrollToTarget = (targetY: number, duration = 950) => {
+    if (isScrollingRef.current) return;
+    isScrollingRef.current = true;
+
+    const startY = window.scrollY || document.documentElement.scrollTop;
+    const distance = targetY - startY;
+    if (Math.abs(distance) < 5) {
+      isScrollingRef.current = false;
+      return;
+    }
+
+    const startTime = performance.now();
+
+    // Apple-grade cubic easing for butter-smooth deceleration
+    const easeInOutCubic = (t: number) =>
+      t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+
+    const animateScroll = (currentTime: number) => {
+      const elapsed = currentTime - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      const ease = easeInOutCubic(progress);
+
+      window.scrollTo(0, startY + distance * ease);
+
+      if (progress < 1) {
+        requestAnimationFrame(animateScroll);
+      } else {
+        isScrollingRef.current = false;
+      }
+    };
+
+    requestAnimationFrame(animateScroll);
+  };
+
   // Smooth navigation to smoothly scroll and trigger card lift
   const handleStepClick = (index: number) => {
     setActiveIndex(index);
@@ -76,24 +113,45 @@ export function Process({ countryContent }: ProcessProps = {}) {
       const totalScrollable = sectionRef.current.offsetHeight - window.innerHeight;
       const stepScrollFractions = [0.06, 0.46, 0.82];
       const targetScroll = sectionTop + totalScrollable * stepScrollFractions[index];
-      window.scrollTo({ top: targetScroll, behavior: 'smooth' });
+      smoothScrollToTarget(targetScroll, 950);
     }
   };
 
-  // Touch Swipe Gesture on Stacked Cards Container
+  // Touch Swipe Gesture on Stacked Cards Container with smooth transitions
   const touchStartY = useRef<number | null>(null);
+  const touchStartX = useRef<number | null>(null);
+
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartY.current = e.touches[0].clientY;
+    touchStartX.current = e.touches[0].clientX;
   };
+
   const handleTouchEnd = (e: React.TouchEvent) => {
     if (touchStartY.current === null) return;
+    if (isScrollingRef.current) return;
+
     const dy = e.changedTouches[0].clientY - touchStartY.current;
-    if (dy < -40 && activeIndex < 2) {
-      handleStepClick(activeIndex + 1);
-    } else if (dy > 40 && activeIndex > 0) {
-      handleStepClick(activeIndex - 1);
+    const dx = touchStartX.current !== null ? e.changedTouches[0].clientX - touchStartX.current : 0;
+
+    // Detect swipe (supports both vertical drag and horizontal step swipe)
+    const isVerticalSwipe = Math.abs(dy) > Math.abs(dx);
+
+    if (isVerticalSwipe) {
+      if (dy < -50 && activeIndex < 2) {
+        handleStepClick(activeIndex + 1);
+      } else if (dy > 50 && activeIndex > 0) {
+        handleStepClick(activeIndex - 1);
+      }
+    } else {
+      if (dx < -50 && activeIndex < 2) {
+        handleStepClick(activeIndex + 1);
+      } else if (dx > 50 && activeIndex > 0) {
+        handleStepClick(activeIndex - 1);
+      }
     }
+
     touchStartY.current = null;
+    touchStartX.current = null;
   };
 
   // Segmented progress bar widths
@@ -103,55 +161,55 @@ export function Process({ countryContent }: ProcessProps = {}) {
 
   // =========================================================================
   // STACKED CARD LIFT TRANSFORMS (Physical layering & Peel-Off Effect)
-  // Clean, complete exit so previous cards NEVER linger or block the header
+  // Gentle, wide transition curves so cards glide gracefully without whipping
   // =========================================================================
 
-  // Card 0 (Step 01): On top initially (z-30). Lifts up & away completely between 0.20 and 0.35
-  const card0Y = useTransform(scrollYProgress, [0.20, 0.35], ['0%', '-150%']);
-  const card0Scale = useTransform(scrollYProgress, [0.20, 0.35], [1, 0.94]);
-  const card0Opacity = useTransform(scrollYProgress, [0.20, 0.33], [1, 0]);
-  const card0RotateX = useTransform(scrollYProgress, [0.20, 0.35], [0, 8]);
-  const card0Visibility = useTransform(scrollYProgress, (v) => (v < 0.35 ? 'visible' : 'hidden'));
-  const card0ZIndex = useTransform(scrollYProgress, (v) => (v < 0.35 ? 30 : 0));
+  // Card 0 (Step 01): On top initially (z-30). Lifts up & away smoothly between 0.15 and 0.40
+  const card0Y = useTransform(scrollYProgress, [0.15, 0.40], ['0%', '-150%']);
+  const card0Scale = useTransform(scrollYProgress, [0.15, 0.40], [1, 0.94]);
+  const card0Opacity = useTransform(scrollYProgress, [0.15, 0.38], [1, 0]);
+  const card0RotateX = useTransform(scrollYProgress, [0.15, 0.40], [0, 8]);
+  const card0Visibility = useTransform(scrollYProgress, (v) => (v < 0.40 ? 'visible' : 'hidden'));
+  const card0ZIndex = useTransform(scrollYProgress, (v) => (v < 0.40 ? 30 : 0));
 
-  // Card 1 (Step 02): Peeks under Card 0 (z-20), rises to focus at 0.32, lifts away completely at 0.52 -> 0.65
+  // Card 1 (Step 02): Peeks under Card 0 (z-20), rises to focus at 0.35, lifts away smoothly at 0.48 -> 0.72
   const card1Y = useTransform(
     scrollYProgress,
-    [0.10, 0.28, 0.50, 0.65],
+    [0.08, 0.28, 0.48, 0.72],
     ['20px', '0px', '0px', '-150%']
   );
   const card1Scale = useTransform(
     scrollYProgress,
-    [0.10, 0.28, 0.50, 0.65],
+    [0.08, 0.28, 0.48, 0.72],
     [0.96, 1.0, 1.0, 0.94]
   );
   const card1Opacity = useTransform(
     scrollYProgress,
-    [0.10, 0.28, 0.50, 0.63],
+    [0.08, 0.28, 0.48, 0.70],
     [0.85, 1.0, 1.0, 0]
   );
-  const card1RotateX = useTransform(scrollYProgress, [0.50, 0.65], [0, 8]);
-  const card1Visibility = useTransform(scrollYProgress, (v) => (v >= 0.10 && v < 0.65 ? 'visible' : 'hidden'));
-  const card1ZIndex = useTransform(scrollYProgress, (v) => (v < 0.65 ? 20 : 0));
+  const card1RotateX = useTransform(scrollYProgress, [0.48, 0.72], [0, 8]);
+  const card1Visibility = useTransform(scrollYProgress, (v) => (v >= 0.08 && v < 0.72 ? 'visible' : 'hidden'));
+  const card1ZIndex = useTransform(scrollYProgress, (v) => (v < 0.72 ? 20 : 0));
 
-  // Card 2 (Step 03): Sits at base, rises to prominent focus from 0.50 -> 0.65 and stays clean through 1.00
+  // Card 2 (Step 03): Sits at base, rises to prominent focus from 0.45 -> 0.70 and stays clean through 1.00
   const card2Y = useTransform(
     scrollYProgress,
-    [0.10, 0.30, 0.50, 0.65],
+    [0.08, 0.30, 0.48, 0.70],
     ['36px', '18px', '0px', '0px']
   );
   const card2Scale = useTransform(
     scrollYProgress,
-    [0.10, 0.30, 0.50, 0.65],
+    [0.08, 0.30, 0.48, 0.70],
     [0.92, 0.96, 1.0, 1.0]
   );
   const card2Opacity = useTransform(
     scrollYProgress,
-    [0.10, 0.30, 0.50, 0.65],
+    [0.08, 0.30, 0.48, 0.70],
     [0.70, 0.85, 1.0, 1.0]
   );
-  const card2Visibility = useTransform(scrollYProgress, (v) => (v >= 0.25 ? 'visible' : 'hidden'));
-  const card2ZIndex = useTransform(scrollYProgress, (v) => (v >= 0.65 ? 30 : 10));
+  const card2Visibility = useTransform(scrollYProgress, (v) => (v >= 0.20 ? 'visible' : 'hidden'));
+  const card2ZIndex = useTransform(scrollYProgress, (v) => (v >= 0.70 ? 30 : 10));
 
   return (
     <section
