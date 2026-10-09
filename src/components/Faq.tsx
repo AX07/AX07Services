@@ -4,6 +4,71 @@ import { Plus, Minus, HelpCircle, MessageCircle } from 'lucide-react';
 import { appleSprings, appleGestures } from '../lib/design-system';
 import { useApp } from '../context/ThemeLanguageContext';
 
+function renderAnswerContent(answer: string) {
+  if (!answer.includes('\n\n')) {
+    return <p className="leading-relaxed">{answer}</p>;
+  }
+
+  const paragraphs = answer.split('\n\n');
+  return (
+    <div className="space-y-3.5">
+      {paragraphs.map((p, idx) => {
+        const trimmed = p.trim();
+        const isHeadingBlock =
+          trimmed.startsWith('One-Time Purchase') ||
+          trimmed.startsWith('Pagamento Único') ||
+          trimmed.startsWith('Monthly Partnership') ||
+          trimmed.startsWith('Subscrição Mensal');
+        const isNoteBlock =
+          trimmed.startsWith('Need self-hosting immediately?') ||
+          trimmed.startsWith('Precisa de alojamento próprio imediato?');
+
+        if (isHeadingBlock) {
+          const lines = trimmed.split('\n');
+          const header = lines[0];
+          const body = lines.slice(1).join('\n');
+          return (
+            <div
+              key={idx}
+              className="p-3.5 sm:p-4 rounded-2xl bg-zinc-100/90 dark:bg-white/[0.04] border border-zinc-200 dark:border-white/10"
+            >
+              <div className="font-semibold text-emerald-600 dark:text-emerald-400 font-mono text-xs sm:text-sm mb-1">
+                {header}
+              </div>
+              <p className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-300 leading-relaxed font-sans">
+                {body}
+              </p>
+            </div>
+          );
+        }
+
+        if (isNoteBlock) {
+          return (
+            <div
+              key={idx}
+              className="p-3.5 sm:p-4 rounded-2xl bg-emerald-500/10 dark:bg-emerald-500/15 border border-emerald-500/30 text-emerald-900 dark:text-emerald-200"
+            >
+              <div className="font-semibold text-emerald-700 dark:text-emerald-300 text-xs sm:text-sm mb-1 font-mono flex items-center gap-1.5">
+                <span>⚡</span>
+                <span>{trimmed.includes('?') ? trimmed.split('?')[0] + '?' : 'Self-Hosting Note'}</span>
+              </div>
+              <p className="text-xs sm:text-sm text-emerald-800 dark:text-emerald-200/90 leading-relaxed font-sans">
+                {trimmed.includes('?') ? trimmed.split('?').slice(1).join('?').trim() : trimmed}
+              </p>
+            </div>
+          );
+        }
+
+        return (
+          <p key={idx} className="text-sm sm:text-base leading-relaxed text-zinc-600 dark:text-zinc-300">
+            {trimmed}
+          </p>
+        );
+      })}
+    </div>
+  );
+}
+
 export function Faq() {
   const { t } = useApp();
   const [openIndex, setOpenIndex] = useState<number | null>(0);
@@ -16,7 +81,6 @@ export function Faq() {
     <section 
       id="faq" 
       className="py-24 sm:py-32 px-4 sm:px-6 bg-zinc-50 dark:bg-zinc-950 border-t border-zinc-200 dark:border-white/10 relative z-20 transition-colors duration-300"
-      style={{ contentVisibility: 'auto', containIntrinsicSize: '800px' }}
     >
       <div className="max-w-4xl mx-auto">
         
@@ -90,7 +154,7 @@ export function Faq() {
                       transition={appleSprings.snappy}
                     >
                       <div className="px-5 pb-5 sm:px-6 sm:pb-6 pt-1 border-t border-zinc-200 dark:border-white/5 text-zinc-600 dark:text-white/60 text-sm sm:text-base leading-relaxed font-sans pl-10 sm:pl-14">
-                        {faq.answer}
+                        {renderAnswerContent(faq.answer)}
                       </div>
                     </motion.div>
                   )}

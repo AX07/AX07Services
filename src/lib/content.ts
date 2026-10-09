@@ -38,7 +38,7 @@ export const countryDictionary: Record<CountryCode, CountryContent> = {
     flag: '🇮🇪',
     currency: 'EUR',
     pricingUpfront: '€1,800',
-    pricingRetainer: '€45/mo',
+    pricingRetainer: '€49/mo',
     whatsappNumber: '353894419127',
     heroSubtitle:
       'Interactive 3D visuals, sub-second edge performance, and direct 1-click WhatsApp booking systems crafted for Irish business owners.',

@@ -571,9 +571,9 @@ export function init3DLogo(options = {}) {
 
       // Expand logo scale continuously on every scroll tick from 0.60 all the way to 1.00
       tl.to(logoGroup.scale, {
-        x: () => (window.innerWidth < 768 ? 2.5 : 6.0),
-        y: () => (window.innerWidth < 768 ? 2.5 : 6.0),
-        z: () => (window.innerWidth < 768 ? 2.5 : 6.0),
+        x: () => (window.innerWidth < 768 ? 3.8 : 6.0),
+        y: () => (window.innerWidth < 768 ? 3.8 : 6.0),
+        z: () => (window.innerWidth < 768 ? 3.8 : 6.0),
         duration: 0.40,
         ease: 'none',
       }, 0.60);

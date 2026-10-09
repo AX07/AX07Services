@@ -1,7 +1,6 @@
 import React, { useRef, useState } from 'react';
-import { motion, useScroll, useMotionValueEvent, useTransform, AnimatePresence } from 'motion/react';
-import { Clock, ShieldCheck, Rocket, ArrowRight, CheckCircle2, ChevronDown, MousePointer } from 'lucide-react';
-import { appleSprings } from '../lib/design-system';
+import { motion, useScroll, useMotionValueEvent, useTransform } from 'motion/react';
+import { Clock, ShieldCheck, Rocket, ArrowRight, CheckCircle2, ChevronDown, MousePointer, Sparkles } from 'lucide-react';
 import { useApp } from '../context/ThemeLanguageContext';
 import { CountryContent } from '../lib/content';
 
@@ -14,22 +13,23 @@ export interface ProcessProps {
 export function Process({ countryContent }: ProcessProps = {}) {
   const { t, lang } = useApp();
   const sectionRef = useRef<HTMLDivElement>(null);
+  const cardStackRef = useRef<HTMLDivElement>(null);
   const [activeIndex, setActiveIndex] = useState(0);
 
   const pricingUpfront = countryContent?.pricingUpfront || (lang === 'pt' ? '€500' : '€1,800');
-  const pricingRetainer = countryContent?.pricingRetainer || (lang === 'pt' ? '€25/mo' : '€45/mo');
+  const pricingRetainer = countryContent?.pricingRetainer || (lang === 'pt' ? '€25/mo' : '€49/mo');
 
-  // Scroll progress through the 240vh section
+  // Extended scroll runway so cards lift smoothly with physical weight
   const { scrollYProgress } = useScroll({
     target: sectionRef,
     offset: ['start start', 'end end'],
   });
 
-  // Dynamically trigger step expansion based on scroll depth
+  // Track active step based on scroll depth
   useMotionValueEvent(scrollYProgress, 'change', (latest) => {
-    if (latest < 0.33) {
+    if (latest < 0.35) {
       setActiveIndex(0);
-    } else if (latest < 0.66) {
+    } else if (latest < 0.68) {
       setActiveIndex(1);
     } else {
       setActiveIndex(2);
@@ -42,19 +42,19 @@ export function Process({ countryContent }: ProcessProps = {}) {
         ...st,
         desc:
           lang === 'pt'
-            ? `Pague ${pricingUpfront} apenas após aprovar. Depois, ${pricingRetainer} para alojamento edge global de alta velocidade na Vercel, certificados SSL automáticos e suporte contínuo.`
-            : `Only pay ${pricingUpfront} once approved. Then ${pricingRetainer} for ultra-fast Vercel edge global hosting, continuous SSL certificates, and on-demand content updates.`,
+            ? 'Pague apenas após aprovar. Terá uma subscrição de 1 ano para alojamento edge ultrarrápido na Vercel, certificados SSL contínuos e atualizações de conteúdo a pedido.'
+            : 'Only pay once approved, you will have a 1-year subscription for ultra-fast Vercel edge hosting, continuous SSL certificates and on-demand content updates.',
         highlights:
           lang === 'pt'
             ? [
                 'Conexão do seu domínio em 1 clique',
-                'CDN Edge global e SSL incluídos',
-                `Manutenção fixa de ${pricingRetainer}`,
+                'Alojamento Edge Vercel e SSL contínuo',
+                'Subscrição de 1 ano com atualizações a pedido',
               ]
             : [
                 '1-click DNS domain attach',
-                'Global Edge CDN & SSL included',
-                `${pricingRetainer} flat maintenance`,
+                'Ultra-fast Vercel Edge hosting & continuous SSL',
+                '1-year subscription with on-demand content updates',
               ],
         icon: stepIcons[idx] || stepIcons[0],
       };
@@ -66,17 +66,34 @@ export function Process({ countryContent }: ProcessProps = {}) {
     };
   });
 
-  // Smooth click navigation to jump to a specific step along the scroll track
+  // Smooth navigation to smoothly scroll and trigger card lift
   const handleStepClick = (index: number) => {
     setActiveIndex(index);
     if (sectionRef.current) {
       const rect = sectionRef.current.getBoundingClientRect();
       const scrollTop = window.scrollY || document.documentElement.scrollTop;
       const sectionTop = rect.top + scrollTop;
-      const totalScrollable = rect.height - window.innerHeight;
-      const targetScroll = sectionTop + totalScrollable * (index * 0.35 + 0.08);
+      const totalScrollable = sectionRef.current.offsetHeight - window.innerHeight;
+      const stepScrollFractions = [0.06, 0.46, 0.82];
+      const targetScroll = sectionTop + totalScrollable * stepScrollFractions[index];
       window.scrollTo({ top: targetScroll, behavior: 'smooth' });
     }
+  };
+
+  // Touch Swipe Gesture on Stacked Cards Container
+  const touchStartY = useRef<number | null>(null);
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartY.current = e.touches[0].clientY;
+  };
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartY.current === null) return;
+    const dy = e.changedTouches[0].clientY - touchStartY.current;
+    if (dy < -40 && activeIndex < 2) {
+      handleStepClick(activeIndex + 1);
+    } else if (dy > 40 && activeIndex > 0) {
+      handleStepClick(activeIndex - 1);
+    }
+    touchStartY.current = null;
   };
 
   // Segmented progress bar widths
@@ -84,40 +101,90 @@ export function Process({ countryContent }: ProcessProps = {}) {
   const bar2Width = useTransform(scrollYProgress, [0.33, 0.66], ['0%', '100%']);
   const bar3Width = useTransform(scrollYProgress, [0.66, 1.0], ['0%', '100%']);
 
-  const currentStep = steps[activeIndex] || steps[0];
-  const CurrentIcon = currentStep.icon;
+  // =========================================================================
+  // STACKED CARD LIFT TRANSFORMS (Physical layering & Peel-Off Effect)
+  // Clean, complete exit so previous cards NEVER linger or block the header
+  // =========================================================================
+
+  // Card 0 (Step 01): On top initially (z-30). Lifts up & away completely between 0.20 and 0.35
+  const card0Y = useTransform(scrollYProgress, [0.20, 0.35], ['0%', '-150%']);
+  const card0Scale = useTransform(scrollYProgress, [0.20, 0.35], [1, 0.94]);
+  const card0Opacity = useTransform(scrollYProgress, [0.20, 0.33], [1, 0]);
+  const card0RotateX = useTransform(scrollYProgress, [0.20, 0.35], [0, 8]);
+  const card0Visibility = useTransform(scrollYProgress, (v) => (v < 0.35 ? 'visible' : 'hidden'));
+  const card0ZIndex = useTransform(scrollYProgress, (v) => (v < 0.35 ? 30 : 0));
+
+  // Card 1 (Step 02): Peeks under Card 0 (z-20), rises to focus at 0.32, lifts away completely at 0.52 -> 0.65
+  const card1Y = useTransform(
+    scrollYProgress,
+    [0.10, 0.28, 0.50, 0.65],
+    ['20px', '0px', '0px', '-150%']
+  );
+  const card1Scale = useTransform(
+    scrollYProgress,
+    [0.10, 0.28, 0.50, 0.65],
+    [0.96, 1.0, 1.0, 0.94]
+  );
+  const card1Opacity = useTransform(
+    scrollYProgress,
+    [0.10, 0.28, 0.50, 0.63],
+    [0.85, 1.0, 1.0, 0]
+  );
+  const card1RotateX = useTransform(scrollYProgress, [0.50, 0.65], [0, 8]);
+  const card1Visibility = useTransform(scrollYProgress, (v) => (v >= 0.10 && v < 0.65 ? 'visible' : 'hidden'));
+  const card1ZIndex = useTransform(scrollYProgress, (v) => (v < 0.65 ? 20 : 0));
+
+  // Card 2 (Step 03): Sits at base, rises to prominent focus from 0.50 -> 0.65 and stays clean through 1.00
+  const card2Y = useTransform(
+    scrollYProgress,
+    [0.10, 0.30, 0.50, 0.65],
+    ['36px', '18px', '0px', '0px']
+  );
+  const card2Scale = useTransform(
+    scrollYProgress,
+    [0.10, 0.30, 0.50, 0.65],
+    [0.92, 0.96, 1.0, 1.0]
+  );
+  const card2Opacity = useTransform(
+    scrollYProgress,
+    [0.10, 0.30, 0.50, 0.65],
+    [0.70, 0.85, 1.0, 1.0]
+  );
+  const card2Visibility = useTransform(scrollYProgress, (v) => (v >= 0.25 ? 'visible' : 'hidden'));
+  const card2ZIndex = useTransform(scrollYProgress, (v) => (v >= 0.65 ? 30 : 10));
 
   return (
     <section
       ref={sectionRef}
       id="process"
-      className="relative w-full min-h-[240vh] bg-zinc-50 dark:bg-zinc-950 border-t border-zinc-200 dark:border-white/10 transition-colors duration-300"
+      className="relative w-full min-h-[280vh] bg-zinc-50 dark:bg-zinc-950 border-t border-zinc-200 dark:border-white/10 transition-colors duration-300"
     >
-      {/* Sticky Viewport Container: Locks in place for 100vh while user scrolls through the 3 steps */}
-      <div className="sticky top-0 w-full h-screen h-[100dvh] flex flex-col justify-start pt-24 sm:pt-28 md:pt-32 pb-8 sm:pb-12 px-4 sm:px-6 overflow-hidden z-20">
-        <div className="max-w-6xl mx-auto w-full flex flex-col justify-between h-full max-h-[820px]">
+      {/* Sticky Viewport Container: 100vh pinned while cards are lifted */}
+      <div className="sticky top-0 w-full h-screen h-[100dvh] flex flex-col justify-start pt-20 sm:pt-24 md:pt-28 pb-6 sm:pb-8 px-4 sm:px-6 overflow-hidden z-20">
+        <div className="max-w-5xl mx-auto w-full flex flex-col justify-between h-full max-h-[860px]">
           
           {/* Section Header */}
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 md:gap-6 mb-4 md:mb-6">
+          <div className="relative z-30 flex flex-col md:flex-row md:items-end justify-between gap-4 md:gap-6 mb-3 sm:mb-4 bg-zinc-50/95 dark:bg-zinc-950/95 backdrop-blur-md pt-1 pb-2">
             <div>
-              <div className="text-xs font-mono tracking-widest text-zinc-500 dark:text-white/40 mb-2 sm:mb-3 flex items-center gap-2">
+              <div className="text-xs font-mono tracking-widest text-zinc-500 dark:text-white/40 mb-1.5 sm:mb-2 flex items-center gap-2">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                 <span className="text-zinc-700 dark:text-white/60">{t.process.tag}</span>
               </div>
               <h2 className="text-2xl sm:text-4xl md:text-5xl font-bold tracking-tight text-zinc-900 dark:text-white font-display">
                 {t.process.title}
               </h2>
-              <p className="text-xs sm:text-base md:text-lg text-zinc-600 dark:text-white/60 font-sans mt-1.5 max-w-xl">
+              <p className="text-xs sm:text-base text-zinc-600 dark:text-white/60 font-sans mt-1 max-w-xl">
                 &ldquo;{t.process.quote}&rdquo;
               </p>
             </div>
 
-            {/* Scroll-Driven Step Navigation & Live Indicator */}
-            <div className="flex flex-col items-start md:items-end gap-2">
+            {/* Step Navigation Pill Controls */}
+            <div className="flex flex-col items-start md:items-end gap-1.5">
               <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
                 {steps.map((step, idx) => (
                   <button
                     key={idx}
+                    type="button"
                     onClick={() => handleStepClick(idx)}
                     className={`flex items-center gap-1.5 sm:gap-2 px-3 py-1.5 rounded-full border text-xs font-mono transition-all cursor-pointer ${
                       activeIndex === idx
@@ -136,14 +203,14 @@ export function Process({ countryContent }: ProcessProps = {}) {
               </div>
 
               <div className="hidden sm:flex items-center gap-2 text-xs font-mono text-zinc-500 dark:text-white/40">
-                <MousePointer className="w-3.5 h-3.5 text-emerald-500 dark:text-emerald-400 stroke-[1.75]" />
-                <span>{t.process.scrollCycle} &middot; Step 0{activeIndex + 1} Active</span>
+                <MousePointer className="w-3.5 h-3.5 text-emerald-500 stroke-[1.75]" />
+                <span>{t.process.scrollCycle} &middot; Step 0{activeIndex + 1} of 03</span>
               </div>
             </div>
           </div>
 
           {/* Segmented Scroll Progress Bar (01 / 02 / 03) */}
-          <div className="grid grid-cols-3 gap-2 sm:gap-3 mb-4 sm:mb-6">
+          <div className="grid grid-cols-3 gap-2 sm:gap-3 mb-3 sm:mb-4">
             <div className="h-1 bg-zinc-200 dark:bg-white/10 rounded-full overflow-hidden">
               <motion.div
                 style={{ width: bar1Width }}
@@ -165,215 +232,268 @@ export function Process({ countryContent }: ProcessProps = {}) {
           </div>
 
           {/* ========================================================================= */}
-          {/* MOBILE VIEW (< md): Focused Single Active Card Presentation                */}
+          {/* THE STACKED CARDS STAGE (Cards stacked on top of each other, lifting up)  */}
           {/* ========================================================================= */}
-          <div className="block md:hidden w-full">
-            <AnimatePresence mode="wait">
+          <div
+            ref={cardStackRef}
+            onTouchStart={handleTouchStart}
+            onTouchEnd={handleTouchEnd}
+            className="relative w-full max-w-4xl mx-auto h-[440px] sm:h-[480px] md:h-[500px] flex items-center justify-center my-auto"
+            style={{ perspective: 1200 }}
+          >
+            {/* Ambient Radial Glow behind the active stack */}
+            <div
+              aria-hidden="true"
+              className="absolute inset-0 bg-emerald-500/5 dark:bg-emerald-500/10 blur-[100px] rounded-full pointer-events-none -z-10"
+            />
+
+            {/* ------------------------------------------------------------------- */}
+            {/* STEP 03 CARD (Base of Stack - dynamic zIndex)                       */}
+            {/* ------------------------------------------------------------------- */}
+            {steps[2] && (
               <motion.div
-                key={activeIndex}
-                initial={{ opacity: 0, y: 10, scale: 0.98 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: -8, scale: 0.98 }}
-                transition={appleSprings.snappy}
-                className="relative rounded-[32px] border border-zinc-200 dark:border-white/10 bg-white/80 dark:bg-white/[0.04] p-6 shadow-2xl backdrop-blur-xl ring-1 ring-emerald-500/20"
+                style={{
+                  y: card2Y,
+                  scale: card2Scale,
+                  opacity: card2Opacity,
+                  visibility: card2Visibility,
+                  zIndex: card2ZIndex,
+                }}
+                className="absolute inset-0 rounded-[28px] sm:rounded-[36px] border border-zinc-300 dark:border-white/15 bg-white/95 dark:bg-[#0c0c0e]/95 backdrop-blur-2xl p-6 sm:p-8 md:p-10 shadow-2xl flex flex-col justify-between overflow-hidden"
               >
-                {/* Top Row: Number & Badge */}
-                <div className="flex items-center justify-between mb-3">
-                  <span className="font-mono font-bold tracking-tighter text-4xl sm:text-5xl text-zinc-900 dark:text-white">
-                    {currentStep.num}
-                  </span>
-
-                  <div className="flex items-center gap-1.5 px-3 py-1 rounded-full border border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] font-mono uppercase tracking-wider font-semibold">
-                    <CurrentIcon className="w-3.5 h-3.5 text-emerald-500 dark:text-emerald-400 stroke-[1.75]" />
-                    <span>{currentStep.badge}</span>
+                {/* Top Row: Number & Badges */}
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-baseline gap-3">
+                    <span className="font-mono font-bold tracking-tighter text-4xl sm:text-5xl md:text-6xl text-zinc-900 dark:text-white">
+                      03
+                    </span>
+                    <span className="text-xs font-mono uppercase tracking-widest text-emerald-600 dark:text-emerald-400 font-semibold hidden sm:inline">
+                      {steps[2].stepLabel}
+                    </span>
                   </div>
-                </div>
 
-                {/* Step Subheader */}
-                <div className="flex items-center gap-2 mb-1.5">
-                  <span className="text-[10px] font-mono uppercase tracking-widest text-emerald-600 dark:text-emerald-400 font-semibold">
-                    {currentStep.stepLabel}
-                  </span>
-                  <span className="text-[9px] font-mono text-zinc-500 dark:text-white/40 px-2 py-0.5 rounded-full border border-zinc-200 dark:border-white/10 bg-zinc-100 dark:bg-white/[0.04]">
-                    {currentStep.timeline}
-                  </span>
-                </div>
-
-                {/* Main Title */}
-                <h3 className="text-lg sm:text-xl font-bold font-display text-zinc-900 dark:text-white mb-2 leading-snug tracking-tight">
-                  {currentStep.title}
-                </h3>
-
-                {/* Body Copy */}
-                <p className="text-zinc-600 dark:text-white/60 text-xs sm:text-sm leading-relaxed mb-4 font-sans">
-                  {currentStep.desc}
-                </p>
-
-                {/* Key Feature Highlights */}
-                <div className="space-y-1.5 pt-3 border-t border-zinc-200 dark:border-white/10 mb-3">
-                  {(currentStep?.highlights || []).map((h, hIdx) => (
-                    <div
-                      key={hIdx}
-                      className="flex items-center gap-2 p-2 rounded-xl bg-zinc-100 dark:bg-white/[0.04] border border-zinc-200 dark:border-white/10 text-xs text-zinc-800 dark:text-white/80 font-mono"
-                    >
-                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 dark:text-emerald-400 shrink-0 stroke-[1.75]" />
-                      <span className="truncate">{h}</span>
+                  <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1.5 px-3 py-1 rounded-full border border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] sm:text-xs font-mono uppercase tracking-wider font-semibold">
+                      <Rocket className="w-3.5 h-3.5 text-emerald-500 stroke-[1.75]" />
+                      <span>{steps[2].badge}</span>
                     </div>
-                  ))}
+                    <span className="text-[10px] font-mono text-zinc-500 dark:text-white/50 px-2.5 py-1 rounded-full border border-zinc-200 dark:border-white/10 bg-zinc-100 dark:bg-white/[0.04]">
+                      {steps[2].timeline}
+                    </span>
+                  </div>
                 </div>
 
-                {/* Mobile Bottom Status Indicator */}
-                <div className="pt-2 border-t border-zinc-200 dark:border-white/10 flex items-center justify-between text-xs font-mono">
-                  <div className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 uppercase tracking-wider text-[11px] font-semibold">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping" />
-                    <span>Step 0{activeIndex + 1} of 03 Active</span>
+                {/* Middle Content: Title, Description & Feature Highlights */}
+                <div className="my-auto py-2">
+                  <h3 className="text-xl sm:text-2xl md:text-3xl font-bold font-display text-zinc-900 dark:text-white mb-2 leading-tight tracking-tight">
+                    {steps[2].title}
+                  </h3>
+
+                  <p className="text-zinc-600 dark:text-zinc-300 text-xs sm:text-sm md:text-base leading-relaxed mb-4 max-w-3xl font-sans">
+                    {steps[2].desc}
+                  </p>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-3 border-t border-zinc-200 dark:border-white/10">
+                    {(steps[2].highlights || []).map((h, hIdx) => (
+                      <div
+                        key={hIdx}
+                        className="flex items-center gap-2 p-2 sm:p-2.5 rounded-xl bg-zinc-100 dark:bg-white/[0.04] border border-zinc-200 dark:border-white/10 text-xs text-zinc-800 dark:text-zinc-200 font-mono"
+                      >
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0 stroke-[2]" />
+                        <span className="truncate">{h}</span>
+                      </div>
+                    ))}
                   </div>
-                  <span className="text-zinc-400 dark:text-white/40 text-[11px]">Scroll to advance ↓</span>
+                </div>
+
+                {/* Bottom Bar: Action */}
+                <div className="pt-3 border-t border-zinc-200 dark:border-white/10 flex items-center justify-between text-xs font-mono">
+                  <div className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-semibold uppercase tracking-wider text-[11px]">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping" />
+                    <span>Step 03 of 03 &middot; Production Ready</span>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const pricingEl = document.getElementById('pricing');
+                      pricingEl?.scrollIntoView({ behavior: 'smooth' });
+                    }}
+                    className="flex items-center gap-1.5 text-xs font-semibold text-zinc-900 dark:text-white hover:text-emerald-500 dark:hover:text-emerald-400 transition-colors cursor-pointer"
+                  >
+                    <span>{lang === 'pt' ? 'Ver Planos de Preço' : 'See Pricing Plans'}</span>
+                    <ArrowRight className="w-3.5 h-3.5 stroke-[2]" />
+                  </button>
                 </div>
               </motion.div>
-            </AnimatePresence>
-          </div>
+            )}
 
-          {/* ========================================================================= */}
-          {/* DESKTOP VIEW (>= md): Horizontal Expanding Squircle Card Deck              */}
-          {/* ========================================================================= */}
-          <div className="hidden md:flex flex-row gap-4 h-[380px] md:h-[400px] lg:h-[410px] w-full">
-            {steps.map((step, i) => {
-              const Icon = step.icon;
-              const isActive = activeIndex === i;
-
-              return (
-                <motion.div
-                  layout
-                  key={step.num}
-                  onClick={() => handleStepClick(i)}
-                  onMouseEnter={() => setActiveIndex(i)}
-                  transition={appleSprings.snappy}
-                  className={`group relative rounded-[32px] border transition-all duration-500 cursor-pointer overflow-hidden backdrop-blur-xl ${
-                    isActive
-                      ? 'md:flex-[3.2] flex-1 bg-white/90 dark:bg-white/[0.06] border-zinc-300 dark:border-white/20 shadow-2xl ring-1 ring-emerald-500/20'
-                      : 'md:flex-1 bg-white/50 dark:bg-white/[0.03] border-zinc-200 dark:border-white/10 hover:border-zinc-300 dark:hover:border-white/20 hover:bg-white/80 dark:hover:bg-white/[0.05]'
-                  } p-6 md:p-8 flex flex-col justify-between`}
-                >
-                  {/* Ambient Highlight for Active Card */}
-                  {isActive && (
-                    <div className="absolute top-0 right-0 w-80 h-80 bg-blue-500/10 rounded-full blur-[100px] pointer-events-none -mr-20 -mt-20" />
-                  )}
-
-                  {/* Top Row: Number & Badge */}
-                  <div className="relative z-10 flex items-center justify-between mb-4">
-                    <span
-                      className={`font-mono font-bold tracking-tighter transition-all duration-300 ${
-                        isActive
-                          ? 'text-5xl md:text-6xl text-zinc-900 dark:text-white drop-shadow-[0_0_20px_rgba(0,0,0,0.1)] dark:drop-shadow-[0_0_20px_rgba(255,255,255,0.2)]'
-                          : 'text-4xl md:text-5xl text-zinc-400 dark:text-white/30 group-hover:text-zinc-600 dark:group-hover:text-white/60'
-                      }`}
-                    >
-                      {step.num}
+            {/* ------------------------------------------------------------------- */}
+            {/* STEP 02 CARD (Middle of Stack)                                      */}
+            {/* ------------------------------------------------------------------- */}
+            {steps[1] && (
+              <motion.div
+                style={{
+                  y: card1Y,
+                  scale: card1Scale,
+                  opacity: card1Opacity,
+                  rotateX: card1RotateX,
+                  visibility: card1Visibility,
+                  zIndex: card1ZIndex,
+                  transformOrigin: 'top center',
+                }}
+                className="absolute inset-0 rounded-[28px] sm:rounded-[36px] border border-zinc-300 dark:border-white/15 bg-white/95 dark:bg-[#0c0c0e]/95 backdrop-blur-2xl p-6 sm:p-8 md:p-10 shadow-2xl flex flex-col justify-between overflow-hidden"
+              >
+                {/* Top Row: Number & Badges */}
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-baseline gap-3">
+                    <span className="font-mono font-bold tracking-tighter text-4xl sm:text-5xl md:text-6xl text-zinc-900 dark:text-white">
+                      02
                     </span>
-
-                    <div
-                      className={`flex items-center gap-1.5 px-3 py-1 rounded-full border transition-all font-semibold ${
-                        isActive
-                          ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-xs font-mono uppercase tracking-wider'
-                          : 'border-zinc-200 dark:border-white/10 bg-zinc-100 dark:bg-white/[0.04] text-zinc-500 dark:text-white/40 text-[10px] font-mono uppercase tracking-wider group-hover:border-zinc-300 dark:group-hover:border-white/20 group-hover:text-zinc-800 dark:group-hover:text-white/70'
-                      }`}
-                    >
-                      <Icon className={`w-3.5 h-3.5 stroke-[1.75] ${isActive ? 'text-emerald-500 dark:text-emerald-400' : 'text-zinc-400 dark:text-white/40'}`} />
-                      <span>{step.badge}</span>
-                    </div>
+                    <span className="text-xs font-mono uppercase tracking-widest text-emerald-600 dark:text-emerald-400 font-semibold hidden sm:inline">
+                      {steps[1].stepLabel}
+                    </span>
                   </div>
 
-                  {/* Card Content Area */}
-                  <div className="relative z-10 my-auto">
-                    {isActive ? (
-                      <motion.div
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0 }}
-                        transition={appleSprings.snappy}
-                        className="py-1"
+                  <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1.5 px-3 py-1 rounded-full border border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] sm:text-xs font-mono uppercase tracking-wider font-semibold">
+                      <ShieldCheck className="w-3.5 h-3.5 text-emerald-500 stroke-[1.75]" />
+                      <span>{steps[1].badge}</span>
+                    </div>
+                    <span className="text-[10px] font-mono text-zinc-500 dark:text-white/50 px-2.5 py-1 rounded-full border border-zinc-200 dark:border-white/10 bg-zinc-100 dark:bg-white/[0.04]">
+                      {steps[1].timeline}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Middle Content */}
+                <div className="my-auto py-2">
+                  <h3 className="text-xl sm:text-2xl md:text-3xl font-bold font-display text-zinc-900 dark:text-white mb-2 leading-tight tracking-tight">
+                    {steps[1].title}
+                  </h3>
+
+                  <p className="text-zinc-600 dark:text-zinc-300 text-xs sm:text-sm md:text-base leading-relaxed mb-4 max-w-3xl font-sans">
+                    {steps[1].desc}
+                  </p>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-3 border-t border-zinc-200 dark:border-white/10">
+                    {(steps[1].highlights || []).map((h, hIdx) => (
+                      <div
+                        key={hIdx}
+                        className="flex items-center gap-2 p-2 sm:p-2.5 rounded-xl bg-zinc-100 dark:bg-white/[0.04] border border-zinc-200 dark:border-white/10 text-xs text-zinc-800 dark:text-zinc-200 font-mono"
                       >
-                        {/* Step Subheader */}
-                        <div className="flex items-center gap-2 mb-2">
-                          <span className="text-xs font-mono uppercase tracking-widest text-emerald-600 dark:text-emerald-400 font-semibold block">
-                            {step.stepLabel}
-                          </span>
-                          <span className="text-[10px] font-mono text-zinc-500 dark:text-white/40 px-2 py-0.5 rounded-full border border-zinc-200 dark:border-white/10 bg-zinc-100 dark:bg-white/[0.04]">
-                            {step.timeline}
-                          </span>
-                        </div>
-
-                        {/* Main Title */}
-                        <h3 className="text-2xl md:text-3xl font-bold font-display text-zinc-900 dark:text-white mb-3 leading-tight tracking-tight">
-                          {step.title}
-                        </h3>
-
-                        {/* Full Body Copy */}
-                        <p className="text-zinc-600 dark:text-white/60 text-sm md:text-base leading-relaxed mb-5 font-sans">
-                          {step.desc}
-                        </p>
-
-                        {/* Key Feature Highlights */}
-                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-3 border-t border-zinc-200 dark:border-white/10">
-                          {(step?.highlights || []).map((h, hIdx) => (
-                            <div
-                              key={hIdx}
-                              className="flex items-center gap-1.5 p-2 rounded-xl bg-zinc-100 dark:bg-white/[0.04] border border-zinc-200 dark:border-white/10 text-xs text-zinc-800 dark:text-white/80 font-mono"
-                            >
-                              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 dark:text-emerald-400 shrink-0 stroke-[1.75]" />
-                              <span className="truncate">{h}</span>
-                            </div>
-                          ))}
-                        </div>
-                      </motion.div>
-                    ) : (
-                      <div className="py-2">
-                        <span className="text-xs font-mono uppercase tracking-widest text-zinc-400 dark:text-white/40 mb-1.5 block">
-                          Step {step.num} &middot; {step.timeline}
-                        </span>
-                        <h4 className="text-base sm:text-lg font-bold text-zinc-700 dark:text-white/60 group-hover:text-zinc-900 dark:group-hover:text-white transition-colors leading-snug tracking-tight">
-                          {step.shortTitle}
-                        </h4>
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0 stroke-[2]" />
+                        <span className="truncate">{h}</span>
                       </div>
-                    )}
+                    ))}
+                  </div>
+                </div>
+
+                {/* Bottom Bar */}
+                <div className="pt-3 border-t border-zinc-200 dark:border-white/10 flex items-center justify-between text-xs font-mono">
+                  <div className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-semibold uppercase tracking-wider text-[11px]">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping" />
+                    <span>Step 02 of 03 Active</span>
                   </div>
 
-                  {/* Bottom Row / Status Bar */}
-                  <div className="relative z-10 pt-3 mt-2 border-t border-zinc-200 dark:border-white/10 flex items-center justify-between">
-                    {isActive ? (
-                      <div className="flex items-center gap-2 text-xs font-mono text-emerald-600 dark:text-emerald-400 uppercase tracking-wider font-semibold">
-                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping" />
-                        <span>{t.process.activeStep} ({step.num}/03)</span>
-                      </div>
-                    ) : (
-                      <div className="flex items-center gap-1.5 text-xs font-mono text-zinc-400 dark:text-white/40 group-hover:text-zinc-700 dark:group-hover:text-white/70 transition-colors uppercase tracking-wider">
-                        <span>{t.process.scrollOrClick}</span>
-                        <ArrowRight className="w-3 h-3 text-emerald-500 dark:text-emerald-400 group-hover:translate-x-0.5 transition-transform stroke-[1.75]" />
-                      </div>
-                    )}
+                  <button
+                    type="button"
+                    onClick={() => handleStepClick(2)}
+                    className="flex items-center gap-1.5 text-xs font-semibold text-zinc-700 dark:text-zinc-300 hover:text-emerald-500 dark:hover:text-emerald-400 transition-colors cursor-pointer"
+                  >
+                    <span>{lang === 'pt' ? 'Levantar para revelar o Passo 03' : 'Lift card to reveal Step 03'}</span>
+                    <ArrowRight className="w-3.5 h-3.5 stroke-[2]" />
+                  </button>
+                </div>
+              </motion.div>
+            )}
 
-                    <div className="hidden sm:flex items-center gap-1">
-                      {[0, 1, 2].map((dotIdx) => (
-                        <span
-                          key={dotIdx}
-                          className={`h-1 rounded-full transition-all duration-300 ${
-                            dotIdx === i ? 'w-6 bg-emerald-500 dark:bg-emerald-400' : 'w-1.5 bg-zinc-300 dark:bg-white/20'
-                          }`}
-                        />
-                      ))}
+            {/* ------------------------------------------------------------------- */}
+            {/* STEP 01 CARD (Top of Stack)                                         */}
+            {/* ------------------------------------------------------------------- */}
+            {steps[0] && (
+              <motion.div
+                style={{
+                  y: card0Y,
+                  scale: card0Scale,
+                  opacity: card0Opacity,
+                  rotateX: card0RotateX,
+                  visibility: card0Visibility,
+                  zIndex: card0ZIndex,
+                  transformOrigin: 'top center',
+                }}
+                className="absolute inset-0 rounded-[28px] sm:rounded-[36px] border border-zinc-300 dark:border-white/15 bg-white/95 dark:bg-[#0c0c0e]/95 backdrop-blur-2xl p-6 sm:p-8 md:p-10 shadow-2xl flex flex-col justify-between overflow-hidden"
+              >
+                {/* Top Row: Number & Badges */}
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-baseline gap-3">
+                    <span className="font-mono font-bold tracking-tighter text-4xl sm:text-5xl md:text-6xl text-zinc-900 dark:text-white">
+                      01
+                    </span>
+                    <span className="text-xs font-mono uppercase tracking-widest text-emerald-600 dark:text-emerald-400 font-semibold hidden sm:inline">
+                      {steps[0].stepLabel}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1.5 px-3 py-1 rounded-full border border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] sm:text-xs font-mono uppercase tracking-wider font-semibold">
+                      <Clock className="w-3.5 h-3.5 text-emerald-500 stroke-[1.75]" />
+                      <span>{steps[0].badge}</span>
                     </div>
+                    <span className="text-[10px] font-mono text-zinc-500 dark:text-white/50 px-2.5 py-1 rounded-full border border-zinc-200 dark:border-white/10 bg-zinc-100 dark:bg-white/[0.04]">
+                      {steps[0].timeline}
+                    </span>
                   </div>
-                </motion.div>
-              );
-            })}
+                </div>
+
+                {/* Middle Content */}
+                <div className="my-auto py-2">
+                  <h3 className="text-xl sm:text-2xl md:text-3xl font-bold font-display text-zinc-900 dark:text-white mb-2 leading-tight tracking-tight">
+                    {steps[0].title}
+                  </h3>
+
+                  <p className="text-zinc-600 dark:text-zinc-300 text-xs sm:text-sm md:text-base leading-relaxed mb-4 max-w-3xl font-sans">
+                    {steps[0].desc}
+                  </p>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-3 border-t border-zinc-200 dark:border-white/10">
+                    {(steps[0].highlights || []).map((h, hIdx) => (
+                      <div
+                        key={hIdx}
+                        className="flex items-center gap-2 p-2 sm:p-2.5 rounded-xl bg-zinc-100 dark:bg-white/[0.04] border border-zinc-200 dark:border-white/10 text-xs text-zinc-800 dark:text-zinc-200 font-mono"
+                      >
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0 stroke-[2]" />
+                        <span className="truncate">{h}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Bottom Bar */}
+                <div className="pt-3 border-t border-zinc-200 dark:border-white/10 flex items-center justify-between text-xs font-mono">
+                  <div className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-semibold uppercase tracking-wider text-[11px]">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping" />
+                    <span>Step 01 of 03 Active</span>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => handleStepClick(1)}
+                    className="flex items-center gap-1.5 text-xs font-semibold text-zinc-700 dark:text-zinc-300 hover:text-emerald-500 dark:hover:text-emerald-400 transition-colors cursor-pointer"
+                  >
+                    <span>{lang === 'pt' ? 'Levantar para revelar o Passo 02' : 'Lift card to reveal Step 02'}</span>
+                    <ArrowRight className="w-3.5 h-3.5 stroke-[2]" />
+                  </button>
+                </div>
+              </motion.div>
+            )}
           </div>
 
           {/* Bottom Guidance Prompt */}
-          <div className="mt-4 sm:mt-6 flex items-center justify-between text-xs font-mono text-zinc-500 dark:text-white/40">
+          <div className="mt-2 sm:mt-4 flex items-center justify-between text-xs font-mono text-zinc-500 dark:text-white/40">
             <span className="flex items-center gap-2">
               <ChevronDown className="w-3.5 h-3.5 text-emerald-500 dark:text-emerald-400 animate-bounce stroke-[1.75]" />
-              <span>{t.process.scrollHint}</span>
+              <span>{lang === 'pt' ? 'Deslize ou role para levantar as cartas' : 'Scroll or swipe to lift cards in sequence'}</span>
             </span>
             <span className="hidden sm:inline-block text-zinc-500 dark:text-white/40">
               {t.process.protocolHint}

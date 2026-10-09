@@ -277,13 +277,13 @@ const TRANSLATIONS: Record<Language, Translations> = {
           stepLabel: 'Step 03 // Launch & Edge Ops',
           title: 'Launch If You Love It',
           shortTitle: '03 Launch Live',
-          desc: 'Only pay €500 once approved. Then €20/month for ultra-fast Vercel edge global hosting, continuous SSL certificates, and on-demand content updates.',
+          desc: 'Only pay once approved, you will have a 1-year subscription for ultra-fast Vercel edge hosting, continuous SSL certificates and on-demand content updates.',
           badge: 'Full Ownership',
           timeline: 'Day 10 & Beyond',
           highlights: [
             '1-click DNS domain attach',
-            'Global Edge CDN & SSL included',
-            '€20/mo flat maintenance',
+            'Ultra-fast Vercel Edge & continuous SSL',
+            '1-year subscription with on-demand content updates',
           ],
         },
       ],
@@ -480,23 +480,23 @@ const TRANSLATIONS: Record<Language, Translations> = {
       tag: 'CLARITY & ASSURANCE',
       title: 'Frequently Asked Questions.',
       subtitle:
-        'Everything you need to know about our 48-hour 3D spec build, ownership rights, and the €45/month maintenance model.',
+        'Everything you need to know about our 48-hour 3D spec build, ownership rights, and our transparent pricing models (One-Time Purchase or Monthly Partnership).',
       items: [
         {
           id: 'faq-1',
           num: '01',
           tag: 'Ownership & Freedom',
-          question: 'Do I own the website and my domain?',
+          question: 'Do I own my website and domain name?',
           answer:
-            'Yes, 100%. You retain full ownership of your domain, content, and brand assets. If you ever decide to move hosting elsewhere, we hand over all source code files with zero lock-in contracts or penalties.',
+            'Yes, 100%. You retain sole ownership of your custom domain name from day one, and you own the website code and design assets under both plans once your initial 1-year contract is completed.\n\nHere is how ownership works under each option:\n\nOne-Time Purchase (€1,800 + €49/mo):\nYou pay the €1,800 setup fee upfront and sign a 1-year agreement for our managed hosting and updates (€49/mo). You own full rights to the site code immediately. After Year 1, you can either keep our €49/mo active management plan so we continue handling hosting and security, or request the full source code to host it independently on your own servers—no hidden transfer fees or penalties.\n\nMonthly Partnership (€200/mo):\nThis is a zero-upfront, all-inclusive 1-year contract that spreads the full cost into manageable monthly payments. During the first 12 months, we fully host, update, and manage the site for you. Once your 12-month partnership is fulfilled, full code ownership transfers to you, and you can transition to our light maintenance plan (€49/mo) or export your site files to host them yourself.\n\nNeed self-hosting immediately? If you prefer to host the site on your own servers from day one, you can simply pay the full 1-year balance upfront, and we will package and deploy the codebase directly to your hosting account.',
         },
         {
           id: 'faq-2',
           num: '02',
           tag: 'Maintenance & Edge Ops',
-          question: 'What is included in the €45/month fee (and €75/mo Growth tier)?',
+          question: 'What is included in the €49/month maintenance and €200/month membership?',
           answer:
-            'Our monthly subscription (€45/mo for Signature, €75/mo for Growth & AI Suite) covers high-speed Vercel global edge hosting, automatic SSL security certificates, 24/7 uptime monitoring, and ongoing content updates (such as updating seasonal prices, swapping menu items, or adding new photos whenever you need).',
+            'Our One-Time Purchase maintenance plan (€49/mo) covers high-speed Vercel global edge hosting, automatic SSL certificates, and 24/7 uptime monitoring. Our Monthly Partnership (€200/mo, €0 upfront) includes all that plus unlimited monthly content updates, quarterly conversion audits, and direct priority developer access.',
         },
         {
           id: 'faq-3',
@@ -647,13 +647,13 @@ const TRANSLATIONS: Record<Language, Translations> = {
           stepLabel: 'Passo 03 // Lançamento e Edge',
           title: 'Lance Apenas Se Adorar',
           shortTitle: '03 Lançar Online',
-          desc: 'Pague €500 apenas após aprovar. Depois, €20/mês para alojamento edge global de alta velocidade na Vercel, certificados SSL automáticos e suporte contínuo.',
+          desc: 'Pague apenas após aprovar. Terá uma subscrição de 1 ano para alojamento edge ultrarrápido na Vercel, certificados SSL contínuos e atualizações de conteúdo a pedido.',
           badge: 'Posse Total',
           timeline: 'Dia 10 em Diante',
           highlights: [
             'Conexão do seu domínio em 1 clique',
-            'CDN Edge global e SSL incluídos',
-            'Manutenção fixa de €20/mês',
+            'Alojamento Edge Vercel e SSL contínuo',
+            'Subscrição de 1 ano com suporte contínuo',
           ],
         },
       ],
@@ -850,7 +850,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
       tag: 'CLAREZA E CONFIANÇA',
       title: 'Perguntas Frequentes.',
       subtitle:
-        'Tudo o que precisa de saber sobre a amostra 3D em 48 horas, direitos de autor e o modelo de manutenção desde €25/mês.',
+        'Tudo o que precisa de saber sobre a amostra 3D em 48 horas, direitos de autor e as nossas opções de Pagamento Único ou Subscrição Mensal.',
       items: [
         {
           id: 'faq-1',
@@ -858,15 +858,15 @@ const TRANSLATIONS: Record<Language, Translations> = {
           tag: 'Posse & Liberdade',
           question: 'O site e o domínio pertencem-me a 100%?',
           answer:
-            'Sim, 100%. Mantém a posse total do seu domínio, conteúdos e elementos da marca. Se um dia desejar mudar de alojamento, entregamos todos os ficheiros de código sem contratos de fidelização nem penalizações.',
+            'Sim, 100%. Mantém a posse exclusiva do seu nome de domínio personalizado desde o primeiro dia, e é proprietário do código do website e dos ativos de design em ambos os planos assim que o seu contrato inicial de 1 ano for concluído.\n\nEis como funciona a propriedade em cada opção:\n\nPagamento Único (€1.800 + €49/mês):\nPaga a taxa de desenvolvimento de €1.800 adiantada e assina um acordo de 1 ano para alojamento gerido e atualizações (€49/mês). Detém os direitos integrais sobre o código do site imediatamente. Após o 1º ano, pode optar por manter o plano de gestão ativa de €49/mês para continuarmos a assegurar alojamento e segurança, ou solicitar o código-fonte completo para alojar autonomamente nos seus próprios servidores—sem taxas ocultas de transferência ou penalizações.\n\nSubscrição Mensal (€200/mês):\nEste é um contrato de 1 ano tudo incluído com zero entrada inicial, que divide o investimento total em mensalidades acessíveis. Durante os primeiros 12 meses, alojamos, atualizamos e gerimos o site integralmente. Concluído o período de 12 meses, a posse total do código é transferida para si, podendo transitar para o nosso plano de manutenção simples (€49/mês) ou exportar os ficheiros do seu site para os alojar por conta própria.\n\nPrecisa de alojamento próprio imediato? Se preferir alojar o site nos seus próprios servidores desde o primeiro dia, basta liquidar o saldo total do período de 1 ano adiantadamente, e nós empacotamos e implementamos a base de código diretamente na sua conta de alojamento.',
         },
         {
           id: 'faq-2',
           num: '02',
           tag: 'Manutenção & Edge',
-          question: 'O que está incluído na mensalidade (€25/mês a €75/mês)?',
+          question: 'O que está incluído na manutenção (€49/mês) e na subscrição (€200/mês)?',
           answer:
-            'A nossa subscrição mensal cobre alojamento global de alta velocidade na Vercel Edge, certificados SSL automáticos, monitorização 24/7 e alterações de conteúdos (como atualizar preços de época, trocar itens do menu ou adicionar novas fotografias).',
+            'O nosso plano de manutenção de Pagamento Único (€49/mês) cobre alojamento global de alta velocidade na Vercel Edge, certificados SSL automáticos e monitorização 24/7. A nossa Subscrição Mensal (€200/mês, €0 de entrada) inclui tudo isso mais atualizações mensais ilimitadas de conteúdos, auditorias trimestrais de conversão e canal prioritário com o programador.',
         },
         {
           id: 'faq-3',

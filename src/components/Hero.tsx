@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { motion, useScroll, useTransform } from 'motion/react';
-import { ArrowDown, ArrowUpRight, Zap, Clock, Euro, MessageSquare, ChevronDown, Sparkles } from 'lucide-react';
+import { motion, AnimatePresence, useScroll, useTransform } from 'motion/react';
+import { ArrowDown, ArrowUp, ArrowUpRight, ChevronDown, ChevronUp, MessageSquare, Sparkles } from 'lucide-react';
 import { LogoCanvas } from './LogoCanvas';
 import { appleGestures } from '../lib/design-system';
 import { useApp } from '../context/ThemeLanguageContext';
@@ -12,6 +12,15 @@ export interface HeroProps {
   countryContent?: CountryContent;
 }
 
+// 5 Discrete Narrative Mobile Beat States
+const MOBILE_BEAT_STATES = [
+  { id: 0, progress: 0.00, label: '01 Identity' },
+  { id: 1, progress: 0.22, label: '02 Motion & Top Bar' },
+  { id: 2, progress: 0.50, label: '03 Invisible 180°' },
+  { id: 3, progress: 0.78, label: '04 Zoom In & Conversion' },
+  { id: 4, progress: 1.00, label: '05 Brands & Tools Banner' },
+] as const;
+
 export function Hero({ countryContent }: HeroProps = {}) {
   const { t, lang } = useApp();
 
@@ -22,7 +31,16 @@ export function Hero({ countryContent }: HeroProps = {}) {
   });
 
   const [is3DLoaded, setIs3DLoaded] = useState(false);
-  const [isScrolledPast5Percent, setIsScrolledPast5Percent] = useState(false);
+  const [activeMobileState, setActiveMobileState] = useState<number>(0);
+  const [showSwipeHint, setShowSwipeHint] = useState<boolean>(false);
+  const [isWithinHero, setIsWithinHero] = useState<boolean>(true);
+
+  const isAnimatingRef = useRef(false);
+  const animFrameRef = useRef<number | null>(null);
+
+  const touchStartY = useRef(0);
+  const touchStartX = useRef(0);
+  const touchSwipedRef = useRef(false);
 
   const handle3DLoaded = () => {
     setIs3DLoaded(true);
@@ -36,48 +54,270 @@ export function Hero({ countryContent }: HeroProps = {}) {
     return () => clearTimeout(timer);
   }, []);
 
-  useEffect(() => {
-    const handleCheckScroll = () => {
-      const scrollY = window.scrollY || document.documentElement.scrollTop;
-      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-      const scrollPercent = docHeight > 0 ? scrollY / docHeight : 0;
-      const thresholdPx = Math.max(window.innerHeight * 0.05, 45);
-      setIsScrolledPast5Percent(scrollY > thresholdPx || scrollPercent > 0.05);
-    };
-    handleCheckScroll();
-    window.addEventListener('scroll', handleCheckScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleCheckScroll);
-  }, []);
-
   const heroSubtitle = countryContent?.heroSubtitle || t.hero.beat1.subtitle;
   const whatsappNumber = countryContent?.whatsappNumber || '353894419127';
   const badgeLocation = countryContent?.badgeLocation || t.hero.beat1.eyebrow;
 
-  // Mobile Scroll Cue Indicator Transform (Fades out completely past 5% scroll)
-  const mobileIndicatorOpacity = useTransform(scrollYProgress, [0, 0.05], [1, 0]);
-  const mobileIndicatorY = useTransform(scrollYProgress, [0, 0.05], [0, -12]);
-  const mobileIndicatorScale = useTransform(scrollYProgress, [0, 0.05], [1, 0.94]);
-  const mobileIndicatorVisibility = useTransform(scrollYProgress, (v) => (v < 0.05 ? 'visible' : 'hidden'));
+  // Calculate target scroll coordinate for a specific mobile beat state
+  const getTargetYForState = (stateIdx: number) => {
+    if (!scrollTrackRef.current) return 0;
+    const track = scrollTrackRef.current;
+    const trackTop = track.offsetTop;
+    const maxScroll = Math.max(track.offsetHeight - window.innerHeight, 100);
+    const clamped = Math.max(0, Math.min(stateIdx, 4));
+
+    if (clamped === 4) {
+      // Settle where the hero section ends and the BrandTicker banner rests in view at the bottom (Screenshot 3)
+      const bannerOffset = typeof window !== 'undefined' && window.innerWidth < 768 ? 165 : 185;
+      return trackTop + maxScroll + bannerOffset;
+    }
+    return trackTop + MOBILE_BEAT_STATES[clamped].progress * maxScroll;
+  };
+
+  // Luxury Apple-style smooth scroll animator with easeInOutCubic physics
+  const smoothScrollToTarget = (targetY: number, duration: number = 1100) => {
+    if (typeof window === 'undefined') return;
+    if (animFrameRef.current) {
+      cancelAnimationFrame(animFrameRef.current);
+      animFrameRef.current = null;
+    }
+
+    const startY = window.scrollY || window.pageYOffset;
+    const distance = targetY - startY;
+    if (Math.abs(distance) < 2) return;
+
+    isAnimatingRef.current = true;
+    const startTime = performance.now();
+
+    // Gentle easeInOutCubic: soft start, steady rotational scrub, graceful landing
+    const easeInOutCubic = (t: number) => {
+      return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+    };
+
+    const step = (now: number) => {
+      const elapsed = now - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      const eased = easeInOutCubic(progress);
+      const currentY = startY + distance * eased;
+
+      window.scrollTo(0, currentY);
+
+      if (progress < 1) {
+        animFrameRef.current = requestAnimationFrame(step);
+      } else {
+        window.scrollTo(0, targetY);
+        isAnimatingRef.current = false;
+        animFrameRef.current = null;
+      }
+    };
+
+    animFrameRef.current = requestAnimationFrame(step);
+  };
+
+  const goToMobileState = (targetIdx: number) => {
+    if (targetIdx < 0 || targetIdx > 4) return;
+    setShowSwipeHint(false);
+    const targetY = getTargetYForState(targetIdx);
+    smoothScrollToTarget(targetY, 1100);
+    setActiveMobileState(targetIdx);
+  };
+
+  // Sync active mobile state with native or animated scroll progress
+  useEffect(() => {
+    const handleScrollSync = () => {
+      const scrollY = window.scrollY || window.pageYOffset;
+      if (!scrollTrackRef.current) return;
+      const track = scrollTrackRef.current;
+      const trackTop = track.offsetTop;
+      const maxScroll = Math.max(track.offsetHeight - window.innerHeight, 100);
+      const bannerOffset = typeof window !== 'undefined' && window.innerWidth < 768 ? 165 : 185;
+
+      const inside = scrollY >= trackTop - 30 && scrollY <= trackTop + maxScroll + bannerOffset + 40;
+      setIsWithinHero(inside);
+
+      if (inside) {
+        if (scrollY >= trackTop + maxScroll + 50) {
+          setActiveMobileState(4);
+        } else {
+          const progress = Math.max(0, Math.min(1, (scrollY - trackTop) / maxScroll));
+          let closest = 0;
+          let minDiff = 999;
+          MOBILE_BEAT_STATES.forEach((beat) => {
+            const diff = Math.abs(progress - beat.progress);
+            if (diff < minDiff) {
+              minDiff = diff;
+              closest = beat.id;
+            }
+          });
+          setActiveMobileState(closest);
+        }
+      }
+    };
+
+    handleScrollSync();
+    window.addEventListener('scroll', handleScrollSync, { passive: true });
+    return () => window.removeEventListener('scroll', handleScrollSync);
+  }, []);
+
+  // Show "Swipe up to explore 3D" gesture indicator after 3 seconds of inactivity at State 0
+  useEffect(() => {
+    let timer: ReturnType<typeof setTimeout> | null = null;
+    const scrollY = typeof window !== 'undefined' ? (window.scrollY || window.pageYOffset) : 0;
+
+    if (activeMobileState === 0 && scrollY < 40) {
+      timer = setTimeout(() => {
+        setShowSwipeHint(true);
+      }, 3000);
+    } else {
+      setShowSwipeHint(false);
+    }
+
+    return () => {
+      if (timer) clearTimeout(timer);
+    };
+  }, [activeMobileState]);
+
+  // Touch Swipe Gesture Listener for Mobile (< 768px)
+  useEffect(() => {
+    const isMobileViewport = () => typeof window !== 'undefined' && window.innerWidth < 768;
+
+    const handleTouchStart = (e: TouchEvent) => {
+      if (!isMobileViewport()) return;
+      if (e.touches && e.touches[0]) {
+        touchStartY.current = e.touches[0].clientY;
+        touchStartX.current = e.touches[0].clientX;
+        touchSwipedRef.current = false;
+        setShowSwipeHint(false);
+      }
+    };
+
+    const handleTouchMove = (e: TouchEvent) => {
+      if (!isMobileViewport()) return;
+      if (!e.touches || !e.touches[0]) return;
+      if (touchSwipedRef.current || isAnimatingRef.current) return;
+
+      const track = scrollTrackRef.current;
+      if (!track) return;
+      const trackTop = track.offsetTop;
+      const maxScroll = Math.max(track.offsetHeight - window.innerHeight, 100);
+      const scrollY = window.scrollY || window.pageYOffset;
+      const bannerOffset = window.innerWidth < 768 ? 165 : 185;
+
+      const inside = scrollY >= trackTop - 25 && scrollY <= trackTop + maxScroll + bannerOffset + 35;
+      if (!inside) return;
+
+      const dy = e.touches[0].clientY - touchStartY.current;
+      const dx = e.touches[0].clientX - touchStartX.current;
+
+      // Detect intentional vertical swipe (> 35px threshold and dominant vertical motion)
+      if (Math.abs(dy) > 35 && Math.abs(dy) > Math.abs(dx * 1.25)) {
+        if (dy < 0) {
+          // Swipe UP (finger moves bottom to top => wants to advance scroll DOWN)
+          if (activeMobileState < 4) {
+            touchSwipedRef.current = true;
+            if (e.cancelable) e.preventDefault();
+            goToMobileState(activeMobileState + 1);
+          } else if (activeMobileState === 4) {
+            // At the end of hero, scroll past into next section
+            touchSwipedRef.current = true;
+            const nextTarget = trackTop + maxScroll + Math.min(window.innerHeight * 0.45, 300);
+            smoothScrollToTarget(nextTarget, 850);
+          }
+        } else if (dy > 0) {
+          // Swipe DOWN (finger moves top to bottom => wants to go back UP)
+          if (activeMobileState > 0) {
+            touchSwipedRef.current = true;
+            if (e.cancelable) e.preventDefault();
+            goToMobileState(activeMobileState - 1);
+          }
+        }
+      }
+    };
+
+    const handleTouchEnd = () => {
+      touchSwipedRef.current = false;
+    };
+
+    window.addEventListener('touchstart', handleTouchStart, { passive: true });
+    window.addEventListener('touchmove', handleTouchMove, { passive: false });
+    window.addEventListener('touchend', handleTouchEnd, { passive: true });
+    window.addEventListener('touchcancel', handleTouchEnd, { passive: true });
+
+    return () => {
+      window.removeEventListener('touchstart', handleTouchStart);
+      window.removeEventListener('touchmove', handleTouchMove);
+      window.removeEventListener('touchend', handleTouchEnd);
+      window.removeEventListener('touchcancel', handleTouchEnd);
+    };
+  }, [activeMobileState]);
+
+  // Trackpad / Wheel listener for responsive mobile emulation
+  useEffect(() => {
+    const isMobileViewport = () => typeof window !== 'undefined' && window.innerWidth < 768;
+    let wheelCooldown: ReturnType<typeof setTimeout> | null = null;
+
+    const handleWheel = (e: WheelEvent) => {
+      if (!isMobileViewport()) return;
+      if (isAnimatingRef.current) return;
+
+      const track = scrollTrackRef.current;
+      if (!track) return;
+      const trackTop = track.offsetTop;
+      const maxScroll = Math.max(track.offsetHeight - window.innerHeight, 100);
+      const scrollY = window.scrollY || window.pageYOffset;
+      const bannerOffset = window.innerWidth < 768 ? 165 : 185;
+
+      const inside = scrollY >= trackTop - 25 && scrollY <= trackTop + maxScroll + bannerOffset + 35;
+      if (!inside) return;
+
+      if (Math.abs(e.deltaY) > 30) {
+        if (wheelCooldown) return;
+        wheelCooldown = setTimeout(() => {
+          wheelCooldown = null;
+        }, 650);
+
+        if (e.deltaY > 0) {
+          if (activeMobileState < 4) {
+            if (e.cancelable) e.preventDefault();
+            goToMobileState(activeMobileState + 1);
+          }
+        } else {
+          if (activeMobileState > 0) {
+            if (e.cancelable) e.preventDefault();
+            goToMobileState(activeMobileState - 1);
+          }
+        }
+      }
+    };
+
+    window.addEventListener('wheel', handleWheel, { passive: false });
+    return () => {
+      if (wheelCooldown) clearTimeout(wheelCooldown);
+      window.removeEventListener('wheel', handleWheel);
+    };
+  }, [activeMobileState]);
 
   // =========================================================================
-  // THE 3-BEAT SCROLL CHOREOGRAPHY (Slower, More Graceful & Luxurious Pacing)
+  // THE SCROLL CHOREOGRAPHY TRANSFORMS
   // =========================================================================
 
-  // [BEAT 1: 0% - 36%] Logo Centered, The Identity & Hook (Extended readability duration)
+  // [BEAT 1: 0% - 34%] Logo Centered, The Identity & Hook
   const beat1Opacity = useTransform(scrollYProgress, [0, 0.22, 0.36], [1, 1, 0]);
   const beat1Y = useTransform(scrollYProgress, [0, 0.36], [0, -40]);
   const beat1Scale = useTransform(scrollYProgress, [0, 0.36], [1, 0.95]);
   const beat1Visibility = useTransform(scrollYProgress, (v) => (v < 0.38 ? 'visible' : 'hidden'));
 
-  // [BEAT 2: 26% - 74%] Logo Shifts Gracefully, Value Card Slides Up with Slower Decay
+  // [BEAT 2: 26% - 74%] Logo Shifts / 180° Rotation, Value Card Slides Up
   const beat2Opacity = useTransform(scrollYProgress, [0.26, 0.38, 0.62, 0.74], [0, 1, 1, 0]);
   const beat2Y = useTransform(scrollYProgress, [0.26, 0.38, 0.62, 0.74], [48, 0, 0, -40]);
   const beat2Visibility = useTransform(scrollYProgress, (v) => (v >= 0.24 && v < 0.76 ? 'visible' : 'hidden'));
 
-  // [BEAT 3: 66% - 100%] Camera Zooms Through Particles, Business Value & High-Conversion CTA
-  const beat3Opacity = useTransform(scrollYProgress, [0.66, 0.80, 1.0], [0, 1, 1]);
-  const beat3Y = useTransform(scrollYProgress, [0.66, 0.80], [48, 0]);
-  const beat3Visibility = useTransform(scrollYProgress, (v) => (v >= 0.64 ? 'visible' : 'hidden'));
+  // [BEAT 3: 66% - 100%] Camera Zooms Through Particles, Business Value & Conversion
+  // At the end (0.90 -> 0.98), the text card fully disappears with 0 opacity and lifts away
+  const beat3Opacity = useTransform(scrollYProgress, [0.66, 0.78, 0.90, 0.98], [0, 1, 1, 0]);
+  const beat3Y = useTransform(scrollYProgress, [0.66, 0.78, 0.90, 0.98], [48, 0, 0, -48]);
+  const beat3Scale = useTransform(scrollYProgress, [0.66, 0.78, 0.90, 0.98], [0.95, 1, 1, 0.92]);
+  const beat3Visibility = useTransform(scrollYProgress, (v) => (v >= 0.64 && v < 0.98 ? 'visible' : 'hidden'));
 
   const scrollToSection = (id: string) => {
     const el = document.getElementById(id);
@@ -93,34 +333,70 @@ export function Hero({ countryContent }: HeroProps = {}) {
     <section
       ref={scrollTrackRef}
       id="hero-scroll-track"
-      className="relative w-full h-[2200px] md:h-auto md:min-h-[420vh] bg-zinc-50 dark:bg-zinc-950 transition-colors duration-300"
+      className="relative w-full h-[2400px] md:h-auto md:min-h-[420vh] bg-zinc-50 dark:bg-zinc-950 transition-colors duration-300"
     >
-      {/* Floating Translucent Glassmorphism Mobile Badge (< 768px) - Auto fades past 5% scroll */}
-      {!isScrolledPast5Percent && (
-        <motion.div
-          style={{
-            opacity: mobileIndicatorOpacity,
-            y: mobileIndicatorY,
-            scale: mobileIndicatorScale,
-            visibility: mobileIndicatorVisibility,
-          }}
-          className="md:hidden fixed bottom-6 sm:bottom-8 left-1/2 -translate-x-1/2 z-40 flex items-center gap-2.5 px-4 py-2 rounded-full border border-zinc-200/80 dark:border-white/20 bg-white/85 dark:bg-zinc-950/80 backdrop-blur-2xl text-zinc-900 dark:text-white shadow-[0_10px_35px_rgba(0,0,0,0.25)] pointer-events-none select-none transition-all"
-        >
-          {/* Animated Downward / Swipe-Up Indicator with Pulsing Ring */}
-          <div className="relative flex items-center justify-center w-5 h-5 rounded-full bg-emerald-500/20 border border-emerald-500/30 shrink-0">
-            <span className="animate-ping absolute inline-flex h-3 w-3 rounded-full bg-emerald-400 opacity-60" />
+      {/* Mobile 3-Second Inactivity Swipe-Up Gesture Guide */}
+      <AnimatePresence>
+        {showSwipeHint && activeMobileState === 0 && (
+          <motion.button
+            type="button"
+            onClick={() => goToMobileState(1)}
+            initial={{ opacity: 0, y: 32, scale: 0.92 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 24, scale: 0.94 }}
+            transition={{ type: 'spring', stiffness: 260, damping: 24 }}
+            className="md:hidden fixed bottom-6 sm:bottom-8 left-1/2 -translate-x-1/2 z-40 flex items-center gap-2.5 px-4 py-2.5 rounded-full border border-zinc-200/90 dark:border-white/20 bg-white/90 dark:bg-zinc-950/85 backdrop-blur-2xl text-zinc-900 dark:text-white shadow-[0_12px_36px_rgba(0,0,0,0.25)] cursor-pointer select-none transition-transform active:scale-95"
+            aria-label="Swipe up to explore 3D"
+          >
+            {/* Animated Upward Swipe Track & Icon */}
             <motion.div
-              animate={{ y: [-1.5, 2, -1.5] }}
-              transition={{ repeat: Infinity, duration: 1.1, ease: "easeInOut" }}
+              animate={{ y: [3, -5, 3] }}
+              transition={{ repeat: Infinity, duration: 1.8, ease: "easeInOut" }}
+              className="relative flex items-center justify-center w-6 h-6 rounded-full bg-emerald-500/15 border border-emerald-500/30 shrink-0"
             >
-              <ChevronDown className="w-3.5 h-3.5 text-emerald-500 dark:text-emerald-400 stroke-[2.5]" />
+              <span className="animate-ping absolute inline-flex h-3.5 w-3.5 rounded-full bg-emerald-400 opacity-60" />
+              <motion.div
+                animate={{ y: [2, -3, 2], opacity: [0.6, 1, 0.6] }}
+                transition={{ repeat: Infinity, duration: 1.2, ease: "easeInOut" }}
+              >
+                <ChevronUp className="w-4 h-4 text-emerald-500 dark:text-emerald-400 stroke-[2.5]" />
+              </motion.div>
             </motion.div>
-          </div>
-          <span className="text-[11px] font-mono tracking-wider uppercase font-semibold text-zinc-900 dark:text-white/95 whitespace-nowrap">
-            Swipe up to explore 3D
-          </span>
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 dark:bg-emerald-400 animate-pulse shrink-0" />
-        </motion.div>
+
+            {/* Label with gentle upward motion cue */}
+            <motion.span
+              animate={{ y: [0, -1.5, 0] }}
+              transition={{ repeat: Infinity, duration: 1.8, ease: "easeInOut" }}
+              className="text-[11px] font-mono tracking-wider uppercase font-semibold text-zinc-900 dark:text-white/95 whitespace-nowrap"
+            >
+              {lang === 'pt' ? 'Deslize para cima para explorar 3D' : 'Swipe up to explore 3D'}
+            </motion.span>
+
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 dark:bg-emerald-400 animate-pulse shrink-0" />
+          </motion.button>
+        )}
+      </AnimatePresence>
+
+      {/* Tactile Mobile Beat Pagination Dots (Pinned Right Edge) */}
+      {isWithinHero && (
+        <div className="md:hidden fixed right-2.5 top-1/2 -translate-y-1/2 z-40 flex flex-col items-center gap-1.5 pointer-events-auto bg-white/70 dark:bg-zinc-900/70 backdrop-blur-md p-1.5 rounded-full border border-zinc-200/60 dark:border-white/10 shadow-lg">
+          {MOBILE_BEAT_STATES.map((beat) => {
+            const isActive = activeMobileState === beat.id;
+            return (
+              <button
+                key={beat.id}
+                type="button"
+                onClick={() => goToMobileState(beat.id)}
+                className={`transition-all duration-300 rounded-full cursor-pointer flex items-center justify-center ${
+                  isActive
+                    ? 'w-1.5 h-5 bg-emerald-500 dark:bg-emerald-400 shadow-[0_0_8px_rgba(16,185,129,0.8)]'
+                    : 'w-1.5 h-1.5 bg-zinc-400/50 dark:bg-white/25 hover:bg-zinc-600 dark:hover:bg-white/50'
+                }`}
+                aria-label={`Beat ${beat.id + 1}: ${beat.label}`}
+              />
+            );
+          })}
+        </div>
       )}
 
       {/* Sticky Viewport Canvas Container: 100vh pinned while user scrubs through the 3-beat track */}
@@ -215,9 +491,39 @@ export function Hero({ countryContent }: HeroProps = {}) {
                 {heroSubtitle}
               </p>
 
-              <div className="flex items-center gap-2 text-xs font-mono tracking-widest font-semibold text-zinc-700 dark:text-zinc-300 uppercase pointer-events-auto drop-shadow-sm">
+              {/* Desktop Scroll Hint */}
+              <div className="hidden md:flex items-center gap-2 text-xs font-mono tracking-widest font-semibold text-zinc-700 dark:text-zinc-300 uppercase pointer-events-auto drop-shadow-sm">
                 <span className="drop-shadow-sm">{t.hero.beat1.scrollHint}</span>
                 <ChevronDown className="w-4 h-4 text-emerald-500 dark:text-emerald-400 animate-bounce stroke-[2] drop-shadow-sm" />
+              </div>
+
+              {/* Mobile Dynamic State Prompts */}
+              <div className="md:hidden flex flex-col items-center gap-2 pointer-events-auto">
+                {activeMobileState === 0 ? (
+                  <button
+                    type="button"
+                    onClick={() => goToMobileState(1)}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-zinc-200/90 dark:border-white/15 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md text-[11px] font-mono tracking-wider uppercase font-semibold text-zinc-700 dark:text-zinc-300 cursor-pointer active:scale-95 transition-all shadow-sm"
+                  >
+                    <span>{t.hero.beat1.scrollHint}</span>
+                    <ChevronDown className="w-3.5 h-3.5 text-emerald-500 animate-bounce stroke-[2.5]" />
+                  </button>
+                ) : (
+                  <div className="flex flex-col items-center gap-1.5">
+                    <div className="flex items-center gap-1.5 px-3 py-1 rounded-full border border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] font-mono tracking-tight">
+                      <Sparkles className="w-3 h-3 stroke-[2]" />
+                      <span>{lang === 'pt' ? 'Menu Ativo • 3D em Movimento' : 'Top Bar Active • 3D in Motion'}</span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => goToMobileState(2)}
+                      className="flex items-center gap-1.5 text-[11px] font-mono tracking-wider uppercase font-semibold text-zinc-600 dark:text-zinc-300 cursor-pointer active:scale-95 transition-colors"
+                    >
+                      <span>{lang === 'pt' ? 'Deslize para ver o comparativo' : 'Swipe again for benchmark'}</span>
+                      <ChevronDown className="w-3.5 h-3.5 text-emerald-500 stroke-[2.5] animate-bounce" />
+                    </button>
+                  </div>
+                )}
               </div>
             </motion.div>
           </motion.div>
@@ -266,10 +572,14 @@ export function Hero({ countryContent }: HeroProps = {}) {
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2 text-[11px] sm:text-xs font-mono text-zinc-500 dark:text-white/40 uppercase tracking-wider">
+                <button
+                  type="button"
+                  onClick={() => goToMobileState(3)}
+                  className="flex items-center gap-2 text-[11px] sm:text-xs font-mono text-zinc-500 dark:text-white/40 uppercase tracking-wider cursor-pointer active:scale-95 hover:text-zinc-900 dark:hover:text-white transition-all"
+                >
                   <ArrowDown className="w-3.5 h-3.5 text-emerald-500 dark:text-emerald-400 stroke-[1.75]" />
-                  <span>{lang === 'pt' ? 'Continue a deslizar para o zoom 3D' : 'Keep scrolling to enter 3D zoom-through'}</span>
-                </div>
+                  <span>{lang === 'pt' ? 'Continue a deslizar para o zoom 3D' : 'Swipe to enter 3D zoom-through'}</span>
+                </button>
               </motion.div>
             </div>
           </motion.div>
@@ -281,6 +591,7 @@ export function Hero({ countryContent }: HeroProps = {}) {
             style={{
               opacity: beat3Opacity,
               y: beat3Y,
+              scale: beat3Scale,
               visibility: beat3Visibility,
             }}
             className="absolute inset-0 z-20 flex items-end sm:items-center justify-center pointer-events-none px-4 sm:px-6 pb-8 sm:pb-0"
@@ -335,6 +646,16 @@ export function Hero({ countryContent }: HeroProps = {}) {
                   <ArrowDown className="w-4 h-4 stroke-[1.75]" />
                 </motion.button>
               </div>
+
+              {/* Mobile Cue to Complete Zoom-Through into Next Section */}
+              <button
+                type="button"
+                onClick={() => goToMobileState(4)}
+                className="md:hidden mt-4 flex items-center gap-1.5 text-[11px] font-mono text-zinc-500 dark:text-white/40 uppercase tracking-wider cursor-pointer active:scale-95 transition-opacity"
+              >
+                <ArrowDown className="w-3.5 h-3.5 text-emerald-500 dark:text-emerald-400 stroke-[1.75]" />
+                <span>{lang === 'pt' ? 'Deslize para concluir o zoom 3D' : 'Swipe to complete 3D zoom'}</span>
+              </button>
             </motion.div>
           </motion.div>
         </div>

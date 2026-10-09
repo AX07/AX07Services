@@ -56,10 +56,27 @@ export function PortfolioReviewGrid() {
   const [activeIndex, setActiveIndex] = useState(0);
   const [selectedProject, setSelectedProject] = useState<PortfolioProject | null>(null);
   const [isHovered, setIsHovered] = useState(false);
+  const [isTouching, setIsTouching] = useState(false);
+  const [isMobile, setIsMobile] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return window.innerWidth < 640;
+    }
+    return false;
+  });
+  const touchResumeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const touchStartX = useRef<number | null>(null);
   const touchEndX = useRef<number | null>(null);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 640);
+    };
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   // Map translated projects strictly ensuring FlyFoil is projects[0]
   const prioritizedOrder = ['flyfoil', 'fintrack', 'altura', 'la-kafeteria', 'albania', 'cryptoax07'];
@@ -86,16 +103,25 @@ export function PortfolioReviewGrid() {
   const numProjects = projects.length || 6;
   const currentProject = projects[activeIndex] || projects[0];
 
-  // Auto-rotate projects every 3 seconds so user doesn't have to manually flick through
+  // Auto-flick carousel every 3.5 seconds unless user is hovering or touching
   useEffect(() => {
-    if (selectedProject || isHovered) return;
+    if (selectedProject || isHovered || isTouching) return;
 
     const interval = setInterval(() => {
       setActiveIndex((prev) => (prev + 1) % numProjects);
-    }, 3000);
+    }, 3500);
 
     return () => clearInterval(interval);
-  }, [numProjects, selectedProject, isHovered]);
+  }, [numProjects, selectedProject, isHovered, isTouching]);
+
+  // Clean up touch timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (touchResumeTimeoutRef.current) {
+        clearTimeout(touchResumeTimeoutRef.current);
+      }
+    };
+  }, []);
 
   // Navigation handlers
   const handlePrev = () => {
@@ -110,8 +136,13 @@ export function PortfolioReviewGrid() {
     setActiveIndex(Math.max(0, Math.min(numProjects - 1, index)));
   };
 
-  // Mobile Swipe Gesture Support
+  // Mobile Swipe Gesture & Touch Hold/Pause Support
   const handleTouchStart = (e: React.TouchEvent) => {
+    setIsTouching(true);
+    if (touchResumeTimeoutRef.current) {
+      clearTimeout(touchResumeTimeoutRef.current);
+      touchResumeTimeoutRef.current = null;
+    }
     touchStartX.current = e.targetTouches[0].clientX;
   };
 
@@ -120,15 +151,24 @@ export function PortfolioReviewGrid() {
   };
 
   const handleTouchEnd = () => {
-    if (touchStartX.current === null || touchEndX.current === null) return;
-    const diff = touchStartX.current - touchEndX.current;
-    if (diff > 45) {
-      handleNext();
-    } else if (diff < -45) {
-      handlePrev();
+    if (touchStartX.current !== null && touchEndX.current !== null) {
+      const diff = touchStartX.current - touchEndX.current;
+      if (diff > 45) {
+        handleNext();
+      } else if (diff < -45) {
+        handlePrev();
+      }
     }
     touchStartX.current = null;
     touchEndX.current = null;
+
+    // Keep paused momentarily on touch interaction, then resume flicking
+    if (touchResumeTimeoutRef.current) {
+      clearTimeout(touchResumeTimeoutRef.current);
+    }
+    touchResumeTimeoutRef.current = setTimeout(() => {
+      setIsTouching(false);
+    }, 3200);
   };
 
   // Desktop keyboard navigation
@@ -229,32 +269,36 @@ export function PortfolioReviewGrid() {
         </div>
 
         {/* ========================================================================= */}
-        {/* ACTIVE-SLIDE CAROUSEL STAGE                                               */}
-        {/* Fixed relative dimensions: w-full max-w-xl aspect-[16/10] mx-auto          */}
-        {/* Active: scale-100 opacity-100 z-20 shadow-2xl border-white/20             */}
-        {/* Inactive: scale-[0.85] opacity-50 z-10 filter blur-[1px]                  */}
+        {/* BIGGER FULL-SCREEN CAROUSEL STAGE                                         */}
+        {/* Card fits whole screen, houses testimonial quote, author, and CTAs        */}
+        {/* Pauses when hovered or touched; flicks through automatically when idle    */}
         {/* ========================================================================= */}
         <div
-          className="relative w-full overflow-visible py-4 sm:py-8"
+          className="relative w-full -mx-4 sm:mx-0 overflow-hidden py-3 sm:py-6"
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
         >
-          {/* Centered Slider Container with Smooth Offset Translation */}
-          <div className="relative w-full flex items-center justify-center min-h-[260px] sm:min-h-[360px] md:min-h-[420px]">
+          {/* Centered Slider Container with Smooth Translation */}
+          <div className="relative w-full flex items-center justify-center min-h-[600px] sm:min-h-[640px] md:min-h-[680px]">
             {projects.map((project, index) => {
               const isActive = index === activeIndex;
               const isPrev = index === (activeIndex - 1 + numProjects) % numProjects;
               const isNext = index === (activeIndex + 1) % numProjects;
               const isVisible = isActive || isPrev || isNext;
 
-              // Calculate relative position for 3D visual carousel
+              // Smooth 3D stage offsets for the carousel flick:
+              // On mobile, placing adjacent cards at ±88% with scale(0.88) ensures the side cards
+              // peek prominently into the viewport, giving an unmistakable native carousel feel.
+              const prevOffset = isMobile ? -88 : -103;
+              const nextOffset = isMobile ? 88 : 103;
+
               let translateX = 0;
               if (isActive) translateX = 0;
-              else if (isPrev) translateX = -105;
-              else if (isNext) translateX = 105;
+              else if (isPrev) translateX = prevOffset;
+              else if (isNext) translateX = nextOffset;
               else translateX = index < activeIndex ? -200 : 200;
 
               return (
@@ -263,64 +307,143 @@ export function PortfolioReviewGrid() {
                   onClick={() => {
                     if (!isActive) handleSelectProject(index);
                   }}
+                  onMouseEnter={() => setIsHovered(true)}
+                  onMouseLeave={() => setIsHovered(false)}
+                  onTouchStart={handleTouchStart}
+                  onTouchEnd={handleTouchEnd}
                   style={{
                     transform: `translateX(${translateX}%)`,
                     display: isVisible ? 'block' : 'none',
                   }}
-                  className={`absolute w-full max-w-xl aspect-[16/10] mx-auto overflow-hidden rounded-2xl transition-all duration-500 ease-out cursor-pointer ${
+                  className={`absolute w-[78vw] max-w-[325px] sm:w-[84vw] sm:max-w-xl md:w-full md:max-w-4xl lg:max-w-5xl xl:max-w-6xl mx-auto min-h-[580px] sm:min-h-[620px] md:min-h-[660px] overflow-hidden rounded-[32px] sm:rounded-[40px] transition-all duration-700 ease-out cursor-pointer ${
                     isActive
-                      ? 'scale-100 opacity-100 z-20 shadow-2xl border-white/20 border-zinc-300 dark:border-white/20 ring-1 ring-zinc-950/10 dark:ring-white/10'
-                      : 'scale-[0.85] opacity-50 z-10 filter blur-[1px] hover:opacity-75 border-zinc-200/80 dark:border-white/10'
-                  } border bg-zinc-100 dark:bg-zinc-900 group select-none`}
+                      ? 'scale-100 opacity-100 z-20 shadow-[0_24px_70px_rgba(0,0,0,0.6)] border-white/20 border-zinc-300 dark:border-white/20 ring-1 ring-zinc-950/15 dark:ring-white/15'
+                      : 'scale-[0.88] sm:scale-[0.92] opacity-45 hover:opacity-75 z-10 filter blur-[0.5px] border-zinc-200/80 dark:border-white/10'
+                  } border bg-zinc-950 group select-none`}
                 >
                   {/* Card Background Media */}
                   <img
                     src={project.image}
                     alt={project.title}
-                    className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 ease-out group-hover:scale-105"
                   />
 
-                  {/* Gradient Scrim */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-black/20 pointer-events-none" />
+                  {/* Multi-Stop Cinematic Scrim for Complete Text Contrast & Luxury Feel */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/75 via-45% to-black/40 pointer-events-none" />
 
-                  {/* Top Card Badges */}
-                  <div className="absolute top-3.5 sm:top-5 left-3.5 sm:left-5 right-3.5 sm:right-5 flex items-center justify-between gap-2 pointer-events-none z-10">
-                    <span className="px-3 py-1 rounded-full bg-white/90 dark:bg-black/60 backdrop-blur-md border border-zinc-200 dark:border-white/15 text-[11px] font-mono text-zinc-900 dark:text-white/90 shadow-sm">
-                      <span className="text-emerald-600 dark:text-emerald-400 font-semibold">{project.index}</span>
-                      <span className="mx-1.5 text-zinc-400 dark:text-white/40">·</span>
-                      <span>{project.year}</span>
-                    </span>
+                  {/* Subtle top subtle mesh glow */}
+                  <div className="absolute top-0 right-0 w-80 h-80 bg-emerald-500/10 blur-[100px] pointer-events-none" />
 
-                    <span className="px-3 py-1 rounded-full bg-emerald-500/15 dark:bg-emerald-500/20 backdrop-blur-md border border-emerald-500/30 text-[10px] font-mono uppercase text-emerald-600 dark:text-emerald-400 font-semibold">
-                      {project.categories[0] || 'VERIFIED RESULT'}
-                    </span>
-                  </div>
+                  {/* Content Container Inside the Big Card */}
+                  <div className="relative z-10 w-full h-full min-h-[580px] sm:min-h-[620px] md:min-h-[660px] p-5 sm:p-9 md:p-12 flex flex-col justify-between text-white pointer-events-auto">
+                    
+                    {/* TOP BAR: Index, Year, Category Badge & 5 Stars */}
+                    <div className="flex flex-wrap items-center justify-between gap-2.5">
+                      <div className="flex items-center gap-2 sm:gap-2.5">
+                        <span className="px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-full bg-white/95 dark:bg-black/70 backdrop-blur-md border border-zinc-200 dark:border-white/20 text-xs font-mono text-zinc-950 dark:text-white/95 shadow-md flex items-center gap-1.5 sm:gap-2">
+                          <span className="text-emerald-600 dark:text-emerald-400 font-bold">{project.index}</span>
+                          <span className="text-zinc-400 dark:text-white/30">·</span>
+                          <span className="font-semibold">{project.year}</span>
+                        </span>
 
-                  {/* Bottom Card Identity & Quick Action */}
-                  <div className="absolute bottom-3.5 sm:bottom-5 left-3.5 sm:left-5 right-3.5 sm:right-5 flex items-end justify-between gap-3 text-white z-10">
-                    <div className="max-w-[70%]">
-                      <p className="text-[11px] font-mono text-white/70 uppercase tracking-wider mb-1 truncate">
-                        {project.client}
-                      </p>
-                      <h3 className="text-xl sm:text-2xl md:text-3xl font-bold font-display tracking-tight text-white drop-shadow-md leading-tight">
-                        {project.title}
-                      </h3>
+                        <span className="px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-full bg-emerald-500/20 backdrop-blur-md border border-emerald-500/40 text-[10px] sm:text-[11px] font-mono uppercase text-emerald-400 font-bold flex items-center gap-1.5 shadow-sm">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                          <span>{project.categories[0] || 'VERIFIED RESULT'}</span>
+                        </span>
+                      </div>
+
+                      {/* 5 Golden Stars */}
+                      <div className="flex items-center gap-1 bg-black/50 backdrop-blur-md border border-white/10 px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-full">
+                        {[...Array(5)].map((_, i) => (
+                          <Star key={i} className="w-3 sm:w-3.5 h-3 sm:h-3.5 fill-amber-400 text-amber-400" />
+                        ))}
+                        <span className="text-[11px] sm:text-xs font-mono text-white/90 ml-1 font-semibold">5.0</span>
+                      </div>
                     </div>
 
-                    {isActive && (
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleOpenDemo(project.id, project.title);
-                        }}
-                        className="shrink-0 px-4 py-2 sm:px-5 sm:py-2.5 rounded-full bg-white text-zinc-950 font-bold text-xs sm:text-sm flex items-center gap-1.5 hover:bg-zinc-200 transition-all shadow-lg cursor-pointer"
-                        title="Open Live Demo Sandbox"
-                      >
-                        <span>{lang === 'pt' ? 'Ver Demo' : 'View Demo'}</span>
-                        <ArrowUpRight className="w-3.5 h-3.5 stroke-[2.2]" />
-                      </button>
-                    )}
+                    {/* UPPER MIDDLE: Project Client & Title with minimum height for uniform sleek proportions */}
+                    <div className="my-auto py-3 sm:py-6 max-w-3xl min-h-[140px] sm:min-h-[160px] flex flex-col justify-center">
+                      <p className="text-xs sm:text-sm font-mono text-emerald-400 uppercase tracking-[0.22em] font-semibold mb-1.5 sm:mb-2">
+                        {project.client}
+                      </p>
+                      <h3 className="text-2xl sm:text-4xl md:text-5xl font-extrabold font-display tracking-tight text-white drop-shadow-[0_2px_12px_rgba(0,0,0,0.8)] leading-[1.14]">
+                        {project.title}
+                      </h3>
+                      <div className="mt-2.5 flex flex-wrap items-center gap-2 sm:gap-3 text-xs sm:text-sm font-mono text-white/70">
+                        <span className="text-emerald-300 font-semibold">{project.verifiedBadge}</span>
+                        <span className="text-white/30 hidden sm:inline">|</span>
+                        <span className="text-white/60 text-[11px] sm:text-xs">{project.metadataLabel}</span>
+                      </div>
+                    </div>
+
+                    {/* LOWER SECTION: Integrated Testimonial Glass Block + Full Action CTAs */}
+                    <div className="space-y-4 sm:space-y-6">
+                      
+                      {/* Integrated Testimonial Squircle */}
+                      <div className="rounded-2xl sm:rounded-3xl bg-black/65 backdrop-blur-2xl border border-white/15 p-3.5 sm:p-5 md:p-6 shadow-2xl">
+                        <blockquote className="text-xs sm:text-base md:text-lg font-serif italic text-zinc-100 leading-relaxed line-clamp-3 sm:line-clamp-none">
+                          "{project.review.quote}"
+                        </blockquote>
+                        <div className="mt-2.5 sm:mt-3 flex flex-wrap items-center justify-between gap-1.5 text-xs sm:text-sm text-zinc-300 font-sans border-t border-white/10 pt-2.5 sm:pt-3">
+                          <div className="flex items-center gap-2">
+                            <span className="font-bold text-white font-display text-xs sm:text-base">
+                              {project.review.author}
+                            </span>
+                            <span className="text-white/40">—</span>
+                            <span className="text-zinc-400 text-[11px] sm:text-sm truncate max-w-[140px] sm:max-w-none">{project.review.role}</span>
+                          </div>
+                          <div className="flex items-center gap-1.5 text-[10px] sm:text-[11px] font-mono text-emerald-400">
+                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                            <span>{lang === 'pt' ? 'Verificado' : 'Verified'}</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Integrated Action CTAs */}
+                      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 sm:gap-3 pt-1">
+                        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
+                          {/* Primary CTA: Launch Live Demo Sandbox */}
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleOpenDemo(project.id, project.title);
+                            }}
+                            className="px-5 sm:px-7 py-2.5 sm:py-3 rounded-full bg-white text-zinc-950 font-bold text-xs sm:text-sm flex items-center justify-center gap-2 hover:bg-zinc-200 transition-all shadow-[0_8px_30px_rgba(255,255,255,0.25)] hover:scale-[1.02] cursor-pointer"
+                            title="Open Live Demo Sandbox"
+                          >
+                            <Sparkles className="w-3.5 sm:w-4 h-3.5 sm:h-4 text-emerald-600 stroke-[2.2]" />
+                            <span>{lang === 'pt' ? 'Ver Demo Ao Vivo' : 'View Live Demo'}</span>
+                            <ArrowUpRight className="w-3.5 sm:w-4 h-3.5 sm:h-4 stroke-[2.4]" />
+                          </button>
+
+                          {/* Secondary CTA: Full Case Review Modal */}
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleOpenReview(project);
+                            }}
+                            className="px-4 sm:px-6 py-2 sm:py-3 rounded-full border border-white/20 bg-white/10 backdrop-blur-xl text-xs sm:text-sm font-medium text-white flex items-center justify-center gap-2 hover:bg-white/20 hover:border-white/30 transition-all shadow-md cursor-pointer"
+                          >
+                            <ShieldCheck className="w-3.5 sm:w-4 h-3.5 sm:h-4 text-emerald-400 stroke-[2]" />
+                            <span>{t.portfolio.viewCaseReview}</span>
+                          </button>
+                        </div>
+
+                        {/* Interactive Pause Prompt Notice */}
+                        <div className="text-[10px] sm:text-[11px] font-mono text-white/50 flex items-center justify-center sm:justify-start gap-1.5 self-center sm:self-auto">
+                          <MousePointer className="w-3 h-3 text-emerald-400" />
+                          <span>
+                            {isHovered || isTouching
+                              ? (lang === 'pt' ? 'Pausado' : 'Paused')
+                              : (lang === 'pt' ? 'Toque para pausar' : 'Touch to hold')}
+                          </span>
+                        </div>
+                      </div>
+
+                    </div>
+
                   </div>
                 </div>
               );
@@ -329,111 +452,73 @@ export function PortfolioReviewGrid() {
         </div>
 
         {/* ========================================================================= */}
-        {/* ACTIVE PROJECT DETAILS PANEL & ACTIONS                                     */}
+        {/* BOTTOM PAGINATION CONTROLS & LIVE FLICK STATUS BAR                        */}
         {/* ========================================================================= */}
-        <div className="mt-8 sm:mt-12 p-6 sm:p-8 rounded-3xl bg-white/80 dark:bg-zinc-900/70 backdrop-blur-2xl border border-zinc-200/80 dark:border-white/10 shadow-xl transition-colors">
-          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-            
-            {/* Left: Verified Result & Review Quote */}
-            <div className="max-w-3xl">
-              <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-3 text-xs font-mono">
+        <div className="mt-8 sm:mt-10 p-4 sm:p-6 rounded-3xl bg-white/80 dark:bg-zinc-900/70 backdrop-blur-2xl border border-zinc-200/80 dark:border-white/10 shadow-lg transition-colors flex flex-col sm:flex-row items-center justify-between gap-4">
+          
+          {/* Left: Live status beacon */}
+          <div className="text-xs font-mono text-zinc-600 dark:text-zinc-400 flex items-center gap-2">
+            {isHovered || isTouching ? (
+              <>
+                <span className="w-2 h-2 rounded-full bg-amber-400" />
+                <span className="font-semibold text-zinc-900 dark:text-white">
+                  {lang === 'pt' ? 'Pausado em' : 'Paused on'} {currentProject.client}
+                </span>
+                <span className="text-zinc-400 dark:text-white/40">({activeIndex + 1}/{numProjects})</span>
+              </>
+            ) : (
+              <>
                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                <span className="text-emerald-600 dark:text-emerald-400 font-semibold uppercase tracking-wider">
-                  {currentProject.verifiedBadge}
+                <span className="text-emerald-600 dark:text-emerald-400 font-semibold">
+                  {lang === 'pt' ? 'Avanço Automático Ativo' : 'Auto-Flick Active'}
                 </span>
-                <span className="text-zinc-300 dark:text-white/20 hidden sm:inline">|</span>
-                <span className="text-zinc-600 dark:text-white/60">
-                  {currentProject.metadataLabel}
-                </span>
-              </div>
-
-              <blockquote className="text-base sm:text-lg font-serif italic text-zinc-800 dark:text-zinc-200 leading-relaxed">
-                "{currentProject.review.quote}"
-              </blockquote>
-
-              <div className="mt-3 flex items-center gap-2 text-xs text-zinc-500 dark:text-zinc-400 font-sans">
-                <span className="font-semibold text-zinc-900 dark:text-white font-display">
-                  {currentProject.review.author}
-                </span>
-                <span>—</span>
-                <span>{currentProject.review.role}</span>
-              </div>
-            </div>
-
-            {/* Right: Actions (Launch Demo + View Review Modal) */}
-            <div className="flex items-center gap-3 shrink-0 self-start lg:self-center">
-              <button
-                type="button"
-                onClick={() => handleOpenDemo(currentProject.id, currentProject.title)}
-                className="px-5 sm:px-6 py-3 rounded-full bg-zinc-950 text-white dark:bg-white dark:text-zinc-950 font-bold text-xs sm:text-sm flex items-center gap-2 hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-all shadow-lg cursor-pointer"
-              >
-                <Sparkles className="w-3.5 h-3.5 text-emerald-400 dark:text-emerald-600" />
-                <span>{lang === 'pt' ? 'Ver Demo Ao Vivo' : 'View Demo'}</span>
-                <ArrowUpRight className="w-4 h-4 stroke-[2]" />
-              </button>
-
-              <button
-                type="button"
-                onClick={() => handleOpenReview(currentProject)}
-                className="px-4 sm:px-5 py-3 rounded-full border border-zinc-300 dark:border-white/15 bg-white/80 dark:bg-white/5 text-xs sm:text-sm font-medium text-zinc-800 dark:text-white flex items-center gap-1.5 hover:bg-zinc-100 dark:hover:bg-white/10 transition-colors shadow-sm cursor-pointer"
-              >
-                <span>{t.portfolio.viewCaseReview}</span>
-              </button>
-            </div>
-
+                <span className="text-zinc-400 dark:text-white/40">·</span>
+                <span>{lang === 'pt' ? 'Toque para pausar' : 'Hover or touch to hold'} ({activeIndex + 1}/{numProjects})</span>
+              </>
+            )}
           </div>
 
-          {/* ======================================================================= */}
-          {/* BOTTOM PAGINATION CONTROLS (Pills & Mobile Chevrons)                    */}
-          {/* ======================================================================= */}
-          <div className="mt-6 pt-6 border-t border-zinc-200/70 dark:border-white/10 flex items-center justify-between gap-4">
-            
-            {/* Mobile swipe helper text */}
-            <div className="text-xs font-mono text-zinc-500 dark:text-zinc-400 flex items-center gap-1.5">
-              <MousePointer className="w-3.5 h-3.5 text-emerald-500" />
-              <span>{lang === 'pt' ? 'Deslize ou clique para alternar' : 'Swipe or click card to navigate'} ({activeIndex + 1}/{numProjects})</span>
-            </div>
+          {/* Right: Segmented Dots / Pill Selectors (01 through 06) + Chevrons */}
+          <div className="flex items-center gap-1.5 bg-zinc-100 dark:bg-zinc-800/80 p-1.5 rounded-full border border-zinc-200 dark:border-white/10">
+            <button
+              type="button"
+              onClick={handlePrev}
+              className="w-8 h-8 rounded-full flex items-center justify-center text-zinc-700 dark:text-white/80 hover:bg-white dark:hover:bg-white/15 transition-all cursor-pointer"
+              title="Previous"
+              aria-label="Previous Project"
+            >
+              <ChevronLeft className="w-4 h-4 stroke-[2]" />
+            </button>
 
-            {/* Segmented Dots / Pill Selectors (01 through 06) */}
-            <div className="flex items-center gap-1.5 bg-zinc-100 dark:bg-zinc-800/80 p-1 rounded-full border border-zinc-200 dark:border-white/10">
-              <button
-                type="button"
-                onClick={handlePrev}
-                className="sm:hidden w-7 h-7 rounded-full flex items-center justify-center text-zinc-700 dark:text-white/80 hover:bg-white dark:hover:bg-white/15 transition-all"
-                title="Previous"
-              >
-                <ChevronLeft className="w-4 h-4 stroke-[2]" />
-              </button>
+            {projects.map((proj, idx) => {
+              const isActive = idx === activeIndex;
+              return (
+                <button
+                  key={proj.id}
+                  type="button"
+                  onClick={() => handleSelectProject(idx)}
+                  className={`px-3 py-1 rounded-full text-xs font-mono transition-all cursor-pointer ${
+                    isActive
+                      ? 'bg-zinc-950 text-white dark:bg-white dark:text-black font-bold shadow-sm'
+                      : 'text-zinc-600 dark:text-white/60 hover:text-zinc-950 dark:hover:text-white hover:bg-white/50 dark:hover:bg-white/10'
+                  }`}
+                >
+                  <span>{proj.index.split('/')[0].trim()}</span>
+                </button>
+              );
+            })}
 
-              {projects.map((proj, idx) => {
-                const isActive = idx === activeIndex;
-                return (
-                  <button
-                    key={proj.id}
-                    type="button"
-                    onClick={() => handleSelectProject(idx)}
-                    className={`px-2.5 sm:px-3 py-1 rounded-full text-[11px] font-mono transition-all cursor-pointer ${
-                      isActive
-                        ? 'bg-zinc-950 text-white dark:bg-white dark:text-black font-bold shadow-sm'
-                        : 'text-zinc-600 dark:text-white/60 hover:text-zinc-950 dark:hover:text-white hover:bg-white/50 dark:hover:bg-white/10'
-                    }`}
-                  >
-                    <span>{proj.index.split('/')[0].trim()}</span>
-                  </button>
-                );
-              })}
-
-              <button
-                type="button"
-                onClick={handleNext}
-                className="sm:hidden w-7 h-7 rounded-full flex items-center justify-center text-zinc-700 dark:text-white/80 hover:bg-white dark:hover:bg-white/15 transition-all"
-                title="Next"
-              >
-                <ChevronRight className="w-4 h-4 stroke-[2]" />
-              </button>
-            </div>
-
+            <button
+              type="button"
+              onClick={handleNext}
+              className="w-8 h-8 rounded-full flex items-center justify-center text-zinc-700 dark:text-white/80 hover:bg-white dark:hover:bg-white/15 transition-all cursor-pointer"
+              title="Next"
+              aria-label="Next Project"
+            >
+              <ChevronRight className="w-4 h-4 stroke-[2]" />
+            </button>
           </div>
+
         </div>
 
       </div>

@@ -26,7 +26,7 @@ export function BrandTicker() {
   const { t } = useApp();
 
   return (
-    <section className="relative w-full bg-zinc-100 dark:bg-zinc-950 border-y border-zinc-200 dark:border-white/10 py-6 sm:py-8 overflow-hidden z-10 transition-colors duration-300">
+    <section id="brand-ticker" className="relative w-full bg-zinc-100 dark:bg-zinc-950 border-y border-zinc-200 dark:border-white/10 py-6 sm:py-8 overflow-hidden z-10 transition-colors duration-300">
       {/* Subtle edge fade overlays for infinite gradient effect */}
       <div className="absolute left-0 top-0 bottom-0 w-16 sm:w-32 bg-gradient-to-r from-zinc-100 dark:from-zinc-950 to-transparent z-10 pointer-events-none" />
       <div className="absolute right-0 top-0 bottom-0 w-16 sm:w-32 bg-gradient-to-l from-zinc-100 dark:from-zinc-950 to-transparent z-10 pointer-events-none" />
