@@ -19,7 +19,8 @@ import {
   Layers, 
   Code2, 
   Compass,
-  Laptop
+  Laptop,
+  Linkedin
 } from 'lucide-react';
 import { CommandIsland } from './CommandIsland';
 import { Footer } from './Footer';
@@ -255,24 +256,58 @@ export function AboutStudioPage({ countryContent }: AboutStudioPageProps = {}) {
           />
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center relative z-10">
-            {/* 3D Canvas Rig or Portrait Frame */}
-            <div className="lg:col-span-5 relative w-full h-[320px] sm:h-[380px] rounded-[28px] overflow-hidden bg-zinc-950 border border-white/10 shadow-inner">
-              <LogoCanvas
-                canvasId="architect-spotlight-canvas"
-                showControls={false}
-                showHint={false}
-                autoRotate={true}
-                defaultMode="particles"
-                className="w-full h-full cursor-grab active:cursor-grabbing"
+            {/* Founder Portrait Card & LinkedIn Link (Without Circle Container) */}
+            <a
+              href="https://www.linkedin.com/in/alexpintosmollahan/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="lg:col-span-5 relative w-full h-[380px] sm:h-[430px] rounded-[32px] overflow-hidden bg-zinc-900 border border-zinc-200/90 dark:border-white/10 shadow-2xl group flex flex-col justify-between p-6 transition-all duration-300 hover:border-blue-500/50 hover:shadow-[0_20px_50px_rgba(10,102,194,0.22)] cursor-pointer"
+              title="Alex Pintos Mollahan on LinkedIn"
+            >
+              {/* Photo - Clean Full Frame, No Circle Container */}
+              <img
+                src="/Black and Gold Simple Business Man LinkedIn Profile Picture.png"
+                onError={(e) => {
+                  e.currentTarget.src = '/alex-profile.png';
+                }}
+                alt="Alex Pintos Mollahan — Lead 3D Architect & Founder"
+                className="absolute inset-0 w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700 ease-out"
               />
-              <div className="absolute bottom-4 left-4 right-4 pointer-events-none flex items-center justify-between text-[11px] font-mono text-zinc-400 bg-zinc-900/80 backdrop-blur-md px-3.5 py-2 rounded-xl border border-white/10">
-                <span className="flex items-center gap-1.5 text-emerald-400">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                  <span>Real-Time WebGL Shader</span>
-                </span>
-                <span>Active 60 FPS</span>
+
+              {/* Ambient lighting and vignette overlays for contrast */}
+              <div 
+                aria-hidden="true" 
+                className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent pointer-events-none" 
+              />
+              <div 
+                aria-hidden="true" 
+                className="absolute inset-0 bg-blue-500/0 group-hover:bg-blue-500/10 transition-colors duration-500 pointer-events-none" 
+              />
+
+              {/* Verified Pill in Top Corner */}
+              <div className="relative z-10 self-end flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/60 backdrop-blur-md border border-white/15 text-[10px] font-mono text-emerald-400 font-bold shadow-lg">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                <span>FOUNDER & ARCHITECT</span>
               </div>
-            </div>
+
+              {/* LinkedIn Pill at Bottom */}
+              <div className="relative z-10 p-3 sm:p-3.5 rounded-2xl bg-black/70 backdrop-blur-xl border border-white/15 text-white shadow-xl flex items-center justify-between group-hover:border-blue-500/60 transition-all">
+                <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+                  <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-[#0A66C2] flex items-center justify-center shrink-0 shadow-md">
+                    <Linkedin className="w-4 h-4 sm:w-5 sm:h-5 text-white fill-white" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="font-semibold text-xs sm:text-sm text-white truncate leading-tight">Alex Pintos Mollahan</p>
+                    <p className="text-[10px] sm:text-[11px] font-mono text-zinc-400 truncate">
+                      {lang === 'pt' ? 'Ver Perfil no LinkedIn' : 'View LinkedIn Profile'}
+                    </p>
+                  </div>
+                </div>
+                <div className="w-7 h-7 rounded-full bg-white/10 flex items-center justify-center shrink-0 group-hover:bg-[#0A66C2] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all ml-2">
+                  <ArrowUpRight className="w-3.5 h-3.5 text-white stroke-[2.2]" />
+                </div>
+              </div>
+            </a>
 
             {/* Bio & Philosophy Copy */}
             <div className="lg:col-span-7 flex flex-col justify-center">
@@ -282,7 +317,7 @@ export function AboutStudioPage({ countryContent }: AboutStudioPageProps = {}) {
               </div>
 
               <h3 className="text-2xl sm:text-3xl font-bold font-display tracking-tight text-zinc-900 dark:text-white mb-4">
-                Alex & The ax07.dev Spec Engineering Team
+                Alex Pintos Mollahan & The ax07.dev Spec Team
               </h3>
 
               <p className="text-sm sm:text-base text-zinc-600 dark:text-zinc-400 leading-relaxed mb-4 font-sans">
@@ -310,6 +345,17 @@ export function AboutStudioPage({ countryContent }: AboutStudioPageProps = {}) {
                 >
                   <MessageSquare className="w-4 h-4 fill-emerald-500 text-emerald-500" />
                   <span>{lang === 'pt' ? 'Conversar com o Alex' : 'Talk Directly on WhatsApp'}</span>
+                </a>
+
+                <a
+                  href="https://www.linkedin.com/in/alexpintosmollahan/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-5 py-3 rounded-full bg-[#0A66C2] hover:bg-[#004182] text-white font-semibold text-xs sm:text-sm transition-colors flex items-center gap-2 shadow-md cursor-pointer"
+                >
+                  <Linkedin className="w-4 h-4 fill-white text-white" />
+                  <span>{lang === 'pt' ? 'LinkedIn' : 'LinkedIn Profile'}</span>
+                  <ArrowUpRight className="w-3.5 h-3.5 stroke-[2.2]" />
                 </a>
 
                 <a

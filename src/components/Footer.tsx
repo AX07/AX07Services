@@ -13,13 +13,18 @@ import {
   Sparkles, 
   MapPin, 
   Check,
-  Globe
+  Globe,
+  Lock
 } from 'lucide-react';
 import { useApp } from '../context/ThemeLanguageContext';
 import { appleGestures, appleSprings } from '../lib/design-system';
 import { BrandLogo } from './BrandLogo';
 
 type PolicyType = 'cookies' | 'terms' | 'privacy' | 'contact' | null;
+
+export interface FooterProps {
+  onOpenLockscreen?: () => void;
+}
 
 function GoogleIcon({ className = "w-4 h-4" }: { className?: string }) {
   return (
@@ -29,7 +34,7 @@ function GoogleIcon({ className = "w-4 h-4" }: { className?: string }) {
   );
 }
 
-export function Footer() {
+export function Footer({ onOpenLockscreen }: FooterProps = {}) {
   const { t, lang } = useApp();
   const [activeModal, setActiveModal] = useState<PolicyType>(null);
 
@@ -37,6 +42,20 @@ export function Footer() {
   const whatsappNumber = '353894419127';
 
   const handleNavClick = (e: React.MouseEvent, targetIdOrPath: string) => {
+    if (targetIdOrPath === '#lockscreen') {
+      e.preventDefault();
+      onOpenLockscreen?.();
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('ax07-open-lockscreen'));
+        if (window.location.pathname !== '/' && window.location.pathname !== '/ie' && window.location.pathname !== '/pt') {
+          const langPrefix = window.location.pathname.startsWith('/pt') ? '/pt' : '/ie';
+          window.history.pushState({}, '', langPrefix);
+          window.dispatchEvent(new PopStateEvent('popstate'));
+        }
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+      return;
+    }
     if (targetIdOrPath.startsWith('#')) {
       const elId = targetIdOrPath.substring(1);
       const el = document.getElementById(elId);
@@ -56,6 +75,7 @@ export function Footer() {
   };
 
   const navLinks = [
+    { label: isPt ? 'Tela de Bloqueio 3D' : '3D Lockscreen', target: '#lockscreen', isLockscreen: true },
     { label: isPt ? 'Projetos Selecionados' : 'Selected Works', target: '#project-showcase' },
     { label: isPt ? 'O Nosso Processo' : 'Our Process', target: '#process' },
     { label: isPt ? 'Tabela de Preços' : 'Transparent Pricing', target: '#pricing' },
@@ -67,9 +87,9 @@ export function Footer() {
   const socialLinks = [
     {
       name: 'LinkedIn',
-      handle: 'Alex Pinto Smollahan',
-      subtext: isPt ? 'Rede Profissional & Fundador' : 'Professional Profile & Updates',
-      href: 'https://www.linkedin.com/in/alexpintosmollahan/',
+      handle: 'ax07.dev',
+      subtext: isPt ? 'Página Oficial da Empresa' : 'Official Company Page & Updates',
+      href: 'https://www.linkedin.com/company/ax07dev/',
       icon: <Linkedin className="w-4 h-4 text-blue-500" />,
     },
     {
@@ -143,7 +163,11 @@ export function Footer() {
                     onClick={(e) => handleNavClick(e, item.target)}
                     className="text-zinc-600 dark:text-white/70 hover:text-zinc-950 dark:hover:text-white transition-colors inline-flex items-center gap-1.5 group cursor-pointer"
                   >
-                    <span className="w-1 h-1 rounded-full bg-transparent group-hover:bg-emerald-500 transition-colors" />
+                    {item.isLockscreen ? (
+                      <Lock className="w-3.5 h-3.5 text-emerald-500 group-hover:scale-110 transition-transform" />
+                    ) : (
+                      <span className="w-1 h-1 rounded-full bg-transparent group-hover:bg-emerald-500 transition-colors" />
+                    )}
                     <span>{item.label}</span>
                   </a>
                 </li>

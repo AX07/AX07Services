@@ -12,7 +12,9 @@ export interface LogoCanvasProps {
   autoRotate?: boolean;
   canvasId?: string;
   className?: string;
+  disableMobileInteraction?: boolean;
   onLoad?: () => void;
+  onInteract?: () => void;
 }
 
 export const LogoCanvas: React.FC<LogoCanvasProps> = ({
@@ -24,7 +26,9 @@ export const LogoCanvas: React.FC<LogoCanvasProps> = ({
   autoRotate,
   canvasId = 'ax07-logo-canvas',
   className = '',
+  disableMobileInteraction = false,
   onLoad,
+  onInteract,
 }) => {
   const { theme } = useApp();
   const containerRef = useRef<HTMLDivElement>(null);
@@ -42,6 +46,18 @@ export const LogoCanvas: React.FC<LogoCanvasProps> = ({
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Listen for global explode dispatch
+  useEffect(() => {
+    const handleExplode = (e: any) => {
+      const intensity = e?.detail?.intensity ?? 1.0;
+      if (controllerRef.current && (controllerRef.current as any).explodeAndReorganize) {
+        (controllerRef.current as any).explodeAndReorganize(intensity, e?.detail?.callback);
+      }
+    };
+    window.addEventListener('ax07-explode-3d', handleExplode);
+    return () => window.removeEventListener('ax07-explode-3d', handleExplode);
+  }, []);
+
   useEffect(() => {
     if (!containerRef.current) return;
 
@@ -55,12 +71,17 @@ export const LogoCanvas: React.FC<LogoCanvasProps> = ({
         modelUrl,
         mode,
         theme,
+        disableMobileInteraction,
         autoRotate: autoRotate !== undefined ? autoRotate : !scrollTriggerEl,
         onLoad: () => {
           if (isMounted) {
             setIsLoaded(true);
             onLoad?.();
           }
+        },
+        onInteract: () => {
+          onInteract?.();
+          window.dispatchEvent(new CustomEvent('ax07-3d-interacted'));
         },
       });
     } catch (err) {
@@ -74,7 +95,7 @@ export const LogoCanvas: React.FC<LogoCanvasProps> = ({
         controllerRef.current = null;
       }
     };
-  }, [modelUrl, scrollWrapperId, autoRotate]);
+  }, [modelUrl, scrollWrapperId, autoRotate, disableMobileInteraction]);
 
   useEffect(() => {
     if (controllerRef.current && (controllerRef.current as any).setTheme) {
@@ -95,7 +116,11 @@ export const LogoCanvas: React.FC<LogoCanvasProps> = ({
       <div
         ref={containerRef}
         id={canvasId}
-        className="w-full h-full cursor-crosshair touch-pan-y select-none pointer-events-auto"
+        className={`w-full h-full select-none touch-pan-y ${
+          disableMobileInteraction
+            ? 'pointer-events-none md:pointer-events-auto md:cursor-crosshair'
+            : 'cursor-crosshair pointer-events-auto'
+        }`}
       />
 
       {/* Loading Skeleton */}
@@ -108,9 +133,9 @@ export const LogoCanvas: React.FC<LogoCanvasProps> = ({
         </div>
       )}
 
-      {/* Floating Interactive 3D Mode Switcher (Bottom Right of Canvas) */}
+      {/* Floating Interactive 3D Mode Switcher (Bottom Right of Canvas - hidden on mobile when mobile interaction disabled) */}
       {showControls && isLoaded && (
-        <div className={`flex absolute bottom-5 right-4 sm:bottom-8 sm:right-8 z-40 items-center gap-1 sm:gap-1.5 p-1 sm:p-1.5 rounded-full border border-zinc-200/80 dark:border-white/10 bg-white/90 dark:bg-zinc-900/90 backdrop-blur-2xl shadow-xl dark:shadow-2xl transition-all duration-300 ${
+        <div className={`${disableMobileInteraction ? 'hidden md:flex' : 'flex'} absolute bottom-5 right-4 sm:bottom-8 sm:right-8 z-40 items-center gap-1 sm:gap-1.5 p-1 sm:p-1.5 rounded-full border border-zinc-200/80 dark:border-white/10 bg-white/90 dark:bg-zinc-900/90 backdrop-blur-2xl shadow-xl dark:shadow-2xl transition-all duration-300 ${
           isScrolled ? 'opacity-100 translate-y-0 pointer-events-auto' : 'opacity-0 translate-y-4 pointer-events-none'
         }`}>
           <button

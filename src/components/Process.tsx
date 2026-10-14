@@ -82,7 +82,7 @@ export function Process({ countryContent }: ProcessProps = {}) {
 
     const startTime = performance.now();
 
-    // Apple-grade cubic easing for butter-smooth deceleration
+    // Apple-grade quartic easing for weighted, butter-smooth deceleration without whipping
     const easeInOutCubic = (t: number) =>
       t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
 
@@ -103,17 +103,19 @@ export function Process({ countryContent }: ProcessProps = {}) {
     requestAnimationFrame(animateScroll);
   };
 
+  const isSwipeLockedRef = useRef(false);
+
   // Smooth navigation to smoothly scroll and trigger card lift
-  const handleStepClick = (index: number) => {
+  const handleStepClick = (index: number, duration: number = 1450) => {
     setActiveIndex(index);
     if (sectionRef.current) {
       const rect = sectionRef.current.getBoundingClientRect();
       const scrollTop = window.scrollY || document.documentElement.scrollTop;
       const sectionTop = rect.top + scrollTop;
       const totalScrollable = sectionRef.current.offsetHeight - window.innerHeight;
-      const stepScrollFractions = [0.06, 0.46, 0.82];
+      const stepScrollFractions = [0.08, 0.44, 0.82];
       const targetScroll = sectionTop + totalScrollable * stepScrollFractions[index];
-      smoothScrollToTarget(targetScroll, 950);
+      smoothScrollToTarget(targetScroll, duration);
     }
   };
 
@@ -128,7 +130,7 @@ export function Process({ countryContent }: ProcessProps = {}) {
 
   const handleTouchEnd = (e: React.TouchEvent) => {
     if (touchStartY.current === null) return;
-    if (isScrollingRef.current) return;
+    if (isScrollingRef.current || isSwipeLockedRef.current) return;
 
     const dy = e.changedTouches[0].clientY - touchStartY.current;
     const dx = touchStartX.current !== null ? e.changedTouches[0].clientX - touchStartX.current : 0;
@@ -136,18 +138,30 @@ export function Process({ countryContent }: ProcessProps = {}) {
     // Detect swipe (supports both vertical drag and horizontal step swipe)
     const isVerticalSwipe = Math.abs(dy) > Math.abs(dx);
 
+    let swiped = false;
     if (isVerticalSwipe) {
-      if (dy < -50 && activeIndex < 2) {
-        handleStepClick(activeIndex + 1);
-      } else if (dy > 50 && activeIndex > 0) {
-        handleStepClick(activeIndex - 1);
+      if (dy < -40 && activeIndex < 2) {
+        swiped = true;
+        handleStepClick(activeIndex + 1, 1500);
+      } else if (dy > 40 && activeIndex > 0) {
+        swiped = true;
+        handleStepClick(activeIndex - 1, 1500);
       }
     } else {
-      if (dx < -50 && activeIndex < 2) {
-        handleStepClick(activeIndex + 1);
-      } else if (dx > 50 && activeIndex > 0) {
-        handleStepClick(activeIndex - 1);
+      if (dx < -40 && activeIndex < 2) {
+        swiped = true;
+        handleStepClick(activeIndex + 1, 1500);
+      } else if (dx > 40 && activeIndex > 0) {
+        swiped = true;
+        handleStepClick(activeIndex - 1, 1500);
       }
+    }
+
+    if (swiped) {
+      isSwipeLockedRef.current = true;
+      setTimeout(() => {
+        isSwipeLockedRef.current = false;
+      }, 1200);
     }
 
     touchStartY.current = null;

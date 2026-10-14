@@ -45,6 +45,8 @@ export function init3DLogo(options = {}) {
     returnLerp = 0.05,
     autoRotate = !scrollTriggerEl,
     onLoad = () => {},
+    onInteract = null,
+    disableMobileInteraction = false,
   } = options;
 
   // Resolve THREE & GSAP from window or module imports
@@ -279,6 +281,13 @@ export function init3DLogo(options = {}) {
   }
 
   function onPointerMove(e) {
+    if (disableMobileInteraction && (isMobile || (typeof window !== 'undefined' && window.innerWidth < 768))) {
+      return;
+    }
+    if (disableMobileInteraction && e.pointerType === 'touch') {
+      return;
+    }
+    isSimulatedActive = false;
     if (isTouchActive && e.pointerType === 'touch') {
       return; // Handled directly by touch events
     }
@@ -296,6 +305,9 @@ export function init3DLogo(options = {}) {
     targetDispersalRadius = baseDispersalRadius + velocityBoost;
 
     updatePointerCoords(e.clientX, e.clientY);
+    if (typeof onInteract === 'function') {
+      onInteract();
+    }
   }
 
   function onPointerLeave() {
@@ -308,8 +320,15 @@ export function init3DLogo(options = {}) {
 
   // Mobile Touch Finger Tracking: Instantaneous, zero-lag response & precise alignment
   function onTouchStart(e) {
+    if (disableMobileInteraction && (isMobile || (typeof window !== 'undefined' && window.innerWidth < 768))) {
+      return;
+    }
+    isSimulatedActive = false;
     isTouchActive = true;
     updateRect();
+    if (typeof onInteract === 'function') {
+      onInteract();
+    }
     if (e.touches && e.touches[0]) {
       const touch = e.touches[0];
       lastClientX = touch.clientX;
@@ -323,7 +342,14 @@ export function init3DLogo(options = {}) {
   }
 
   function onTouchMove(e) {
+    if (disableMobileInteraction && (isMobile || (typeof window !== 'undefined' && window.innerWidth < 768))) {
+      return;
+    }
+    isSimulatedActive = false;
     isTouchActive = true;
+    if (typeof onInteract === 'function') {
+      onInteract();
+    }
     if (e.touches && e.touches[0]) {
       const touch = e.touches[0];
       const now = performance.now();
@@ -344,6 +370,9 @@ export function init3DLogo(options = {}) {
   }
 
   function onTouchEnd() {
+    if (disableMobileInteraction && (isMobile || (typeof window !== 'undefined' && window.innerWidth < 768))) {
+      return;
+    }
     hasActivePointer = false;
     mouse3D.set(9999, 9999, 9999);
     targetRotX = 0;
@@ -354,6 +383,50 @@ export function init3DLogo(options = {}) {
     }, 250);
   }
 
+  // Simulated Suggestion Pointer Handler:
+  // Allows the lockscreen suggestion to realistically interact with 3D particles & lighting
+  let isSimulatedActive = false;
+
+  function onSimulatedPointer(e) {
+    // If real user is interacting, ignore simulated events completely
+    if (isTouchActive) {
+      isSimulatedActive = false;
+      return;
+    }
+
+    const detail = (e && e.detail) || {};
+    if (detail.active === false) {
+      if (isSimulatedActive) {
+        isSimulatedActive = false;
+        hasActivePointer = false;
+        mouse3D.set(9999, 9999, 9999);
+        targetRotX = 0;
+        targetRotY = 0;
+        targetDispersalRadius = baseDispersalRadius;
+      }
+      return;
+    }
+
+    isSimulatedActive = true;
+    hasActivePointer = true;
+
+    if (!cachedRect.width || !cachedRect.height) {
+      updateRect();
+    }
+
+    if (typeof detail.clientX === 'number' && typeof detail.clientY === 'number') {
+      updatePointerCoords(detail.clientX, detail.clientY);
+    } else if (typeof detail.normX === 'number' && typeof detail.normY === 'number') {
+      pointer.x = detail.normX;
+      pointer.y = detail.normY;
+      targetRotY = pointer.x * (isMobile ? 0.22 : 0.38);
+      targetRotX = -pointer.y * (isMobile ? 0.22 : 0.38);
+    }
+
+    const radius = detail.radius || (isMobile ? 0.90 : 0.55);
+    targetDispersalRadius = radius;
+  }
+
   window.addEventListener('pointermove', onPointerMove, { passive: true });
   container.addEventListener('pointerleave', onPointerLeave);
   window.addEventListener('touchstart', onTouchStart, { passive: true });
@@ -361,6 +434,7 @@ export function init3DLogo(options = {}) {
   window.addEventListener('touchend', onTouchEnd, { passive: true });
   window.addEventListener('touchcancel', onTouchEnd, { passive: true });
   window.addEventListener('scroll', updateRect, { passive: true });
+  window.addEventListener('ax07-simulated-pointer', onSimulatedPointer);
 
   // 5. Circular Particle Glow Texture
   function createParticleTexture() {
@@ -599,12 +673,21 @@ export function init3DLogo(options = {}) {
   let isVisible = true;
   let isDestroyed = false;
 
+  let customReturnLerp = null;
+
   function animate() {
     if (isDestroyed || !isVisible) {
       animId = null;
       return;
     }
     animId = requestAnimationFrame(animate);
+
+    if (disableMobileInteraction && (isMobile || (typeof window !== 'undefined' && window.innerWidth < 768))) {
+      hasActivePointer = false;
+      mouse3D.set(9999, 9999, 9999);
+      targetRotX = 0;
+      targetRotY = 0;
+    }
 
     // Decay target radius back to small cursor size if stationary
     const timeSinceMove = performance.now() - lastPointerTime;
@@ -661,7 +744,7 @@ export function init3DLogo(options = {}) {
       const mz = mouse3D.z;
       const r = currentDispersalRadius;
       const rSq = dynamicRadiusSq;
-      const activeReturnLerp = isMobile ? 0.12 : returnLerp;
+      const activeReturnLerp = customReturnLerp !== null ? customReturnLerp : (isMobile ? 0.12 : returnLerp);
       const pushBase = isMobile ? 0.16 : 0.12;
       const pushMultiplier = isMobile ? 0.14 : 0.10;
       let hasChanges = false;
@@ -763,6 +846,72 @@ export function init3DLogo(options = {}) {
   }
   window.addEventListener('resize', onResize);
 
+  // Cinematic 3D Asset Explosion & Reorganization Physics
+  function explodeAndReorganize(intensity = 1.0, callback = null) {
+    if (!particles || !currentPositions || !originalPositions) {
+      if (typeof callback === 'function') callback();
+      return;
+    }
+
+    // 1. Instantly fling particles outwards along radial explosion trajectories
+    const baseBlast = (isMobile ? 2.2 : 3.4) * intensity;
+    customReturnLerp = 0.022; // Let particles drift and float in zero-g for the burst phase
+
+    for (let i = 0; i < particleCount; i++) {
+      const idx = i * 3;
+      const ox = originalPositions[idx];
+      const oy = originalPositions[idx + 1];
+      const oz = originalPositions[idx + 2];
+
+      // Add turbulent scatter vector
+      const rx = ox + (Math.random() - 0.5) * 1.8;
+      const ry = oy + (Math.random() - 0.5) * 1.8;
+      const rz = oz + (Math.random() - 0.5) * 1.8;
+      const dist = Math.hypot(rx, ry, rz) || 1.0;
+
+      const blastForce = baseBlast * (0.85 + Math.random() * 1.5);
+      currentPositions[idx] += (rx / dist) * blastForce;
+      currentPositions[idx + 1] += (ry / dist) * blastForce;
+      currentPositions[idx + 2] += (rz / dist) * blastForce;
+    }
+
+    if (positionAttribute) {
+      positionAttribute.needsUpdate = true;
+    }
+
+    // 2. Punch scale and flash mesh/lighting
+    const activeGsap = _gsap || (typeof window !== 'undefined' && window.gsap);
+    if (activeGsap && logoGroup) {
+      const currentScale = logoGroup.scale.x;
+      activeGsap.timeline()
+        .to(logoGroup.scale, {
+          x: currentScale * 1.35,
+          y: currentScale * 1.35,
+          z: currentScale * 1.35,
+          duration: 0.22,
+          ease: 'power2.out',
+        })
+        .to(logoGroup.scale, {
+          x: currentScale,
+          y: currentScale,
+          z: currentScale,
+          duration: 0.95,
+          ease: 'elastic.out(1, 0.45)',
+        });
+    }
+
+    // 3. Magnetic Reorganization Phase: gradually accelerate the return lerp
+    // so particles coalesce and snap crisply back into the crystal structure
+    setTimeout(() => {
+      customReturnLerp = isMobile ? 0.09 : 0.07;
+    }, 450);
+
+    setTimeout(() => {
+      customReturnLerp = null;
+      if (typeof callback === 'function') callback();
+    }, 1250);
+  }
+
   return {
     destroy: () => {
       isDestroyed = true;
@@ -784,6 +933,7 @@ export function init3DLogo(options = {}) {
       window.removeEventListener('touchmove', onTouchMove);
       window.removeEventListener('touchend', onTouchEnd);
       window.removeEventListener('touchcancel', onTouchEnd);
+      window.removeEventListener('ax07-simulated-pointer', onSimulatedPointer);
       renderer.dispose();
       if (renderer.domElement.parentNode) {
         renderer.domElement.parentNode.removeChild(renderer.domElement);
@@ -795,6 +945,10 @@ export function init3DLogo(options = {}) {
     setMode: (newMode) => {
       currentMode = newMode;
       updateModeVisibility(newMode);
+    },
+    explodeAndReorganize,
+    simulatePointer: (detail) => {
+      onSimulatedPointer({ detail });
     },
     logoGroup,
     camera,

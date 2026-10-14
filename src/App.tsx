@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { AnimatePresence } from 'motion/react';
 import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/react';
 import { AppProvider, useApp } from './context/ThemeLanguageContext';
@@ -17,6 +18,8 @@ import { ArrowLeft, ArrowUpRight, Terminal, Link as LinkIcon, ShieldCheck, Smart
 import { LogoCanvas } from './components/LogoCanvas';
 import { WorkPortfolioPage } from './components/WorkPortfolioPage';
 import { AboutStudioPage } from './components/AboutStudioPage';
+import { Lockscreen } from './components/Lockscreen';
+import { InitialLoader } from './components/InitialLoader';
 import AdminPage from '@/app/admin/page';
 import DynamicDemoPage from '@/app/demo/[client]/page';
 import etherealBackdrop from './assets/images/ethereal_hero_backdrop.jpg';
@@ -25,8 +28,50 @@ function MainExperience({ country, onSelectCountry }: { country: CountryCode; on
   const { theme } = useApp();
   const content = getCountryContent(country);
 
+  // 1. Initial Fast Brand Loader (Logo + Progressive Loading Bar on first load)
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
+
+  // 2. Separate Lockscreen State: Isolated from Hero scroll track
+  const [isUnlocked, setIsUnlocked] = useState(false);
+
+  const handleUnlock = () => {
+    setIsUnlocked(true);
+    if (typeof window !== 'undefined') {
+      sessionStorage.setItem('ax07_unlocked', 'true');
+    }
+  };
+
+  const handleOpenLockscreen = () => {
+    setIsUnlocked(false);
+    if (typeof window !== 'undefined') {
+      sessionStorage.removeItem('ax07_unlocked');
+    }
+  };
+
+  // Listen for global custom event to trigger lockscreen anytime from any section
+  useEffect(() => {
+    const handleReopen = () => {
+      handleOpenLockscreen();
+    };
+    window.addEventListener('ax07-open-lockscreen', handleReopen);
+    return () => window.removeEventListener('ax07-open-lockscreen', handleReopen);
+  }, []);
+
   return (
-    <div className="bg-zinc-50 dark:bg-zinc-950 min-h-screen text-zinc-900 dark:text-white overflow-x-clip selection:bg-zinc-900/10 dark:selection:bg-white/20 selection:text-zinc-900 dark:selection:text-white relative transition-colors duration-300">
+    <>
+      {/* Step 1: Initial Fast Brand Loading Screen with Studio Logo & Loading Bar */}
+      <AnimatePresence>
+        {isInitialLoading && (
+          <InitialLoader onComplete={() => setIsInitialLoading(false)} />
+        )}
+      </AnimatePresence>
+
+      {/* Step 2: Dedicated Interactive Lockscreen State (Appears right after loading bar finishes) */}
+      {!isInitialLoading && !isUnlocked && (
+        <Lockscreen onUnlock={handleUnlock} />
+      )}
+
+      <div className="bg-zinc-50 dark:bg-zinc-950 min-h-screen text-zinc-900 dark:text-white overflow-x-clip selection:bg-zinc-900/10 dark:selection:bg-white/20 selection:text-zinc-900 dark:selection:text-white relative transition-colors duration-300">
       {/* Ambient Ethereal Backdrop Image */}
       <div 
         aria-hidden="true"
@@ -91,8 +136,9 @@ function MainExperience({ country, onSelectCountry }: { country: CountryCode; on
         <CtaBanner countryContent={content} />
       </main>
 
-      <Footer />
+      <Footer onOpenLockscreen={handleOpenLockscreen} />
     </div>
+    </>
   );
 }
 
