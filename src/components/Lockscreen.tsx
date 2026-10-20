@@ -9,8 +9,8 @@ export interface LockscreenProps {
   onUnlock: () => void;
 }
 
-// 1.0s minimum to reject accidental taps/mistakes, 3.0s maximum for auto-unlock
-const MIN_INTERACTION_MS = 1000;
+// 0.5s minimum to reject accidental taps/mistakes, 3.0s maximum for auto-unlock
+const MIN_INTERACTION_MS = 500;
 const MAX_INTERACTION_MS = 3000;
 
 export function Lockscreen({ onUnlock }: LockscreenProps) {
@@ -166,10 +166,10 @@ export function Lockscreen({ onUnlock }: LockscreenProps) {
     interactionStartRef.current = 0;
 
     if (duration >= MIN_INTERACTION_MS) {
-      // Satisfied >= 1.0s requirement -> UNLOCK!
+      // Satisfied >= 0.5s requirement -> UNLOCK!
       triggerUnlock();
     } else {
-      // Shorter than 1.0s -> Accidental tap or brush blocked!
+      // Shorter than 0.5s -> Accidental tap or brush blocked!
       setShowTooShortAlert(true);
       setSessionMs(0);
       setTimeout(() => {
@@ -582,8 +582,8 @@ export function Lockscreen({ onUnlock }: LockscreenProps) {
               : isReadyToUnlock
                 ? (isPt ? 'PRONTO • SOLTE PARA DESBLOQUEAR' : 'READY • RELEASE TO UNLOCK')
                 : isInteracting
-                  ? (isPt ? 'CONTINUE A INTERAGIR (MÍN 1s)' : 'KEEP INTERACTING (1s MIN)')
-                  : (isPt ? 'INTERAJA 1s - 3s PARA ENTRAR' : 'INTERACT 1s - 3s TO UNLOCK')}
+                  ? (isPt ? 'CONTINUE A INTERAGIR (MÍN 0.5s)' : 'KEEP INTERACTING (0.5s MIN)')
+                  : (isPt ? 'INTERAJA 0.5s - 3s PARA ENTRAR' : 'INTERACT 0.5s - 3s TO UNLOCK')}
           </span>
         </motion.div>
 
@@ -610,10 +610,10 @@ export function Lockscreen({ onUnlock }: LockscreenProps) {
         )}
       </AnimatePresence>
 
-      {/* BOTTOM: Interaction Gauge (1s min, 3s max) & Guidance */}
+      {/* BOTTOM: Interaction Gauge (0.5s min, 3s max) & Guidance */}
       <div className="relative z-20 pb-10 sm:pb-14 px-6 w-full max-w-md flex flex-col items-center gap-3.5 pointer-events-none">
         
-        {/* Accidental Tap Alert (Too short < 1s) */}
+        {/* Accidental Tap Alert (Too short < 0.5s) */}
         <AnimatePresence>
           {showTooShortAlert && (
             <motion.div
@@ -623,20 +623,20 @@ export function Lockscreen({ onUnlock }: LockscreenProps) {
               className="px-3.5 py-1.5 rounded-full border border-amber-500/40 bg-amber-500/15 backdrop-blur-xl text-amber-800 dark:text-amber-300 text-[11px] font-mono flex items-center gap-2 shadow-lg"
             >
               <AlertCircle className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
-              <span>{isPt ? 'Toque muito rápido • Mantenha por no mín. 1s' : 'Tap too quick • Hold & drag for at least 1s'}</span>
+              <span>{isPt ? 'Toque muito rápido • Mantenha por no mín. 0.5s' : 'Tap too quick • Hold & drag for at least 0.5s'}</span>
             </motion.div>
           )}
         </AnimatePresence>
 
-        {/* Dual-Zone Progress Gauge (1.0s Minimum Mark + 3.0s Auto-Unlock) */}
+        {/* Dual-Zone Progress Gauge (0.5s Minimum Mark + 3.0s Auto-Unlock) */}
         <div className="w-full bg-white/85 dark:bg-black/75 backdrop-blur-2xl border border-zinc-200/90 dark:border-white/15 rounded-full p-2 sm:p-2.5 shadow-xl dark:shadow-2xl flex items-center gap-3 pointer-events-auto transition-colors duration-300">
-          {/* Progress bar with 1s divider */}
+          {/* Progress bar with 0.5s divider */}
           <div className="relative flex-1 h-3.5 sm:h-4 bg-zinc-200/80 dark:bg-white/10 rounded-full overflow-hidden mx-1.5 flex items-center">
-            {/* 1s Threshold Tick Mark (33.3%) */}
+            {/* 0.5s Threshold Tick Mark */}
             <div 
               className="absolute top-0 bottom-0 w-0.5 bg-zinc-400/70 dark:bg-white/40 z-10 pointer-events-none"
               style={{ left: `${minThresholdPct}%` }}
-              title="1.0s minimum threshold"
+              title="0.5s minimum threshold"
             />
 
             {/* Dynamic Progress Fill */}
@@ -656,7 +656,7 @@ export function Lockscreen({ onUnlock }: LockscreenProps) {
             <span className={`text-xs font-mono font-bold min-w-[70px] text-right transition-colors ${
               isReadyToUnlock ? 'text-emerald-600 dark:text-emerald-400' : 'text-zinc-700 dark:text-zinc-300'
             }`}>
-              {currentSecondsFormatted}s / {isReadyToUnlock ? '3.0s' : '1.0s'}
+              {currentSecondsFormatted}s / {isReadyToUnlock ? '3.0s' : '0.5s'}
             </span>
 
             {/* Instant Skip button for accessibility */}
@@ -684,12 +684,12 @@ export function Lockscreen({ onUnlock }: LockscreenProps) {
           ) : isInteracting ? (
             <>
               <span className="w-2 h-2 rounded-full bg-emerald-500 dark:bg-emerald-400 animate-ping shrink-0" />
-              <span className="text-zinc-700 dark:text-white/90">{isPt ? 'A interagir... (mínimo de 1s)' : 'Interacting... (1s minimum)'}</span>
+              <span className="text-zinc-700 dark:text-white/90">{isPt ? 'A interagir... (mínimo de 0.5s)' : 'Interacting... (0.5s minimum)'}</span>
             </>
           ) : (
             <>
               <span className="w-2 h-2 rounded-full bg-emerald-500/80 dark:bg-emerald-400/80 shrink-0" />
-              <span>{isPt ? 'Interaja por 1s para desbloquear (máx 3s)' : 'Interact for 1s to unlock (max 3s)'}</span>
+              <span>{isPt ? 'Interaja por 0.5s para desbloquear (máx 3s)' : 'Interact for 0.5s to unlock (max 3s)'}</span>
             </>
           )}
         </div>

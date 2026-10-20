@@ -45,7 +45,7 @@ export function Hero({ countryContent }: HeroProps = {}) {
 
   // [BEAT 1: 0% - 34%] Logo Centered, The Identity & Hook
   const beat1Opacity = useTransform(scrollYProgress, [0, 0.22, 0.36], [1, 1, 0]);
-  const beat1Y = useTransform(scrollYProgress, [0, 0.36], [0, -40]);
+  const beat1Y = useTransform(scrollYProgress, [0, 0.36], [0, -85]);
   const beat1Scale = useTransform(scrollYProgress, [0, 0.36], [1, 0.95]);
   const beat1Visibility = useTransform(scrollYProgress, (v) => (v < 0.38 ? 'visible' : 'hidden'));
 
@@ -130,7 +130,7 @@ export function Hero({ countryContent }: HeroProps = {}) {
               scale: beat1Scale,
               visibility: beat1Visibility,
             }}
-            className="absolute inset-0 z-20 flex flex-col items-center justify-start pt-20 sm:pt-24 md:pt-28 px-4 sm:px-6 max-w-4xl mx-auto text-center pointer-events-none"
+            className="absolute inset-0 z-20 flex flex-col items-center justify-start pt-32 sm:pt-36 md:pt-28 px-4 sm:px-6 max-w-4xl mx-auto text-center pointer-events-none"
           >
             {/* Elegant Hero Fade-In Occurs AFTER Initial 3D Load Phase */}
             <motion.div
