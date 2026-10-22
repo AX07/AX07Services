@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
@@ -10,6 +11,9 @@ if (typeof window !== 'undefined') {
     }
     if (!window.GLTFLoader) {
       window.GLTFLoader = GLTFLoader;
+    }
+    if (!window.DRACOLoader) {
+      window.DRACOLoader = DRACOLoader;
     }
     if (!window.gsap) {
       window.gsap = gsap;
@@ -459,6 +463,15 @@ export function init3DLogo(options = {}) {
   }
 
   const loader = new LoaderConstructor();
+  try {
+    const dracoLoader = new DRACOLoader();
+    dracoLoader.setDecoderPath('/draco/');
+    dracoLoader.preload();
+    loader.setDRACOLoader(dracoLoader);
+  } catch (err) {
+    console.warn('[ax07] DRACOLoader initialization notice:', err);
+  }
+
   loader.load(modelUrl, (gltf) => {
     meshAsset = gltf.scene;
 

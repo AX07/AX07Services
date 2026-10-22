@@ -28,7 +28,7 @@ import { LogoCanvas } from './LogoCanvas';
 import { CountryContent } from '../lib/content';
 import { useApp } from '../context/ThemeLanguageContext';
 import { appleSprings } from '../lib/design-system';
-import etherealBackdrop from '../assets/images/ethereal_hero_backdrop.jpg';
+import etherealBackdrop from '../assets/images/ethereal_hero_backdrop.webp';
 
 export interface AboutStudioPageProps {
   countryContent?: CountryContent;
@@ -265,14 +265,20 @@ export function AboutStudioPage({ countryContent }: AboutStudioPageProps = {}) {
               title="Alex Pintos Mollahan on LinkedIn"
             >
               {/* Photo - Clean Full Frame, No Circle Container */}
-              <img
-                src="/Black and Gold Simple Business Man LinkedIn Profile Picture.png"
-                onError={(e) => {
-                  e.currentTarget.src = '/alex-profile.png';
-                }}
-                alt="Alex Pintos Mollahan — Lead 3D Architect & Founder"
-                className="absolute inset-0 w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700 ease-out"
-              />
+              <picture>
+                <source srcSet="/Black and Gold Simple Business Man LinkedIn Profile Picture.webp" type="image/webp" />
+                <source srcSet="/alex-profile.webp" type="image/webp" />
+                <img
+                  src="/Black and Gold Simple Business Man LinkedIn Profile Picture.webp"
+                  onError={(e) => {
+                    e.currentTarget.src = '/alex-profile.webp';
+                  }}
+                  alt="Alex Pintos Mollahan — Lead 3D Architect & Founder"
+                  className="absolute inset-0 w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700 ease-out"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </picture>
 
               {/* Ambient lighting and vignette overlays for contrast */}
               <div 

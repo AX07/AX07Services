@@ -1,7 +1,4 @@
-export function Dock() {
-  return null;
-}
+import { SpeedAuditDock } from './SpeedAuditDock';
 
-export default Dock;
-
-
+export { SpeedAuditDock as Dock, SpeedAuditDock };
+export default SpeedAuditDock;

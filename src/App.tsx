@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense, lazy } from 'react';
 import { AnimatePresence } from 'motion/react';
 import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/react';
@@ -16,13 +16,16 @@ import { Toaster } from 'sonner';
 import { getCountryContent, CountryCode, isValidCountry, defaultCountry } from './lib/content';
 import { ArrowLeft, ArrowUpRight, Terminal, Link as LinkIcon, ShieldCheck, Smartphone, Sparkles, ExternalLink } from 'lucide-react';
 import { LogoCanvas } from './components/LogoCanvas';
-import { WorkPortfolioPage } from './components/WorkPortfolioPage';
-import { AboutStudioPage } from './components/AboutStudioPage';
 import { Lockscreen } from './components/Lockscreen';
 import { InitialLoader } from './components/InitialLoader';
-import AdminPage from '@/app/admin/page';
-import DynamicDemoPage from '@/app/demo/[client]/page';
-import etherealBackdrop from './assets/images/ethereal_hero_backdrop.jpg';
+import { SpeedAuditDock } from './components/SpeedAuditDock';
+import etherealBackdrop from './assets/images/ethereal_hero_backdrop.webp';
+
+// Fast lazy loading for subviews to keep initial bundle ultra-light
+const WorkPortfolioPage = lazy(() => import('./components/WorkPortfolioPage').then(m => ({ default: m.WorkPortfolioPage })));
+const AboutStudioPage = lazy(() => import('./components/AboutStudioPage').then(m => ({ default: m.AboutStudioPage })));
+const AdminPage = lazy(() => import('@/app/admin/page'));
+const DynamicDemoPage = lazy(() => import('@/app/demo/[client]/page'));
 
 function MainExperience({ country, onSelectCountry }: { country: CountryCode; onSelectCountry: (c: CountryCode) => void }) {
   const { theme } = useApp();
@@ -272,10 +275,24 @@ export default function App() {
   };
 
   return (
-    <>
-      {renderView()}
+    <Suspense
+      fallback={
+        <div className="fixed inset-0 bg-[#050505] flex items-center justify-center z-50">
+          <div className="flex flex-col items-center gap-3">
+            <div className="w-8 h-8 rounded-full border border-white/20 border-t-white animate-spin" />
+            <span className="text-[10px] uppercase font-mono tracking-[0.25em] text-zinc-500">
+              Loading AX07 Studio...
+            </span>
+          </div>
+        </div>
+      }
+    >
+      <AppProvider key={country} initialLang={getCountryContent(country).defaultLanguage}>
+        {renderView()}
+        <SpeedAuditDock />
+      </AppProvider>
       <Analytics />
       <SpeedInsights />
-    </>
+    </Suspense>
   );
 }

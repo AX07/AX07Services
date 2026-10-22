@@ -1,12 +1,13 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { motion, useScroll, useTransform } from 'motion/react';
-import { ArrowDown, ArrowUpRight, ChevronDown, MessageSquare, Sparkles } from 'lucide-react';
+import { ArrowDown, ArrowUpRight, ChevronDown, MessageSquare, Sparkles, Gauge } from 'lucide-react';
 import { LogoCanvas } from './LogoCanvas';
 import { appleGestures } from '../lib/design-system';
 import { useApp } from '../context/ThemeLanguageContext';
 import { CountryContent } from '../lib/content';
 import { BrandLogo } from './BrandLogo';
-import etherealBackdrop from '../assets/images/ethereal_hero_backdrop.jpg';
+import { openSpeedAuditModal } from '../lib/pagespeed';
+import etherealBackdrop from '../assets/images/ethereal_hero_backdrop.webp';
 
 export interface HeroProps {
   countryContent?: CountryContent;
@@ -217,7 +218,7 @@ export function Hero({ countryContent }: HeroProps = {}) {
                 </p>
 
                 {/* Key Bullet Tags */}
-                <div className="grid grid-cols-2 gap-2.5 sm:gap-3 mb-5 sm:mb-6">
+                <div className="grid grid-cols-2 gap-2.5 sm:gap-3 mb-4">
                   <div className="flex flex-col p-2.5 sm:p-3 rounded-2xl border border-zinc-200/80 dark:border-white/10 bg-zinc-50 dark:bg-white/[0.04]">
                     <span className="text-xl sm:text-2xl font-bold text-zinc-900 dark:text-white font-mono">{t.hero.beat2.stat1Value}</span>
                     <span className="text-[11px] sm:text-xs text-zinc-500 dark:text-white/50">{t.hero.beat2.stat1Label}</span>
@@ -227,6 +228,41 @@ export function Hero({ countryContent }: HeroProps = {}) {
                     <span className="text-[11px] sm:text-xs text-zinc-500 dark:text-white/50">{t.hero.beat2.stat2Label}</span>
                   </div>
                 </div>
+
+                {/* Speed Audit Action Button (Test This Statement) */}
+                <motion.button
+                  type="button"
+                  whileHover={{ scale: 1.02, y: -1 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => openSpeedAuditModal()}
+                  className="w-full mb-4 px-3.5 py-2.5 rounded-2xl bg-black/80 hover:bg-black/95 dark:bg-black/60 dark:hover:bg-black/85 text-white border border-white/15 hover:border-emerald-500/40 backdrop-blur-md shadow-lg transition-all duration-300 flex items-center justify-between gap-3 cursor-pointer group pointer-events-auto"
+                  aria-label="Test your website speed against this statement"
+                >
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <div className="relative flex items-center justify-center w-6 h-6 rounded-full bg-white/10 text-emerald-400 shrink-0">
+                      <Gauge className="w-3.5 h-3.5 stroke-[2] transition-transform group-hover:rotate-12" />
+                      <span className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                    </div>
+                    <div className="flex flex-col text-left min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-semibold tracking-tight text-white group-hover:text-emerald-300 transition-colors">
+                          {lang === 'pt' ? 'Testar a Velocidade do Seu Site' : 'Test Your Website Speed'}
+                        </span>
+                        <span className="px-1.5 py-0.2 rounded text-[9px] font-mono uppercase tracking-wider bg-white/10 text-emerald-300 border border-white/10">
+                          vs 98/100
+                        </span>
+                      </div>
+                      <span className="text-[10px] text-zinc-400 font-mono truncate">
+                        {lang === 'pt' ? 'Verifique esta estatística com o seu URL' : 'Test this statement live with your URL'}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-1 text-[11px] font-mono text-emerald-400 group-hover:text-emerald-300 shrink-0 font-semibold">
+                    <span className="hidden sm:inline">{lang === 'pt' ? 'Auditar' : 'Run Audit'}</span>
+                    <ArrowUpRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                  </div>
+                </motion.button>
 
                 <div className="flex items-center gap-2 text-[11px] sm:text-xs font-mono text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
                   <ArrowDown className="w-3.5 h-3.5 text-emerald-500 dark:text-emerald-400 stroke-[1.75]" />

@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Lock, Unlock, Sparkles, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { LogoCanvas } from './LogoCanvas';
 import { useApp } from '../context/ThemeLanguageContext';
-import etherealBackdrop from '../assets/images/ethereal_hero_backdrop.jpg';
+import etherealBackdrop from '../assets/images/ethereal_hero_backdrop.webp';
 
 export interface LockscreenProps {
   onUnlock: () => void;

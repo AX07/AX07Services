@@ -24,7 +24,7 @@ import { LogoCanvas } from './LogoCanvas';
 import { CountryContent } from '../lib/content';
 import { useApp } from '../context/ThemeLanguageContext';
 import { appleSprings } from '../lib/design-system';
-import etherealBackdrop from '../assets/images/ethereal_hero_backdrop.jpg';
+import etherealBackdrop from '../assets/images/ethereal_hero_backdrop.webp';
 
 export interface CaseStudy {
   id: string;

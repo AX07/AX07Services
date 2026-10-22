@@ -1035,7 +1035,14 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children, initialLang 
 export function useApp() {
   const context = useContext(AppContext);
   if (!context) {
-    throw new Error('useApp must be used within an AppProvider');
+    return {
+      lang: 'en' as Language,
+      setLang: () => {},
+      theme: 'dark' as Theme,
+      setTheme: () => {},
+      toggleTheme: () => {},
+      t: TRANSLATIONS.en,
+    };
   }
   return context;
 }
