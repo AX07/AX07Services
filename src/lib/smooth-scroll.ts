@@ -81,14 +81,14 @@ function updateScene() {
     scene.ctaY = (vh / 2 - (r.top + r.height / 2)) * worldPerPx;
     scene.ctaScale = (r.height * worldPerPx * 0.92) / LOGO_WORLD_SIZE;
   }
-  // The burst keeps expanding through the lag race and has fully cleared by the time the section ends
+  // The burst keeps drifting outwards through the lag race (staying dense and on screen), then gathers into the showcase device
   let lagProgress = 0;
   if (lag) {
     const r = lag.getBoundingClientRect();
     lagProgress = clamp01((vh * 0.6 - r.top) / (r.height - vh * 0.4));
   }
   // Holds together while beat 2 is read, then bursts as the copy leaves
-  const heroDisperse = clamp01((heroProgress - 0.68) / 0.32) + lagProgress * 0.9;
+  const heroDisperse = clamp01((heroProgress - 0.68) / 0.32) + lagProgress * 0.3;
   scene.disperse = ctaProgress > 0 ? 1 - ctaProgress : heroDisperse;
 
   // The scattered field then gathers into the showcase device's outline as that section arrives,

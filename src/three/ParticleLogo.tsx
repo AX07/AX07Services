@@ -75,9 +75,12 @@ const vertexShader = /* glsl */ `
     vec3 p = mix(target + aScatter, target, a);
 
     // Scroll-driven dispersal into an ambient field
+    // Kept within roughly a screen's width so the cloud stays visible through the next chapter
     float d = uDisperse * (0.55 + aSeed * 0.9);
-    p += aScatter * d * 1.6;
-    p.y += d * (aSeed - 0.5) * 2.0;
+    p += aScatter * d * 0.6;
+    p.y += d * (aSeed - 0.5) * 1.0;
+    // Once scattered, the cloud keeps drifting so the explosion still feels in motion
+    p += aScatter * min(d, 1.0) * 0.12 * sin(uTime * 0.35 + aSeed * 6.2831);
 
     // Idle breathing so the logo is never frozen
     p.z += sin(uTime * 0.7 + target.x * 2.2 + aSeed * 6.2831) * 0.025;
@@ -115,7 +118,7 @@ const vertexShader = /* glsl */ `
     vGlow = force;
     vSeed = aSeed;
     // Past 1 the burst keeps expanding and thins out as it goes
-    vFade = mix(1.0, 0.35, clamp(uDisperse, 0.0, 1.0)) * (1.0 - clamp(uDisperse - 1.0, 0.0, 1.0) * 0.6);
+    vFade = mix(1.0, 0.75, clamp(uDisperse, 0.0, 1.0)) * (1.0 - clamp(uDisperse - 1.0, 0.0, 1.0) * 0.25);
     vFade = mix(vFade, aFrame.z < 0.72 ? 1.0 : 0.45, f);
   }
 `;
@@ -325,8 +328,11 @@ export function ParticleLogo({ count }: Props) {
       const b = THREE.MathUtils.smoothstep(h, 0.1, 0.32);
       const introY = store.heroSlotOn ? store.heroSlotY : -2.6;
       heroScale = THREE.MathUtils.lerp(baseScale, store.beatScale, b) * (1 + Math.max(0, h - 0.68) * 0.8);
-      heroY = THREE.MathUtils.lerp(introY, store.beatY, b);
-      heroX = store.beatX * b;
+      // Centre the cloud as it bursts, so it fills the screen behind the next chapter (the beat
+      // slot itself scrolls away with the hero, so it can't anchor the cloud past this point)
+      const burst = THREE.MathUtils.smoothstep(h, 0.68, 1);
+      heroY = THREE.MathUtils.lerp(introY, store.beatY, b) * (1 - burst);
+      heroX = store.beatX * b * (1 - burst);
     }
     const targetScale = heroScale + (store.ctaScale - heroScale) * c;
     const targetY = heroY + (store.ctaY - heroY) * c;

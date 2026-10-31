@@ -39,7 +39,7 @@ export function Pricing() {
               <p className="relative mt-2 text-body-sm text-muted">{plan.pitch}</p>
 
               <div className="relative mt-8 flex items-baseline gap-2">
-                <span className="display text-stat">{plan.price}</span>
+                <span className={`display text-stat ${plan.featured ? 'text-accent' : ''}`}>{plan.price}</span>
                 <span className="text-[15px] text-muted">{plan.cadence}</span>
               </div>
               <p className="relative mt-1 text-[14px] text-subtle">{plan.extra}</p>

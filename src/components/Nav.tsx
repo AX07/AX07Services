@@ -45,7 +45,7 @@ export function Nav() {
 
   return (
     <header
-      className={`fixed inset-x-0 top-0 z-50 flex justify-center px-4 pt-3 transition-[transform,opacity] duration-500 ease-[var(--ease-out)] focus-within:translate-y-0 focus-within:opacity-100 sm:pt-4 ${
+      className={`fixed inset-x-0 top-0 z-50 flex justify-center px-4 pt-3 transition-[transform,opacity] duration-500 ease-[var(--ease-out)] has-[:focus-visible]:translate-y-0 has-[:focus-visible]:opacity-100 sm:pt-4 ${
         hidden ? 'pointer-events-none -translate-y-[130%] opacity-0' : ''
       }`}
     >

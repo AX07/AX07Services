@@ -26,7 +26,14 @@ export function Faq() {
                     <span className="absolute left-1/2 top-0 h-4 w-px -translate-x-1/2 bg-fg" />
                   </span>
                 </summary>
-                <p className="max-w-xl pb-7 pr-10 text-body text-muted">{f.a}</p>
+                <div className="max-w-xl space-y-3 pb-7 pr-10 text-body text-muted">
+                  <p>{f.a}</p>
+                  {f.parts?.map((part) => (
+                    <p key={part.lead}>
+                      <strong className="font-semibold text-fg">{part.lead}</strong> {part.text}
+                    </p>
+                  ))}
+                </div>
               </details>
             </RevealItem>
           ))}

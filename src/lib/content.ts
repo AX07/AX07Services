@@ -142,9 +142,9 @@ export const plans = [
   {
     id: 'partner',
     name: 'Partnership',
-    price: '€174',
-    cadence: 'per month',
-    extra: '€0 upfront · 12 months and it’s yours. Cancel any time.',
+    price: '€0',
+    cadence: 'upfront',
+    extra: '+ €174/month for 12 months, then the code is yours. Cancel any time.',
     pitch: 'Everything included, nothing to pay before launch. We host it, run it and keep improving it.',
     features: [
       'Everything in the one-time build',
@@ -160,14 +160,35 @@ export const plans = [
   },
 ] as const;
 
-export const faqs = [
+export interface Faq {
+  q: string;
+  a: string;
+  /** Optional follow-on paragraphs, each with a bold lead-in */
+  parts?: readonly { lead: string; text: string }[];
+}
+
+export const faqs: readonly Faq[] = [
   {
     q: 'Is the preview really free?',
     a: 'Yes. We build a working version of your site in 48 hours at our own risk. If it isn’t right for you, you owe nothing and we delete it.',
   },
   {
     q: 'Do I own my website and domain?',
-    a: 'Your domain is always yours. With the one-time build you get the code from day one and can host it yourself. With the partnership the site stays on our hosting; after 12 months the build is yours. You can cancel earlier at any time, but the build isn’t handed over.',
+    a: 'Yes, 100%. Your custom domain is yours from day one, and the website code and design assets are yours under both plans. Here is how ownership works under each option:',
+    parts: [
+      {
+        lead: 'One-time build (€1,270 + €47/mo):',
+        text: 'You pay the €1,270 build fee and own full rights to the site code immediately. Keep our €47/mo management plan and we continue handling hosting, security and monitoring, or take the full source code and host it on your own servers. No hidden transfer fees or penalties.',
+      },
+      {
+        lead: 'Monthly Partnership (€174/mo):',
+        text: 'Zero upfront and all-inclusive: the full cost is spread into manageable monthly payments over 12 months. During that time we fully host, update and manage the site for you. Once your 12-month partnership is fulfilled, full code ownership transfers to you, and you can move to our light maintenance plan (€47/mo) or export your site files to host them yourself.',
+      },
+    ],
+  },
+  {
+    q: 'What do the monthly plans include?',
+    a: 'The one-time build’s maintenance plan (€47/mo) covers high-speed Vercel global edge hosting, automatic SSL certificates and 24/7 uptime monitoring. The Monthly Partnership (€174/mo, €0 upfront) includes all of that plus unlimited monthly content updates, quarterly conversion audits and direct priority access to your developer.',
   },
   {
     q: 'I don’t have photos or copy. Is that a problem?',
@@ -181,4 +202,4 @@ export const faqs = [
     q: 'Can I change things after launch?',
     a: 'Partnership clients get unlimited updates: prices, menus, photos, opening hours. One-time clients can book changes whenever they need them.',
   },
-] as const;
+];
