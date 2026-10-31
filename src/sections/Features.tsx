@@ -98,8 +98,8 @@ export function Features() {
                   return (
                     <li
                       key={step.title}
-                      className={`${isActive ? '' : 'hidden lg:block'} relative rounded-md py-1 transition-opacity duration-500 lg:px-4 lg:py-3 ${
-                        isActive ? 'lg:bg-surface lg:shadow-raised' : 'lg:opacity-45'
+                      className={`${isActive ? '' : 'hidden lg:block'} relative rounded-md py-1 transition-[background-color,box-shadow] duration-500 lg:px-4 lg:py-3 ${
+                        isActive ? 'lg:bg-surface lg:shadow-raised' : ''
                       }`}
                     >
                       <div className="flex items-center gap-3">
@@ -116,7 +116,12 @@ export function Features() {
                             i + 1
                           )}
                         </span>
-                        <h3 className="font-display text-title font-semibold">{step.title}</h3>
+                        {/* Upcoming steps are dimmed by colour, not opacity, so their text keeps AA contrast */}
+                        <h3
+                          className={`font-display text-title font-semibold transition-colors duration-500 ${isActive ? '' : 'lg:text-muted'}`}
+                        >
+                          {step.title}
+                        </h3>
                       </div>
                       {step.body && (
                         <p className={`mt-1.5 pl-9 text-[14px] leading-relaxed text-muted sm:text-[15px] ${isActive ? '' : 'lg:hidden'}`}>{step.body}</p>

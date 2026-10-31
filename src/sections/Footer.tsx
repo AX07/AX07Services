@@ -109,6 +109,10 @@ export function Footer() {
                 {POLICIES[p].label}
               </button>
             ))}
+            {/* Private: demo links for clients (password-protected, kept out of search) */}
+            <a {...linkProps('/admin')} rel="nofollow" className="transition-colors hover:text-fg">
+              Admin
+            </a>
           </div>
         </div>
       </div>
@@ -121,7 +125,7 @@ export function Footer() {
 function FooterColumn({ title, children }: { title: string; children: ReactNode }) {
   return (
     <div>
-      <h4 className="eyebrow mb-4">{title}</h4>
+      <h2 className="eyebrow mb-4">{title}</h2>
       <ul className="space-y-3">{children}</ul>
     </div>
   );
