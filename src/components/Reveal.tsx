@@ -92,6 +92,38 @@ export function Headline({ text, as = 'h2', className, delay = 0, trigger = 'vie
   const play = trigger === 'mount' ? { animate: 'visible' } : { whileInView: 'visible', viewport: VIEWPORT };
   let index = 0;
 
+  // On load (the page's H1) the rise runs as a CSS animation from first paint, so the largest text
+  // on screen never waits for scripts to finish booting
+  if (trigger === 'mount') {
+    const Tag = as;
+    return (
+      <Tag className={className}>
+        {segments.map((seg, s) => (
+          <span key={s} className={seg.className}>
+            {seg.text
+              .split(' ')
+              .filter(Boolean)
+              .map((word) => {
+                const key = index++;
+                return (
+                  <Fragment key={key}>
+                    <span className="inline-block overflow-hidden pb-[0.12em] -mb-[0.12em] align-bottom">
+                      <span
+                        className="inline-block animate-[word-rise_1s_var(--ease-out)_both]"
+                        style={{ animationDelay: `${delay + key * 0.05}s` }}
+                      >
+                        {word}
+                      </span>
+                    </span>{' '}
+                  </Fragment>
+                );
+              })}
+          </span>
+        ))}
+      </Tag>
+    );
+  }
+
   return (
     <MotionTag className={className} initial="hidden" {...play} variants={group(0.05, delay)}>
       {segments.map((seg, s) => (

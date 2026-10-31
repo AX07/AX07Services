@@ -1,12 +1,12 @@
 import { useRef } from 'react';
 import { useRange } from '../lib/motion';
 import { motion, useScroll } from 'motion/react';
-import { EASE_OUT, Headline } from '../components/Reveal';
+import { Headline } from '../components/Reveal';
 import { DEFAULT_WHATSAPP_MESSAGE, whatsappLink } from '../lib/content';
 import { scrollToId } from '../lib/smooth-scroll';
 
 /**
- * Pinned hero. Beat 1: the promise. Beat 2: the logo turns while one line lands.
+ * Pinned hero. Beat 1: the promise. Beat 2: the logo turns on the left while the problem lands on the right.
  * The particles then scatter into the field behind the next chapter.
  */
 export function Hero() {
@@ -15,8 +15,8 @@ export function Hero() {
 
   const introOpacity = useRange(scrollYProgress, [0, 0.2], [1, 0]);
   const introY = useRange(scrollYProgress, [0, 0.2], [0, -48]);
-  const lineOpacity = useRange(scrollYProgress, [0.28, 0.38, 0.56, 0.66], [0, 1, 1, 0]);
-  const lineY = useRange(scrollYProgress, [0.28, 0.38, 0.56, 0.66], [24, 0, 0, -24]);
+  const lineOpacity = useRange(scrollYProgress, [0.24, 0.34, 0.62, 0.72], [0, 1, 1, 0]);
+  const lineY = useRange(scrollYProgress, [0.24, 0.34, 0.62, 0.72], [24, 0, 0, -24]);
   const cueOpacity = useRange(scrollYProgress, [0, 0.06], [1, 0]);
 
   return (
@@ -35,14 +35,8 @@ export function Hero() {
           {/* The particle logo assembles in this slot, above the headline */}
           <div id="hero-logo-slot" aria-hidden="true" className="h-[26svh] w-full sm:h-[28svh] lg:h-[30svh]" />
 
-          <motion.p
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, ease: EASE_OUT }}
-            className="eyebrow mb-4 sm:mb-6"
-          >
-            Independent web studio · Ireland & the Algarve
-          </motion.p>
+          {/* Intro copy rises in with CSS, so it plays from first paint even while scripts are still busy */}
+          <p className="eyebrow mb-4 animate-[hero-in_0.8s_var(--ease-out)_both] sm:mb-6">Independent web studio · Ireland & the Algarve</p>
 
           <Headline
             as="h1"
@@ -52,22 +46,12 @@ export function Hero() {
             className="display text-balance text-display-1"
           />
 
-          <motion.p
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.9, ease: EASE_OUT, delay: 0.55 }}
-            className="mt-5 max-w-[36rem] text-pretty text-lead text-muted"
-          >
+          <p className="mt-5 max-w-[36rem] animate-[hero-in_0.9s_var(--ease-out)_0.35s_both] text-pretty text-lead text-muted">
             Interactive 3D visuals, sub-second edge performance, and direct 1-click WhatsApp booking systems crafted for Irish
             business owners.
-          </motion.p>
+          </p>
 
-          <motion.div
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.9, ease: EASE_OUT, delay: 0.7 }}
-            className="mt-8 flex w-full flex-col items-center gap-3 sm:w-auto sm:flex-row"
-          >
+          <div className="mt-8 flex w-full animate-[hero-in_0.9s_var(--ease-out)_0.5s_both] flex-col items-center gap-3 sm:w-auto sm:flex-row">
             <a
               href={whatsappLink(DEFAULT_WHATSAPP_MESSAGE)}
               target="_blank"
@@ -79,16 +63,20 @@ export function Hero() {
             <button type="button" onClick={() => scrollToId('work')} className="btn btn-quiet hidden sm:inline-flex">
               See the work
             </button>
-          </motion.div>
+          </div>
         </motion.div>
 
-        {/* Beat 2: lands while the logo turns */}
-        <motion.p
-          style={{ opacity: lineOpacity, y: lineY }}
-          className="display pointer-events-none absolute inset-x-0 bottom-[12svh] z-10 mx-auto max-w-3xl px-6 text-center text-[28px] text-balance sm:text-[40px]"
-        >
-          Every second of lag costs you customers. <span className="text-muted">So we built a studio around speed.</span>
-        </motion.p>
+        {/* Beat 2: the logo glides into the left half (above on phones) while the problem lands beside it */}
+        <div className="pointer-events-none absolute inset-0 z-10 mx-auto grid max-w-6xl grid-rows-[auto_1fr] gutter pt-[12svh] lg:grid-cols-2 lg:grid-rows-1 lg:items-center lg:gap-12 lg:pt-0">
+          <div id="hero-beat-slot" aria-hidden="true" className="h-[30svh] lg:h-[56svh]" />
+          <motion.div style={{ opacity: lineOpacity, y: lineY }} className="mt-6 text-center lg:mt-0 lg:text-left">
+            <h2 className="display text-balance text-display-2">A standard site is invisible.</h2>
+            <p className="mx-auto mt-5 max-w-[34rem] text-pretty text-lead text-muted lg:mx-0">
+              Most local businesses rely on generic templates, slow loads, and confusing forms. When high-value clients search on
+              their phones, every extra second of loading sends them to a competitor.
+            </p>
+          </motion.div>
+        </div>
 
         {/* Scroll cue: the hero only ever asks for one thing */}
         <motion.div

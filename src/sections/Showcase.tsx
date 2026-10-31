@@ -51,6 +51,9 @@ const industries: Industry[] = [
   },
 ];
 
+const SUBTITLE =
+  'We build a complete interactive 3D prototype for your business within 48 hours. You test it live on your own phone before spending a single euro.';
+
 function useIsPhone() {
   const [phone, setPhone] = useState(() => typeof window !== 'undefined' && window.innerWidth < 640);
   useEffect(() => {
@@ -81,6 +84,11 @@ export function Showcase() {
 
   // Phones: each industry's share of the scroll scrolls its mini site from top to bottom, with a
   // short hold at both ends before handing over to the next one
+  // The scattered particles gather into the device's outline as the section arrives; the device
+  // itself fades in once they have formed it (see updateScene)
+  const { scrollYProgress: arrival } = useScroll({ target: ref, offset: ['start end', 'start start'] });
+  const deviceOpacity = useTransform(arrival, [0.9, 1], [0, 1]);
+
   const pageProgress = useTransform(scrollYProgress, (v) => {
     const x = v * industries.length;
     const i = Math.min(industries.length - 1, Math.floor(x * 0.999));
@@ -107,7 +115,7 @@ export function Showcase() {
   return (
     <section ref={ref} id="showcase" className="relative h-[480vh] sm:h-[360vh]">
       <div className="sticky top-0 flex h-[100svh] items-center overflow-hidden">
-        <div className="mx-auto grid w-full max-w-6xl grid-cols-1 items-center gap-5 px-5 pt-16 sm:px-6 lg:grid-cols-[0.8fr_1.2fr] lg:gap-14 lg:pt-0">
+        <div className="mx-auto grid w-full max-w-6xl grid-cols-1 items-center gap-4 px-5 pt-14 sm:gap-5 sm:px-6 sm:pt-16 lg:grid-cols-[1fr_1.15fr] lg:gap-12 lg:pt-14">
           {/* Copy */}
           <div className="order-2 lg:order-1">
             <div className="hidden lg:block">
@@ -115,9 +123,10 @@ export function Showcase() {
                 Made for your industry
               </Eyebrow>
               <Headline
-                text={[{ text: 'Picture this as' }, { text: 'your website.', className: 'accent-serif text-accent' }]}
+                text={[{ text: 'From first impression to' }, { text: 'instant WhatsApp booking.', className: 'accent-serif text-accent' }]}
                 className="display text-display-3"
               />
+              <p className="mt-4 text-pretty text-body text-muted">{SUBTITLE}</p>
             </div>
 
             {/* Industry tabs */}
@@ -152,7 +161,7 @@ export function Showcase() {
                 className="mt-4 lg:mt-6"
               >
                 <p className="hidden text-body-sm text-muted sm:block sm:text-body">{current.pitch}</p>
-                <div className="mt-4 hidden flex-wrap gap-2 sm:flex">
+                <div className="mt-4 hidden flex-wrap gap-2 sm:flex lg:hidden">
                   {current.features.map((f) => (
                     <span key={f} className="rounded-full border border-line px-3 py-1.5 text-[13px] text-fg">
                       {f}
@@ -166,22 +175,28 @@ export function Showcase() {
 
           {/* Device: the site plays like a screen recording */}
           <div className="order-1 lg:order-2">
-            <div className="mb-4 text-center lg:hidden">
-              <Eyebrow index="02" className="mb-2 justify-center">
+            <div className="mb-3 text-center lg:hidden">
+              <Eyebrow index="02" className="mb-2 justify-center max-sm:hidden">
                 Made for your industry
               </Eyebrow>
-              <h2 className="display text-display-3">
-                Picture this as <span className="accent-serif text-accent">your website.</span>
+              <h2 className="display text-balance text-display-3">
+                From first impression to <span className="accent-serif text-accent">instant WhatsApp booking.</span>
               </h2>
+              <p className="mx-auto mt-2 max-w-md text-pretty text-body-sm text-muted">{SUBTITLE}</p>
             </div>
 
-            <div
+            <motion.div
+              id="showcase-device"
+              style={{ opacity: deviceOpacity }}
               className={`card relative mx-auto overflow-hidden p-0 ${
                 phone
-                  ? '!rounded-[34px] border-[6px] !border-fg w-[min(64vw,calc((100svh-330px)*0.47))]'
-                  : '!rounded-[20px] w-full max-w-[min(100%,calc((100svh-260px)*1.6))] lg:max-w-none'
+                  ? '!rounded-[30px] border-[5px] !border-fg w-[min(72vw,calc((100svh-410px)*0.53))]'
+                  : '!rounded-[20px] w-full max-w-[min(100%,calc((100svh-320px)*1.6))] lg:max-w-none'
               }`}
             >
+              {phone && (
+                <span aria-hidden="true" className="absolute left-1/2 top-2 z-10 h-[14px] w-[52px] -translate-x-1/2 rounded-full bg-fg" />
+              )}
               {!phone && (
                 <div className="flex items-center gap-3 border-b border-line bg-raised px-4 py-3">
                   <div className="flex gap-1.5">
@@ -196,7 +211,7 @@ export function Showcase() {
                   </span>
                 </div>
               )}
-              <div className={`relative ${phone ? 'aspect-[9/19]' : 'aspect-[16/10]'}`}>
+              <div className={`relative ${phone ? 'aspect-[9/17]' : 'aspect-[16/10]'}`}>
                 <AnimatePresence initial={false}>
                   <motion.div
                     key={`${current.id}-${phone}`}
@@ -212,7 +227,7 @@ export function Showcase() {
                   </motion.div>
                 </AnimatePresence>
               </div>
-            </div>
+            </motion.div>
           </div>
         </div>
       </div>

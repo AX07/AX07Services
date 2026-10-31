@@ -1,39 +1,72 @@
 <!doctype html>
-<html lang="en">
+<html lang="en-IE">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <title>ax07 — Websites built for one business. Yours.</title>
+    <title>ax07.dev | Custom websites & WhatsApp booking for Irish businesses</title>
     <meta
       name="description"
-      content="ax07 is an independent web studio in Ireland and the Algarve. We design and engineer your website from a blank page, and show you a working version in 48 hours before you pay."
+      content="Custom web experiences that convert: interactive 3D visuals, sub-second load times and 1-click WhatsApp booking for Irish business owners. See a working preview in 48 hours, before you pay."
     />
+    <link rel="canonical" href="https://www.ax07.dev/" />
     <meta name="theme-color" content="#fbfbfd" />
+
     <meta property="og:type" content="website" />
-    <meta property="og:title" content="ax07 — Websites built for one business. Yours." />
+    <meta property="og:site_name" content="ax07.dev" />
+    <meta property="og:locale" content="en_IE" />
+    <meta property="og:title" content="ax07.dev | Custom websites & WhatsApp booking for Irish businesses" />
     <meta
       property="og:description"
-      content="No templates. A working preview of your new website in 48 hours, before you pay a cent."
+      content="Custom web experiences that convert: interactive 3D visuals, sub-second load times and 1-click WhatsApp booking for Irish business owners. See a working preview in 48 hours, before you pay."
     />
-    <meta property="og:image" content="https://www.ax07.dev/og-image.jpg" />
     <meta property="og:url" content="https://www.ax07.dev/" />
+    <meta property="og:image" content="https://www.ax07.dev/og-image.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="ax07.dev: custom websites for Irish businesses" />
     <meta name="twitter:card" content="summary_large_image" />
+
     <link rel="icon" href="/favicon.ico" sizes="any" />
     <link rel="icon" type="image/png" href="/logo-mark.png" />
     <link rel="apple-touch-icon" href="/logo-mark.png" />
 
-    <!-- Start fetching the 3D model immediately; it is decoded off the critical path -->
-    <link rel="preload" href="/logo.glb" as="fetch" crossorigin="anonymous" />
+    <!-- Fetch the 3D model early but behind everything the first paint needs -->
+    <link rel="preload" href="/logo.glb" as="fetch" crossorigin="anonymous" fetchpriority="low" />
 
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Inter+Tight:wght@500;600;700&family=Instrument+Serif:ital@1&display=swap"
-      rel="stylesheet"
-    />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "ProfessionalService",
+        "@id": "https://www.ax07.dev/#studio",
+        "name": "ax07",
+        "alternateName": "ax07.dev",
+        "url": "https://www.ax07.dev/",
+        "logo": "https://www.ax07.dev/logo-mark.png",
+        "image": "https://www.ax07.dev/og-image.jpg",
+        "description": "Independent web studio building custom, fast websites with interactive 3D visuals and 1-click WhatsApp booking for businesses in Ireland and the Algarve.",
+        "telephone": "+353894419127",
+        "priceRange": "€€",
+        "areaServed": [
+          { "@type": "Country", "name": "Ireland" },
+          { "@type": "AdministrativeArea", "name": "Algarve, Portugal" }
+        ],
+        "address": { "@type": "PostalAddress", "addressCountry": "IE" },
+        "founder": {
+          "@type": "Person",
+          "name": "Alex Pintos Mollahan",
+          "sameAs": "https://www.linkedin.com/in/alexpintosmollahan/"
+        },
+        "sameAs": ["https://www.linkedin.com/company/ax07dev/"],
+        "knowsAbout": ["Web design", "Web development", "WhatsApp booking", "Three.js", "Technical SEO"]
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>
+    <noscript>
+      ax07 is an independent web studio building custom websites with WhatsApp booking for Irish businesses. Message us on
+      WhatsApp: <a href="https://wa.me/353894419127">+353 89 441 9127</a>.
+    </noscript>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

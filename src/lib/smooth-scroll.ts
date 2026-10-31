@@ -12,7 +12,11 @@ const LOGO_WORLD_SIZE = 3;
 export function scrollToId(id: string, immediate = false) {
   const el = document.getElementById(id);
   if (!el) return;
-  if (lenis) lenis.scrollTo(el, { offset: id === 'top' ? 0 : -24, duration: 1.4, immediate });
+  if (lenis) {
+    // Sections below the fold mount after first paint; make sure Lenis knows the page's full height
+    lenis.resize();
+    lenis.scrollTo(el, { offset: id === 'top' ? 0 : -24, duration: 1.4, immediate });
+  }
   else el.scrollIntoView({ behavior: immediate ? 'instant' : 'smooth' });
 }
 
@@ -60,6 +64,16 @@ function updateScene() {
     scene.heroSlotScale = (heroSlotRect.height * worldPerPx * 0.95) / LOGO_WORLD_SIZE;
   }
 
+  const beatSlot = document.getElementById('hero-beat-slot');
+  const beatRect = beatSlot?.getBoundingClientRect();
+  scene.beatOn = !!beatRect && beatRect.height > 0;
+  if (beatRect && scene.beatOn) {
+    const worldPerPx = VISIBLE_WORLD_HEIGHT / vh;
+    scene.beatX = (beatRect.left + beatRect.width / 2 - window.innerWidth / 2) * worldPerPx;
+    scene.beatY = (vh / 2 - (beatRect.top + beatRect.height / 2)) * worldPerPx;
+    scene.beatScale = (Math.min(beatRect.height, beatRect.width) * worldPerPx * 0.82) / LOGO_WORLD_SIZE;
+  }
+
   const slot = document.getElementById('cta-logo-slot');
   if (slot) {
     const r = slot.getBoundingClientRect();
@@ -73,10 +87,31 @@ function updateScene() {
     const r = lag.getBoundingClientRect();
     lagProgress = clamp01((vh * 0.6 - r.top) / (r.height - vh * 0.4));
   }
-  const heroDisperse = clamp01((heroProgress - 0.55) / 0.45) + lagProgress * 0.9;
+  // Holds together while beat 2 is read, then bursts as the copy leaves
+  const heroDisperse = clamp01((heroProgress - 0.68) / 0.32) + lagProgress * 0.9;
   scene.disperse = ctaProgress > 0 ? 1 - ctaProgress : heroDisperse;
 
-  let visible = 1 - clamp01((lagProgress - 0.55) / 0.45);
+  // The scattered field then gathers into the showcase device's outline as that section arrives,
+  // and hands over to the real device (which fades in) once it is pinned
+  let visible = 1;
+  const showcase = document.getElementById('showcase');
+  const device = document.getElementById('showcase-device');
+  if (showcase && device) {
+    const top = showcase.getBoundingClientRect().top;
+    visible = 1 - clamp01(-top / (vh * 0.3));
+    // Released again once hidden, so the logo can reassemble cleanly in the final call to action
+    scene.form = visible > 0 ? clamp01((vh * 0.9 - top) / (vh * 0.85)) : 0;
+    const d = device.getBoundingClientRect();
+    const worldPerPx = VISIBLE_WORLD_HEIGHT / vh;
+    scene.frameX = (d.left + d.width / 2 - window.innerWidth / 2) * worldPerPx;
+    scene.frameY = (vh / 2 - (d.top + d.height / 2)) * worldPerPx;
+    scene.frameHalfW = (d.width / 2) * worldPerPx;
+    scene.frameHalfH = (d.height / 2) * worldPerPx;
+    scene.frameR = (parseFloat(getComputedStyle(device).borderTopLeftRadius) || 20) * worldPerPx;
+  } else {
+    scene.form = 0;
+    visible = 1 - clamp01((lagProgress - 0.55) / 0.45);
+  }
   visible = Math.max(visible, ctaProgress);
   setSceneVisibility(visible);
   if (layer) layer.style.opacity = String(visible);

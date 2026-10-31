@@ -26,7 +26,7 @@ const MODULES = [
   {
     title: 'Custom calculators',
     body: 'Instant quotes, treatment estimates, rental prices: whatever customers ask before they call.',
-    code: `<QuoteCalculator\n  rate={(m2) => m2 * 120}\n  finishes={['Standard', 'Premium']}\n  roundTo={50} />`,
+    code: `<QuoteCalculator\n  rate={(months) => months * 160}\n  options={['Standard', 'Invisible']}\n  roundTo={50} />`,
   },
   {
     title: 'Email booking & reminders',
@@ -335,21 +335,21 @@ function ChatModule({ live }: { live: number }) {
 
 /**
  * On phones the calculator plays itself as you scroll (`auto` = 0..1): the slider is dragged
- * out, then "Premium finish" is tapped. Touching it hands control to the visitor.
+ * out, then "Invisible aligners" is tapped. Touching it hands control to the visitor.
  */
 function QuoteCalculator({ auto }: { auto?: number }) {
-  const [manualSize, setSize] = useState(60);
+  const [manualSize, setSize] = useState(6);
   const [manualPremium, setPremium] = useState(false);
   const [touched, setTouched] = useState(false);
   const playing = auto !== undefined && !touched;
   const a = auto ?? 0;
 
   const drag = playing ? 1 - Math.pow(1 - clamp01(a / 0.55), 3) : 0;
-  const size = playing ? 40 + Math.round((drag * 110) / 5) * 5 : manualSize;
+  const size = playing ? 3 + Math.round(drag * 15) : manualSize;
   const premium = playing ? a >= 0.62 : manualPremium;
-  const rate = premium ? 165 : 120;
-  const total = Math.round((size * rate + 900) / 50) * 50;
-  const thumb = (size - 20) / 180;
+  const rate = premium ? 210 : 160;
+  const total = Math.round((size * rate + 350) / 50) * 50;
+  const thumb = (size - 3) / 15;
 
   const take = () => {
     if (!playing) return;
@@ -361,20 +361,20 @@ function QuoteCalculator({ auto }: { auto?: number }) {
   return (
     <div className="flex h-full flex-col rounded-md border border-line bg-raised p-4" onPointerDown={take}>
       <div className="flex items-center justify-between text-[12px] text-muted">
-        <span>Treatment & renovation quote</span>
+        <span>Teeth straightening estimate</span>
         <span className="rounded-full bg-accent-soft px-2 py-0.5 text-[10px] font-medium text-accent">Try it</span>
       </div>
       <label htmlFor="calc-size" className="mt-3 flex items-baseline justify-between text-[13px]">
-        <span>Floor area</span>
-        <span className="font-semibold tabular-nums">{size} m²</span>
+        <span>Treatment length</span>
+        <span className="font-semibold tabular-nums">{size} months</span>
       </label>
       <div className="relative">
         <input
           id="calc-size"
           type="range"
-          min={20}
-          max={200}
-          step={5}
+          min={3}
+          max={18}
+          step={1}
           value={size}
           onChange={(e) => {
             setTouched(true);
@@ -394,7 +394,7 @@ function QuoteCalculator({ auto }: { auto?: number }) {
       <div className="mt-3 flex gap-1 rounded-full bg-surface p-1 text-[12px]">
         {[
           ['Standard', false],
-          ['Premium finish', true],
+          ['Invisible aligners', true],
         ].map(([label, value]) => (
           <button
             key={String(label)}

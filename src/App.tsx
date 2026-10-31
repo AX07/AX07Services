@@ -4,6 +4,7 @@ import { Nav } from './components/Nav';
 import { Footer } from './sections/Footer';
 import { HomePage } from './pages/HomePage';
 import { usePath } from './lib/router';
+import { applyPageMeta } from './lib/seo';
 
 // Secondary pages load on demand so the home page stays light
 const WorkPage = lazy(() => import('./pages/WorkPage').then((m) => ({ default: m.WorkPage })));
@@ -11,12 +12,6 @@ const AboutPage = lazy(() => import('./pages/AboutPage').then((m) => ({ default:
 const AdminPage = lazy(() => import('./pages/AdminPage').then((m) => ({ default: m.AdminPage })));
 const DemoPage = lazy(() => import('./pages/DemoPage').then((m) => ({ default: m.DemoPage })));
 
-const TITLES: Record<string, string> = {
-  '/': 'ax07 — Websites built for one business. Yours.',
-  '/work': 'Selected work — ax07',
-  '/about': 'About the studio — ax07',
-  '/admin': 'Admin — ax07',
-};
 
 export default function App() {
   const path = usePath();
@@ -24,7 +19,9 @@ export default function App() {
   const isPrivate = path === '/admin' || !!demoSlug;
 
   useEffect(() => {
-    document.title = demoSlug ? `Preview — ${demoSlug} | ax07` : (TITLES[path] ?? TITLES['/']);
+    applyPageMeta(path);
+    if (demoSlug) document.title = `Preview — ${demoSlug} | ax07.dev`;
+    else if (path === '/admin') document.title = 'Admin | ax07.dev';
     // Admin and client previews stay out of search results
     let robots = document.querySelector<HTMLMetaElement>('meta[name="robots"]');
     if (isPrivate) {

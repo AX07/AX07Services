@@ -24,9 +24,39 @@ const vertexShader = /* glsl */ `
   uniform float uPixelRatio;
   uniform vec3 uPointer;
   uniform float uPointerOn;
+  uniform float uForm;
+  uniform vec2 uFrameCenter;
+  uniform vec2 uFrameHalf;
+  uniform float uFrameR;
 
   attribute vec3 aScatter;
   attribute float aSeed;
+  attribute vec3 aFrame;
+
+  // A point at fraction t along the outline of a rounded rectangle (clockwise from the top edge)
+  vec2 roundedRect(float t, vec2 h, float r) {
+    r = min(r, min(h.x, h.y));
+    float sx = 2.0 * (h.x - r);
+    float sy = 2.0 * (h.y - r);
+    float arc = 1.5707963 * r;
+    float d = t * (2.0 * sx + 2.0 * sy + 4.0 * arc);
+    if (d < sx) return vec2(-h.x + r + d, h.y);
+    d -= sx;
+    if (d < arc) { float a = d / max(r, 1e-4); return vec2(h.x - r, h.y - r) + r * vec2(sin(a), cos(a)); }
+    d -= arc;
+    if (d < sy) return vec2(h.x, h.y - r - d);
+    d -= sy;
+    if (d < arc) { float a = d / max(r, 1e-4); return vec2(h.x - r, -h.y + r) + r * vec2(cos(a), -sin(a)); }
+    d -= arc;
+    if (d < sx) return vec2(h.x - r - d, -h.y);
+    d -= sx;
+    if (d < arc) { float a = d / max(r, 1e-4); return vec2(-h.x + r, -h.y + r) + r * vec2(-sin(a), -cos(a)); }
+    d -= arc;
+    if (d < sy) return vec2(-h.x, -h.y + r + d);
+    d -= sy;
+    float a = d / max(r, 1e-4);
+    return vec2(-h.x + r, h.y - r) + r * vec2(-cos(a), sin(a));
+  }
 
   varying float vGlow;
   varying float vSeed;
@@ -58,14 +88,31 @@ const vertexShader = /* glsl */ `
     p.xy += normalize(delta + 1e-5) * force * 0.38;
     p.z += force * 0.35;
 
-    vec4 mv = modelViewMatrix * vec4(p, 1.0);
+    // Gather into the showcase device: most particles trace its outline, the rest fill the screen
+    // in faint rows, so the field visibly re-forms into the next section (in world space)
+    vec4 world = modelMatrix * vec4(p, 1.0);
+    float f = clamp(uForm * 1.6 - aSeed * 0.6, 0.0, 1.0);
+    f = f * f * (3.0 - 2.0 * f);
+    vec2 fp;
+    if (aFrame.z < 0.72) {
+      fp = roundedRect(aFrame.x, uFrameHalf, uFrameR) + (vec2(aFrame.y, fract(aFrame.y * 7.31)) - 0.5) * 0.04;
+    } else {
+      float rows = 14.0;
+      float row = floor(aFrame.y * rows);
+      fp = vec2((aFrame.x * 2.0 - 1.0) * (uFrameHalf.x - uFrameR * 0.6) * mix(0.55, 0.9, fract(row * 0.37)),
+                uFrameHalf.y - (row + 0.75) / rows * uFrameHalf.y * 2.0);
+    }
+    world.xyz = mix(world.xyz, vec3(uFrameCenter + fp, 0.0), f);
+
+    vec4 mv = viewMatrix * world;
     gl_Position = projectionMatrix * mv;
-    gl_PointSize = uSize * uPixelRatio * (0.55 + aSeed * 0.9) / -mv.z;
+    gl_PointSize = uSize * uPixelRatio * (0.55 + aSeed * 0.9) / -mv.z * mix(1.0, 0.7, f);
 
     vGlow = force;
     vSeed = aSeed;
     // Past 1 the burst keeps expanding and thins out as it goes
     vFade = mix(1.0, 0.35, clamp(uDisperse, 0.0, 1.0)) * (1.0 - clamp(uDisperse - 1.0, 0.0, 1.0) * 0.6);
+    vFade = mix(vFade, aFrame.z < 0.72 ? 1.0 : 0.45, f);
   }
 `;
 
@@ -164,6 +211,9 @@ export function ParticleLogo({ count }: Props) {
     }
     geo.setAttribute('aScatter', new THREE.BufferAttribute(scatter, 3));
     geo.setAttribute('aSeed', new THREE.BufferAttribute(seeds, 1));
+    const frame = new Float32Array(total * 3);
+    for (let i = 0; i < frame.length; i++) frame[i] = Math.random();
+    geo.setAttribute('aFrame', new THREE.BufferAttribute(frame, 3));
     geo.computeBoundingSphere();
     return geo;
   }, [gltf, count]);
@@ -185,6 +235,10 @@ export function ParticleLogo({ count }: Props) {
           uPixelRatio: { value: Math.min(window.devicePixelRatio, 1.75) },
           uPointer: { value: new THREE.Vector3(99, 99, 0) },
           uPointerOn: { value: 0 },
+          uForm: { value: 0 },
+          uFrameCenter: { value: new THREE.Vector2() },
+          uFrameHalf: { value: new THREE.Vector2(1, 1) },
+          uFrameR: { value: 0.1 },
           uColor: { value: new THREE.Color('#1d1d1f') },
           uAccent: { value: new THREE.Color('#10b981') },
           uOpacity: { value: 0.78 },
@@ -244,6 +298,10 @@ export function ParticleLogo({ count }: Props) {
     // Smooth toward scroll-derived targets so fast flicks still feel weighted
     const k = 1 - Math.pow(0.001, delta);
     u.uDisperse.value += (store.disperse - u.uDisperse.value) * k;
+    u.uForm.value += (store.form - u.uForm.value) * k;
+    (u.uFrameCenter.value as THREE.Vector2).set(store.frameX, store.frameY);
+    (u.uFrameHalf.value as THREE.Vector2).set(store.frameHalfW, store.frameHalfH);
+    u.uFrameR.value = store.frameR;
     const vel = Math.min(1, Math.abs(store.velocity) / 40);
     u.uVelocity.value += (vel - u.uVelocity.value) * (1 - Math.pow(0.02, delta));
 
@@ -253,15 +311,26 @@ export function ParticleLogo({ count }: Props) {
     const h = store.hero;
     const c = store.cta;
     const baseScale = store.heroSlotOn ? store.heroSlotScale : isMobile ? 0.82 : 1.05;
-    const heroScale = baseScale * (1 + h * (store.heroSlotOn ? 0.9 : 0.45));
+    let heroScale = baseScale * (1 + h * (store.heroSlotOn ? 0.9 : 0.45));
     // Starts low, peeking up beneath the hero copy, then rises to centre (product-reveal style)
-    const heroY = (store.heroSlotOn ? store.heroSlotY : -2.6) * (1 - Math.min(1, h * 1.6));
+    let heroY = (store.heroSlotOn ? store.heroSlotY : -2.6) * (1 - Math.min(1, h * 1.6));
+    let heroX = 0;
+    if (store.beatOn) {
+      // Beat 2: glide from above the headline into its own half of the screen beside the copy
+      const b = THREE.MathUtils.smoothstep(h, 0.1, 0.32);
+      const introY = store.heroSlotOn ? store.heroSlotY : -2.6;
+      heroScale = THREE.MathUtils.lerp(baseScale, store.beatScale, b) * (1 + Math.max(0, h - 0.68) * 0.8);
+      heroY = THREE.MathUtils.lerp(introY, store.beatY, b);
+      heroX = store.beatX * b;
+    }
     const targetScale = heroScale + (store.ctaScale - heroScale) * c;
     const targetY = heroY + (store.ctaY - heroY) * c;
+    const targetX = heroX * (1 - c);
     // Once settled in the CTA slot, lock to it exactly so the logo scrolls in step with the copy
     const follow = c >= 0.999 ? 1 : k;
     group.scale.setScalar(group.scale.x + (targetScale - group.scale.x) * follow);
     group.position.y += (targetY - group.position.y) * follow;
+    group.position.x += (targetX - group.position.x) * follow;
 
     const pointerTiltX = store.pointerActive ? store.pointerY * 0.18 : 0;
     const pointerTiltY = store.pointerActive ? store.pointerX * 0.28 : 0;
@@ -289,7 +358,8 @@ export function ParticleLogo({ count }: Props) {
 
   return (
     <group ref={groupRef}>
-      <points ref={pointsRef} geometry={geometry} material={material} />
+      {/* Never culled: while forming the device the particles leave the logo's bounds */}
+      <points ref={pointsRef} geometry={geometry} material={material} frustumCulled={false} />
     </group>
   );
 }

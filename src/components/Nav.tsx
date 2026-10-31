@@ -46,9 +46,9 @@ export function Nav() {
         }`}
         aria-label="Main"
       >
-        <button type="button" onClick={() => (path === '/' ? scrollToY(0) : navigate('/'))} className="flex cursor-pointer items-center gap-2.5" aria-label="ax07, back to top">
+        <button type="button" onClick={() => (path === '/' ? scrollToY(0) : navigate('/'))} className="flex cursor-pointer items-center gap-2.5" aria-label="ax07.dev, back to top">
           <img src="/logo-mark.png" alt="" width={22} height={22} className="h-[22px] w-[22px]" />
-          <span className="font-display text-[17px] font-semibold tracking-tight">ax07</span>
+          <span className="font-display text-[17px] font-semibold tracking-tight">ax07<span className="text-muted">.dev</span></span>
         </button>
 
         <ul className="hidden items-center gap-1 md:flex">

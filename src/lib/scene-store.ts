@@ -11,9 +11,22 @@ export const scene = {
   heroSlotOn: false,
   heroSlotY: 0,
   heroSlotScale: 1,
+  /** Hero beat 2 slot (logo beside the copy on desktop, above it on phones) */
+  beatOn: false,
+  beatX: 0,
+  beatY: 0,
+  beatScale: 1,
   /** World-space centre and scale of the logo slot in the final CTA (it tracks the layout) */
   ctaY: 0,
   ctaScale: 1,
+  /** 0 → 1 as the scattered field gathers into the showcase device's outline */
+  form: 0,
+  /** That outline in world space: centre, half-size and corner radius */
+  frameX: 0,
+  frameY: 0,
+  frameHalfW: 1,
+  frameHalfH: 1,
+  frameR: 0.1,
   /** 0 = logo assembled, 1 = particles scattered into an ambient field */
   disperse: 0,
   /** canvas opacity, 0 hides the scene and pauses rendering */
