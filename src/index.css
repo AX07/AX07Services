@@ -1,89 +1,315 @@
 @import "tailwindcss";
 
-@custom-variant dark (&:where(.dark, .dark *));
+/*
+ * ax07 Studio design tokens (light)
+ *
+ * Every visual decision on the site comes from this block. Rules of use:
+ *  - Type: headings use the four `text-display-*` / `text-title*` steps, copy uses `text-body*`,
+ *    small print uses `text-caption`. Fluid sizes, so no sm:/lg: size ramps on headings.
+ *    Miniature mock-ups of client sites (chat bubbles, phone screens) may go smaller: they
+ *    imitate other products, not this one.
+ *  - Spacing: 4px grid (Tailwind default). Sections use `section-y` + `gutter`, never ad-hoc py/px.
+ *  - Radius: sm (controls, toasts) · md (panels inside cards) · lg (cards) · full (pills).
+ *    Device frames (phones, browsers) keep their own physical radii.
+ *  - Elevation: xs (chips) · card (resting) · raised (active / hover) · float (nav, toasts, overlays).
+ *  - Colour: one accent. Third-party brand colours live in their own named tokens below.
+ *  - Motion: one curve (ease-out) for everything that enters; ease-in-out only for things
+ *    already on screen that move. Durations come from the four steps; mirrored in src/lib/tokens.ts.
+ */
+@theme static {
+  /* ── Surfaces: page → card → inset ─────────────────────────────── */
+  --color-ink: #fbfbfd;
+  --color-surface: #ffffff;
+  --color-raised: #f5f5f7;
+  --color-night: #0f1115; /* code panels, demo viewer chrome */
+  --color-line: rgb(0 0 0 / 0.08);
+  --color-line-strong: rgb(0 0 0 / 0.14);
 
-@theme {
-  --font-sans: "Plus Jakarta Sans", sans-serif;
-  --font-display: "Syne", sans-serif;
-  --font-serif: "Playfair Display", Georgia, serif;
+  /* ── Text (all ≥ 4.5:1 on ink) ─────────────────────────────────── */
+  --color-fg: #1d1d1f;
+  --color-muted: #6e6e73;
+  --color-subtle: #737378; /* was #86868b (3.5:1, failed AA for captions) */
+
+  /* ── Accent + status ───────────────────────────────────────────── */
+  --color-accent: #047857; /* text/links: 5.5:1 on white */
+  --color-accent-bright: #10b981; /* fills, dots, progress only, never text */
+  --color-accent-soft: #d1fae5;
+  --color-warn: #b45309;
+  --color-warn-soft: #fef3c7;
+  --color-danger: #dc2626;
+  --color-danger-soft: #fee2e2;
+
+  /* ── Third-party brand colours (WhatsApp UI mock-ups) ──────────── */
+  --color-wa: #25d366;
+  --color-wa-header: #075e54;
+  --color-wa-bubble: #d9fdd3;
+  --color-wa-paper: #efe7dd;
+
+  /* ── Type families ─────────────────────────────────────────────── */
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-display: "Inter Tight", "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Instrument Serif", Georgia, serif;
+
+  /* ── Type scale: 13 · 15 · 17 · 19 | 22 · 28 | 30–54 · 34–68 · 42–80 ─ */
+  --text-caption: 13px;
+  --text-caption--line-height: 1.45;
+  --text-body-sm: 15px;
+  --text-body-sm--line-height: 1.6;
+  --text-body: 17px;
+  --text-body--line-height: 1.6;
+  --text-lead: clamp(17px, 0.45vw + 15.3px, 19px);
+  --text-lead--line-height: 1.55;
+  --text-title: 22px; /* card titles */
+  --text-title--line-height: 1.2;
+  --text-title--letter-spacing: -0.02em;
+  --text-title-lg: clamp(24px, 0.9vw + 20.6px, 30px); /* step + project titles */
+  --text-title-lg--line-height: 1.1;
+  --text-title-lg--letter-spacing: -0.03em;
+  --text-display-3: clamp(30px, 2.65vw + 20px, 54px); /* headings in pinned, full-screen scenes */
+  --text-display-3--line-height: 1.04;
+  --text-display-2: clamp(34px, 3.75vw + 20px, 68px); /* every section heading */
+  --text-display-2--line-height: 1.02;
+  --text-display-1: clamp(42px, 4.2vw + 26px, 80px); /* page H1 only */
+  --text-display-1--line-height: 1;
+  --text-stat: clamp(44px, 2.2vw + 36px, 64px); /* headline numbers */
+  --text-stat--line-height: 1;
+  --text-stat-sm: 40px; /* numbers in narrow cards (fits "€1,270" in a half-card) */
+  --text-stat-sm--line-height: 1;
+
+  /* ── Radius ────────────────────────────────────────────────────── */
+  --radius-sm: 12px;
+  --radius-md: 20px;
+  --radius-lg: 32px;
+
+  /* ── Elevation ─────────────────────────────────────────────────── */
+  --shadow-xs: 0 1px 2px rgb(0 0 0 / 0.05);
+  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.04), 0 24px 48px -24px rgb(0 0 0 / 0.14);
+  --shadow-raised: 0 1px 2px rgb(0 0 0 / 0.04), 0 18px 40px -12px rgb(0 0 0 / 0.12);
+  --shadow-float: 0 20px 50px -20px rgb(0 0 0 / 0.3);
+
+  /* ── Motion ────────────────────────────────────────────────────── */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --duration-fast: 160ms; /* press, hover */
+  --duration-base: 300ms; /* state changes, colour swaps */
+  --duration-slow: 500ms; /* panels, cards swapping */
+  --duration-reveal: 900ms; /* scroll-in reveals */
+}
+
+/* Section rhythm: one vertical and one horizontal measure for every scrolling section */
+@utility section-y {
+  padding-block: clamp(112px, 7vw + 86px, 176px);
+}
+@utility gutter {
+  padding-inline: 20px;
+  @media (width >= 40rem) {
+    padding-inline: 24px;
+  }
 }
 
 :root {
-  --bg-canvas: #fafafa;
-  --text-main: #09090b;
   color-scheme: light;
 }
 
-html.dark {
-  --bg-canvas: #070708;
-  --text-main: #ededed;
-  color-scheme: dark;
+html {
+  background: var(--color-ink);
+  -webkit-text-size-adjust: 100%;
 }
 
-html.light {
-  --bg-canvas: #fafafa;
-  --text-main: #09090b;
-  color-scheme: light;
+/* Lenis owns smooth scrolling */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
 }
 
 body {
+  background: var(--color-ink);
+  color: var(--color-fg);
   font-family: var(--font-sans);
-  background-color: var(--bg-canvas);
-  color: var(--text-main);
+  font-feature-settings: "cv11", "ss01";
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
-  -webkit-tap-highlight-color: transparent;
-  transition: background-color 0.3s ease, color 0.3s ease;
+  overflow-x: clip;
 }
 
-/* Emil Kowalski Mobile-Native Polish: 
-   Eliminate mobile 300ms tap delay & sticky hover anomalies */
-button, a, input, [role="button"] {
+::selection {
+  background: var(--color-accent-soft);
+  color: var(--color-fg);
+}
+
+button,
+a,
+summary {
+  -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
 }
 
-/* Respect user's motion preferences (Emil design accessibility rule) */
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+@layer components {
+  /* Display headline: tight, optical, Apple-like */
+  .display {
+    font-family: var(--font-display);
+    font-weight: 600;
+    letter-spacing: -0.035em;
+    line-height: 1.02;
+  }
+  .accent-serif {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-weight: 400;
+    letter-spacing: -0.01em;
+  }
+  .eyebrow {
+    font-size: var(--text-caption);
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    color: var(--color-muted);
+  }
+
+  /* The one surface style used by every card, with a cursor spotlight on fine pointers */
+  .card {
+    position: relative;
+    background: var(--color-surface);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+    isolation: isolate;
+  }
+  .card::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity var(--duration-base) ease;
+    background: radial-gradient(420px circle at var(--mx, 50%) var(--my, 50%), rgb(16 185 129 / 0.09), transparent 60%);
+    z-index: -1;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .card:hover::after {
+      opacity: 1;
+    }
+  }
+
+  /* Buttons: one primary, one quiet. 48px touch target. */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 48px;
+    padding: 0 24px;
+    border-radius: 999px;
+    font-size: 15px;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    transition:
+      transform var(--duration-fast) var(--ease-out),
+      background-color var(--duration-base) ease,
+      border-color var(--duration-base) ease,
+      color var(--duration-base) ease,
+      box-shadow var(--duration-base) ease;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .btn:active {
+    transform: scale(0.97);
+  }
+  .btn-primary {
+    background: var(--color-fg);
+    color: #fff;
+    box-shadow: 0 8px 20px -10px rgb(0 0 0 / 0.45);
+  }
+  .btn-quiet {
+    color: var(--color-fg);
+    background: rgb(255 255 255 / 0.7);
+    border: 1px solid var(--color-line-strong);
+    backdrop-filter: blur(12px);
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .btn-primary:hover {
+      background: #000;
+      box-shadow: 0 12px 28px -12px rgb(0 0 0 / 0.5);
+    }
+    .btn-quiet:hover {
+      background: #fff;
+      border-color: rgb(0 0 0 / 0.24);
+    }
+  }
+}
+
+/* Subtle paper grain: removes the flat "template" look of pure fills.
+   Desktop only and sized to the viewport: a full-screen multiply layer is costly to composite
+   on phones while scrolling. Sits under the nav (z-50) and dialogs. */
+.grain::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 40;
+  display: none;
+  opacity: 0.025;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+}
+@media (hover: hover) and (pointer: fine) {
+  .grain::after {
+    display: block;
+  }
+}
+
+/* Hero scroll cue: a short line travels down its track */
+@keyframes cue {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(200%); }
+}
+
+/* Loading skeleton sweep (lag race) */
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* Showcase "screen recording": hold, glide down the page, pause, jump back */
+@keyframes site-recording {
+  0%,
+  12% {
+    transform: translateY(0);
+    animation-timing-function: cubic-bezier(0.65, 0, 0.35, 1);
+  }
+  78%,
+  90% {
+    transform: translateY(calc(-1 * var(--travel)));
+    animation-timing-function: cubic-bezier(0.65, 0, 0.35, 1);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+/* Live dot */
+@keyframes pulse-ring {
+  0% { transform: scale(0.8); opacity: 0.7; }
+  100% { transform: scale(2.4); opacity: 0; }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  *, ::before, ::after {
+  *,
+  ::before,
+  ::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
 }
-
-h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-display);
-}
-
-/* Custom Utilities */
-@layer utilities {
-  .text-micro {
-    @apply text-[10px] uppercase tracking-[0.25em] text-zinc-500 font-mono;
-  }
-  .glass-panel {
-    @apply bg-white/[0.02] backdrop-blur-xl border border-white/10;
-  }
-}
-
-@keyframes marquee {
-  0% {
-    transform: translateX(0%);
-  }
-  100% {
-    transform: translateX(-50%);
-  }
-}
-
-.animate-marquee,
-.animate-marquee:hover,
-.animate-marquee:active,
-.animate-marquee:focus,
-.animate-marquee:focus-within {
-  display: flex;
-  width: max-content;
-  animation: marquee 28s linear infinite;
-  animation-play-state: running !important;
-}
-

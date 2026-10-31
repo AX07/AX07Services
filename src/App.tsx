@@ -1,298 +1,73 @@
-import React, { useState, useEffect, Suspense, lazy } from 'react';
-import { AnimatePresence } from 'motion/react';
-import { Analytics } from '@vercel/analytics/react';
-import { SpeedInsights } from '@vercel/speed-insights/react';
-import { AppProvider, useApp } from './context/ThemeLanguageContext';
-import { CommandIsland } from './components/CommandIsland';
-import { Hero } from './components/Hero';
-import { BrandTicker } from './components/BrandTicker';
-import { Process } from './components/Process';
-import { PortfolioReviewGrid } from './components/PortfolioReviewGrid';
-import { Pricing } from './components/Pricing';
-import { Faq } from './components/Faq';
-import { CtaBanner } from './components/CtaBanner';
-import { Footer } from './components/Footer';
-import { Toaster } from 'sonner';
-import { getCountryContent, CountryCode, isValidCountry, defaultCountry } from './lib/content';
-import { ArrowLeft, ArrowUpRight, Terminal, Link as LinkIcon, ShieldCheck, Smartphone, Sparkles, ExternalLink } from 'lucide-react';
-import { LogoCanvas } from './components/LogoCanvas';
-import { Lockscreen } from './components/Lockscreen';
-import { InitialLoader } from './components/InitialLoader';
-import { SpeedAuditDock } from './components/SpeedAuditDock';
-import etherealBackdrop from './assets/images/ethereal_hero_backdrop.webp';
+import { lazy, Suspense, useEffect } from 'react';
+import { MotionConfig } from 'motion/react';
+import { Nav } from './components/Nav';
+import { Footer } from './sections/Footer';
+import { HomePage } from './pages/HomePage';
+import { usePath } from './lib/router';
 
-// Fast lazy loading for subviews to keep initial bundle ultra-light
-const WorkPortfolioPage = lazy(() => import('./components/WorkPortfolioPage').then(m => ({ default: m.WorkPortfolioPage })));
-const AboutStudioPage = lazy(() => import('./components/AboutStudioPage').then(m => ({ default: m.AboutStudioPage })));
-const AdminPage = lazy(() => import('@/app/admin/page'));
-const DynamicDemoPage = lazy(() => import('@/app/demo/[client]/page'));
+// Secondary pages load on demand so the home page stays light
+const WorkPage = lazy(() => import('./pages/WorkPage').then((m) => ({ default: m.WorkPage })));
+const AboutPage = lazy(() => import('./pages/AboutPage').then((m) => ({ default: m.AboutPage })));
+const AdminPage = lazy(() => import('./pages/AdminPage').then((m) => ({ default: m.AdminPage })));
+const DemoPage = lazy(() => import('./pages/DemoPage').then((m) => ({ default: m.DemoPage })));
 
-function MainExperience({ country, onSelectCountry }: { country: CountryCode; onSelectCountry: (c: CountryCode) => void }) {
-  const { theme } = useApp();
-  const content = getCountryContent(country);
-
-  // 1. Initial Fast Brand Loader (Logo + Progressive Loading Bar on first load)
-  const [isInitialLoading, setIsInitialLoading] = useState(true);
-
-  // 2. Separate Lockscreen State: Isolated from Hero scroll track
-  const [isUnlocked, setIsUnlocked] = useState(false);
-
-  const handleUnlock = () => {
-    setIsUnlocked(true);
-    if (typeof window !== 'undefined') {
-      sessionStorage.setItem('ax07_unlocked', 'true');
-    }
-  };
-
-  const handleOpenLockscreen = () => {
-    setIsUnlocked(false);
-    if (typeof window !== 'undefined') {
-      sessionStorage.removeItem('ax07_unlocked');
-    }
-  };
-
-  // Listen for global custom event to trigger lockscreen anytime from any section
-  useEffect(() => {
-    const handleReopen = () => {
-      handleOpenLockscreen();
-    };
-    window.addEventListener('ax07-open-lockscreen', handleReopen);
-    return () => window.removeEventListener('ax07-open-lockscreen', handleReopen);
-  }, []);
-
-  return (
-    <>
-      {/* Step 1: Initial Fast Brand Loading Screen with Studio Logo & Loading Bar */}
-      <AnimatePresence>
-        {isInitialLoading && (
-          <InitialLoader onComplete={() => setIsInitialLoading(false)} />
-        )}
-      </AnimatePresence>
-
-      {/* Step 2: Dedicated Interactive Lockscreen State (Appears right after loading bar finishes) */}
-      {!isInitialLoading && !isUnlocked && (
-        <Lockscreen onUnlock={handleUnlock} />
-      )}
-
-      <div className="bg-zinc-50 dark:bg-zinc-950 min-h-screen text-zinc-900 dark:text-white overflow-x-clip selection:bg-zinc-900/10 dark:selection:bg-white/20 selection:text-zinc-900 dark:selection:text-white relative transition-colors duration-300">
-      {/* Ambient Ethereal Backdrop Image */}
-      <div 
-        aria-hidden="true"
-        className="fixed inset-0 z-0 overflow-hidden pointer-events-none select-none"
-      >
-        <img
-          src={etherealBackdrop}
-          alt="Ethereal 3D Backdrop"
-          className="w-full h-full object-cover object-center opacity-70 dark:opacity-40 blur-[2px] scale-105 transition-opacity duration-700"
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-zinc-50/60 via-zinc-50/20 to-zinc-50/75 dark:from-zinc-950/75 dark:via-zinc-950/30 dark:to-zinc-950/85" />
-      </div>
-
-      {/* Ambient Radial Lighting - Hardware accelerated with GPU layer separation */}
-      <div 
-        aria-hidden="true"
-        className="fixed top-12 left-1/2 -translate-x-1/2 w-[350px] sm:w-[600px] h-[350px] sm:h-[600px] bg-blue-500/5 dark:bg-blue-500/10 blur-[80px] sm:blur-[140px] rounded-full pointer-events-none z-0 transform-gpu will-change-transform" 
-      />
-
-      {/* Floating Command Island with Country Subpath Toggle & Language Switcher */}
-      <CommandIsland countryContent={content} onSelectCountry={onSelectCountry} />
-
-      {/* Apple HIG Toast Provider */}
-      <Toaster 
-        position="bottom-right" 
-        theme={theme} 
-        richColors 
-        closeButton 
-        toastOptions={{
-          style: {
-            background: theme === 'dark' ? 'rgba(24, 24, 27, 0.90)' : 'rgba(255, 255, 255, 0.92)',
-            border: theme === 'dark' ? '1px solid rgba(255, 255, 255, 0.12)' : '1px solid rgba(0, 0, 0, 0.08)',
-            backdropFilter: 'blur(20px)',
-            color: theme === 'dark' ? '#f4f4f5' : '#09090b',
-            fontFamily: 'var(--font-sans)',
-            borderRadius: '18px',
-            boxShadow: '0 20px 40px -15px rgba(0,0,0,0.15)',
-          }
-        }}
-      />
-
-      <main className="relative z-10">
-        {/* HERO SECTION (3D Logo + Regionally Tuned Subtitle & Phone) */}
-        <Hero countryContent={content} />
-
-        {/* TECH & PARTNER TICKER BANNER */}
-        <BrandTicker />
-
-        {/* HOW WE WORK (01 Spec, 02 The Test, 03 Launch) */}
-        <Process countryContent={content} />
-
-        {/* PORTFOLIO SNAP REVIEW GRID */}
-        <PortfolioReviewGrid />
-
-        {/* TRANSPARENT PRICING (PT: €500 / €25/mo vs IE: €1,800 / €75/mo) */}
-        <Pricing countryContent={content} />
-
-        {/* FREQUENTLY ASKED QUESTIONS */}
-        <Faq />
-
-        {/* FINAL FOOTER CTA WITH REGIONAL WHATSAPP ACTION */}
-        <CtaBanner countryContent={content} />
-      </main>
-
-      <Footer onOpenLockscreen={handleOpenLockscreen} />
-    </div>
-    </>
-  );
-}
+const TITLES: Record<string, string> = {
+  '/': 'ax07 — Websites built for one business. Yours.',
+  '/work': 'Selected work — ax07',
+  '/about': 'About the studio — ax07',
+  '/admin': 'Admin — ax07',
+};
 
 export default function App() {
-  const [currentPath, setCurrentPath] = useState<string>(() => {
-    if (typeof window !== 'undefined') {
-      return window.location.pathname;
-    }
-    return '/ie';
-  });
-
-  const [country, setCountry] = useState<CountryCode>(() => {
-    if (typeof window !== 'undefined') {
-      const seg = window.location.pathname.split('/').filter(Boolean)[0]?.toLowerCase();
-      if (isValidCountry(seg)) return seg;
-    }
-    return defaultCountry;
-  });
+  const path = usePath();
+  const demoSlug = path.startsWith('/demo/') ? decodeURIComponent(path.slice(6).split('/')[0]) : null;
+  const isPrivate = path === '/admin' || !!demoSlug;
 
   useEffect(() => {
-    // Scroll to the very top whenever the path changes
-    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
-  }, [currentPath]);
-
-  useEffect(() => {
-    const handleLocationChange = () => {
-      const path = window.location.pathname;
-      setCurrentPath(path);
-      window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
-      const seg = path.split('/').filter(Boolean)[0]?.toLowerCase();
-      if (isValidCountry(seg)) {
-        setCountry(seg);
-      } else if (path === '/' || path === '') {
-        // Automatically redirect root / to /ie
-        window.history.replaceState({}, '', `/${defaultCountry}`);
-        setCountry(defaultCountry);
+    document.title = demoSlug ? `Preview — ${demoSlug} | ax07` : (TITLES[path] ?? TITLES['/']);
+    // Admin and client previews stay out of search results
+    let robots = document.querySelector<HTMLMetaElement>('meta[name="robots"]');
+    if (isPrivate) {
+      if (!robots) {
+        robots = document.createElement('meta');
+        robots.name = 'robots';
+        document.head.appendChild(robots);
       }
-    };
-
-    handleLocationChange();
-    window.addEventListener('popstate', handleLocationChange);
-    return () => window.removeEventListener('popstate', handleLocationChange);
-  }, []);
-
-  const handleSelectCountry = (targetCountry: CountryCode) => {
-    setCountry(targetCountry);
-    window.history.pushState({}, '', `/${targetCountry}`);
-    setCurrentPath(`/${targetCountry}`);
-    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
-  };
-
-  // Dynamic SEO Page Title & Canonical URL Resolution
-  useEffect(() => {
-    if (typeof document !== 'undefined') {
-      let pageTitle = 'ax07.dev — High-Motion 3D Web Design & Spec Studio';
-      if (currentPath === '/work' || currentPath.endsWith('/work')) {
-        pageTitle = 'Selected Works & Staging Prototypes — ax07.dev';
-      } else if (currentPath === '/about' || currentPath.endsWith('/about')) {
-        pageTitle = 'About the Studio & Founder — ax07.dev';
-      } else if (currentPath.startsWith('/demo/')) {
-        const demoSlug = currentPath.replace('/demo/', '').split('?')[0].split('/')[0];
-        pageTitle = `Live Staging Sandbox — ${demoSlug.toUpperCase()} | ax07.dev`;
-      } else if (currentPath.startsWith('/admin')) {
-        pageTitle = 'Admin Portal — ax07.dev';
-      } else if (country === 'pt') {
-        pageTitle = 'ax07.dev — Estúdio Criativo Web 3D & Protótipos em 48h';
-      }
-      document.title = pageTitle;
-
-      let canonicalLink = document.querySelector("link[rel='canonical']") as HTMLLinkElement | null;
-      if (!canonicalLink) {
-        canonicalLink = document.createElement('link');
-        canonicalLink.rel = 'canonical';
-        document.head.appendChild(canonicalLink);
-      }
-      canonicalLink.href = window.location.origin + window.location.pathname;
+      robots.content = 'noindex, nofollow';
+    } else {
+      robots?.remove();
     }
-  }, [currentPath, country]);
+  }, [path, demoSlug, isPrivate]);
 
-  // Route evaluation
-  const renderView = () => {
-    if (currentPath === '/admin' || currentPath.startsWith('/admin/')) {
-      return (
-        <AppProvider>
-          <AdminPage />
-        </AppProvider>
-      );
-    }
-
-    if (currentPath.startsWith('/demo/')) {
-      const client = currentPath.replace('/demo/', '').split('?')[0].split('/')[0] || 'cryptoax07';
-      return (
-        <AppProvider key={`${client}-${typeof window !== 'undefined' ? window.location.search : ''}`}>
-          <DynamicDemoPage params={{ client }} />
-        </AppProvider>
-      );
-    }
-
-    if (currentPath === '/gallery' || currentPath.startsWith('/gallery')) {
-      return (
-        <AppProvider>
-          <DynamicDemoPage params={{ client: 'gallery' }} />
-        </AppProvider>
-      );
-    }
-
-    const content = getCountryContent(country);
-    const initialLang = content.defaultLanguage;
-
-    if (currentPath === '/work' || currentPath.endsWith('/work')) {
-      return (
-        <AppProvider key={`${country}-work`} initialLang={initialLang}>
-          <WorkPortfolioPage countryContent={content} />
-        </AppProvider>
-      );
-    }
-
-    if (currentPath === '/about' || currentPath.endsWith('/about')) {
-      return (
-        <AppProvider key={`${country}-about`} initialLang={initialLang}>
-          <AboutStudioPage countryContent={content} />
-        </AppProvider>
-      );
-    }
-
+  if (demoSlug) {
     return (
-      <AppProvider key={country} initialLang={initialLang}>
-        <MainExperience country={country} onSelectCountry={handleSelectCountry} />
-      </AppProvider>
+      <Suspense fallback={null}>
+        <DemoPage slug={demoSlug} />
+      </Suspense>
     );
-  };
+  }
+
+  if (path === '/admin') {
+    return (
+      <Suspense fallback={null}>
+        <AdminPage />
+      </Suspense>
+    );
+  }
 
   return (
-    <Suspense
-      fallback={
-        <div className="fixed inset-0 bg-[#050505] flex items-center justify-center z-50">
-          <div className="flex flex-col items-center gap-3">
-            <div className="w-8 h-8 rounded-full border border-white/20 border-t-white animate-spin" />
-            <span className="text-[10px] uppercase font-mono tracking-[0.25em] text-zinc-500">
-              Loading AX07 Studio...
-            </span>
-          </div>
+    <MotionConfig reducedMotion="user">
+      <div className="grain">
+        <Nav />
+        {path === '/work' || path === '/about' ? (
+          <Suspense fallback={<div className="min-h-[100svh]" />}>{path === '/work' ? <WorkPage /> : <AboutPage />}</Suspense>
+        ) : (
+          <HomePage />
+        )}
+        <div className="relative z-10 bg-ink">
+          <Footer />
         </div>
-      }
-    >
-      <AppProvider key={country} initialLang={getCountryContent(country).defaultLanguage}>
-        {renderView()}
-        <SpeedAuditDock />
-      </AppProvider>
-      <Analytics />
-      <SpeedInsights />
-    </Suspense>
+      </div>
+    </MotionConfig>
   );
 }

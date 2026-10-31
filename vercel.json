@@ -1,19 +1,6 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "vite",
-  "buildCommand": "vite build",
   "outputDirectory": "dist",
-  "redirects": [
-    {
-      "source": "/",
-      "destination": "/ie",
-      "permanent": false
-    }
-  ],
-  "rewrites": [
-    {
-      "source": "/(.*)",
-      "destination": "/index.html"
-    }
-  ]
+  "rewrites": [{ "source": "/((?!assets/|.*\.[a-z0-9]+$).*)", "destination": "/index.html" }]
 }
