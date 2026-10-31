@@ -101,7 +101,7 @@ function Login({ onSuccess }: { onSuccess: () => void }) {
         transition={{ duration: 0.6, ease: EASE_OUT }}
         className="card w-full max-w-md p-8 text-center sm:p-10"
       >
-        <img src="/logo-mark.png" alt="" width={40} height={40} className="mx-auto h-10 w-10" />
+        <img src="/logo-mark.png" alt="" width={40} height={40} className="mx-auto h-10 w-10 dark:invert" />
         <h1 className="display mt-5 text-title-lg">ax07 admin</h1>
         <p className="mt-2 text-[14px] text-muted">Manage client demo links.</p>
 
@@ -243,7 +243,7 @@ function Console({ onLock, toast }: { onLock: () => void; toast: (title: string,
       <header className="flex flex-wrap items-center justify-between gap-4 border-b border-line pb-6">
         <div className="flex items-center gap-3">
           <a {...linkProps('/')} className="flex h-10 w-10 items-center justify-center rounded-full border border-line bg-surface" aria-label="Back to website">
-            <img src="/logo-mark.png" alt="" width={20} height={20} className="h-5 w-5" />
+            <img src="/logo-mark.png" alt="" width={20} height={20} className="h-5 w-5 dark:invert" />
           </a>
           <div>
             <div className="eyebrow">Admin</div>
@@ -290,7 +290,7 @@ function Console({ onLock, toast }: { onLock: () => void; toast: (title: string,
                   type="button"
                   onClick={() => setMarket(t)}
                   aria-pressed={market === t}
-                  className={`flex-1 cursor-pointer rounded-[8px] py-2 text-[14px] transition-colors ${market === t ? 'bg-fg text-white' : 'text-muted hover:text-fg'}`}
+                  className={`flex-1 cursor-pointer rounded-[8px] py-2 text-[14px] transition-colors ${market === t ? 'bg-fg text-on-fg' : 'text-muted hover:text-fg'}`}
                 >
                   {t}
                 </button>
@@ -325,7 +325,7 @@ function Console({ onLock, toast }: { onLock: () => void; toast: (title: string,
                   key={t}
                   type="button"
                   onClick={() => setTier(t)}
-                  className={`cursor-pointer rounded-full px-3 py-1 text-[13px] transition-colors ${tier === t ? 'bg-fg text-white' : 'text-muted hover:text-fg'}`}
+                  className={`cursor-pointer rounded-full px-3 py-1 text-[13px] transition-colors ${tier === t ? 'bg-fg text-on-fg' : 'text-muted hover:text-fg'}`}
                 >
                   {t}
                 </button>

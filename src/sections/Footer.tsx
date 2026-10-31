@@ -39,7 +39,7 @@ export function Footer() {
           {/* Brand */}
           <div>
             <div className="flex items-center gap-2.5">
-              <img src="/logo-mark.png" alt="" width={24} height={24} className="h-6 w-6" />
+              <img src="/logo-mark.png" alt="" width={24} height={24} className="h-6 w-6 dark:invert" />
               <span className="font-display text-[18px] font-semibold tracking-tight">ax07</span>
             </div>
             <p className="mt-4 max-w-xs text-[14px] leading-relaxed text-muted">

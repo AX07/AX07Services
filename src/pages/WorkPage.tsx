@@ -5,6 +5,7 @@ import { DEFAULT_WHATSAPP_MESSAGE, projects, whatsappLink, type ProjectCategory 
 import { goToSection, linkProps } from '../lib/router';
 import { demoPath } from '../lib/clients';
 import { SPRING } from '../lib/tokens';
+import { WaveBackdrop } from '../components/WaveBackdrop';
 
 const FILTERS: { id: 'all' | ProjectCategory; label: string }[] = [
   { id: 'all', label: 'All work' },
@@ -19,7 +20,8 @@ export function WorkPage() {
   const shown = filter === 'all' ? projects : projects.filter((p) => p.category === filter);
 
   return (
-    <main className="relative z-10 px-5 pb-28 pt-32 sm:px-6 sm:pt-40">
+    <main className="relative isolate z-10 px-5 pb-28 pt-32 sm:px-6 sm:pt-40">
+      <WaveBackdrop eager className="top-0 h-[min(80svh,720px)]" />
       <div className="mx-auto max-w-6xl">
         <Eyebrow className="mb-5">Portfolio</Eyebrow>
         <Headline
@@ -47,7 +49,7 @@ export function WorkPage() {
               {filter === f.id && (
                 <motion.span layoutId="work-filter" transition={SPRING} className="absolute inset-0 rounded-full bg-fg" />
               )}
-              <span className={`relative ${filter === f.id ? 'text-white' : 'text-muted hover:text-fg'}`}>{f.label}</span>
+              <span className={`relative ${filter === f.id ? 'text-on-fg' : 'text-muted hover:text-fg'}`}>{f.label}</span>
             </button>
           ))}
         </Reveal>
@@ -71,9 +73,9 @@ export function WorkPage() {
                 >
                   <div className="flex items-center gap-3 px-4 py-2.5">
                     <div className="flex gap-1.5">
-                      <span className="h-2 w-2 rounded-full bg-black/10" />
-                      <span className="h-2 w-2 rounded-full bg-black/10" />
-                      <span className="h-2 w-2 rounded-full bg-black/10" />
+                      <span className="h-2 w-2 rounded-full bg-fg/15" />
+                      <span className="h-2 w-2 rounded-full bg-fg/15" />
+                      <span className="h-2 w-2 rounded-full bg-fg/15" />
                     </div>
                     <span className="mx-auto truncate rounded-full bg-ink px-3 py-0.5 text-[11px] text-muted">
                       {new URL(p.url).hostname.replace(/^www\./, '')}
@@ -134,17 +136,17 @@ export function WorkPage() {
           </AnimatePresence>
         </motion.div>
 
-        <Reveal className="mt-20 overflow-hidden rounded-lg bg-fg p-8 text-white sm:mt-28 sm:p-14">
+        <Reveal className="mt-20 overflow-hidden rounded-lg bg-night p-8 text-white ring-1 ring-line sm:mt-28 sm:p-14">
           <span className="text-[13px] font-medium uppercase tracking-[0.14em] text-accent-bright">Free 48-hour preview</span>
           <h2 className="display mt-3 max-w-2xl text-display-3">Your business could be the next one here.</h2>
           <p className="mt-4 max-w-xl text-body text-white/65">
             We build a working version of your site in 48 hours. If you love it, we launch it. If not, you owe nothing.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
-            <a href={whatsappLink(DEFAULT_WHATSAPP_MESSAGE)} target="_blank" rel="noopener noreferrer" className="btn bg-white text-fg hover:bg-white/90">
+            <a href={whatsappLink(DEFAULT_WHATSAPP_MESSAGE)} target="_blank" rel="noopener noreferrer" className="btn btn-light">
               Get my free preview
             </a>
-            <button type="button" onClick={() => goToSection('pricing')} className="btn cursor-pointer border border-white/20 text-white hover:bg-white/10">
+            <button type="button" onClick={() => goToSection('pricing')} className="btn btn-ghost-light">
               See pricing
             </button>
           </div>

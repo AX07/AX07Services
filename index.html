@@ -10,6 +10,18 @@
     />
     <link rel="canonical" href="https://www.ax07.dev/" />
     <meta name="theme-color" content="#fbfbfd" />
+    <!-- Theme before first paint: the visitor's saved choice, else their system setting (no flash) -->
+    <script>
+      (function () {
+        var t;
+        try { t = localStorage.getItem('ax07-theme'); } catch (e) {}
+        if (t !== 'dark' && t !== 'light') t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        var r = document.documentElement;
+        r.dataset.theme = t;
+        r.style.colorScheme = t;
+        if (t === 'dark') document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0a0a0c');
+      })();
+    </script>
 
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="ax07.dev" />

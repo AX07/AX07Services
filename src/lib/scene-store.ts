@@ -27,6 +27,8 @@ export const scene = {
   frameHalfW: 1,
   frameHalfH: 1,
   frameR: 0.1,
+  /** Dark theme: particles switch to a light ink */
+  dark: typeof document !== 'undefined' && document.documentElement.dataset.theme === 'dark',
   /** 0 = logo assembled, 1 = particles scattered into an ambient field */
   disperse: 0,
   /** canvas opacity, 0 hides the scene and pauses rendering */

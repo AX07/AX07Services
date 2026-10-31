@@ -15,6 +15,10 @@ const withDraco = (loader: GLTFLoader) => {
 };
 useLoader.preload(GLTFLoader, MODEL_URL, withDraco);
 
+// Particle ink per theme (switched instantly so the theme reveal shows the new colour)
+const INK_LIGHT = new THREE.Color('#1d1d1f');
+const INK_DARK = new THREE.Color('#e8e8ed');
+
 const vertexShader = /* glsl */ `
   uniform float uTime;
   uniform float uAssemble;
@@ -299,6 +303,7 @@ export function ParticleLogo({ count }: Props) {
     const k = 1 - Math.pow(0.001, delta);
     u.uDisperse.value += (store.disperse - u.uDisperse.value) * k;
     u.uForm.value += (store.form - u.uForm.value) * k;
+    (u.uColor.value as THREE.Color).copy(store.dark ? INK_DARK : INK_LIGHT);
     (u.uFrameCenter.value as THREE.Vector2).set(store.frameX, store.frameY);
     (u.uFrameHalf.value as THREE.Vector2).set(store.frameHalfW, store.frameHalfH);
     u.uFrameR.value = store.frameR;

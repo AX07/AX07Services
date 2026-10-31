@@ -25,7 +25,7 @@ export function Hero() {
         {/* Soft scrim so type stays crisp over the particles */}
         <div
           aria-hidden="true"
-          className="absolute left-1/2 top-[64%] h-[70vh] w-[120vw] max-w-[1100px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(closest-side,rgba(251,251,253,0.92),rgba(251,251,253,0))]"
+          className="absolute left-1/2 top-[64%] h-[70vh] w-[120vw] max-w-[1100px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(closest-side,color-mix(in_srgb,var(--color-ink)_92%,transparent),transparent)]"
         />
 
         <motion.div

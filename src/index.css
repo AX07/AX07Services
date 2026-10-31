@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* Dark theme: <html data-theme="dark">. Use dark: only for the rare thing tokens can't express. */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
 /*
  * ax07 Studio design tokens (light)
  *
@@ -29,11 +32,13 @@
   --color-fg: #1d1d1f;
   --color-muted: #6e6e73;
   --color-subtle: #737378; /* was #86868b (3.5:1, failed AA for captions) */
+  --color-on-fg: #ffffff; /* text on fg-filled pills and buttons */
 
   /* ── Accent + status ───────────────────────────────────────────── */
   --color-accent: #047857; /* text/links: 5.5:1 on white */
   --color-accent-bright: #10b981; /* fills, dots, progress only, never text */
   --color-accent-soft: #d1fae5;
+  --color-on-accent: #ffffff; /* text on accent fills */
   --color-warn: #b45309;
   --color-warn-soft: #fef3c7;
   --color-danger: #dc2626;
@@ -109,6 +114,48 @@
 
 :root {
   color-scheme: light;
+}
+
+/* ── Dark theme: same roles, night values. Contrast kept ≥ 4.5:1 for text on ink. ── */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --color-ink: #0a0a0c;
+  --color-surface: #141417;
+  --color-raised: #1d1d21;
+  --color-night: #050507;
+  --color-line: rgb(255 255 255 / 0.09);
+  --color-line-strong: rgb(255 255 255 / 0.16);
+  --color-fg: #f5f5f7;
+  --color-muted: #a1a1a8;
+  --color-subtle: #8e8e96;
+  --color-on-fg: #0a0a0c;
+  --color-accent: #34d399;
+  --color-accent-bright: #10b981;
+  --color-accent-soft: #0d2a20;
+  --color-on-accent: #04261a;
+  --color-warn: #fbbf24;
+  --color-warn-soft: #2b2006;
+  --color-danger: #f87171;
+  --color-danger-soft: #2c1012;
+  --shadow-xs: 0 1px 2px rgb(0 0 0 / 0.4);
+  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.4), 0 24px 48px -24px rgb(0 0 0 / 0.7);
+  --shadow-raised: 0 1px 2px rgb(0 0 0 / 0.4), 0 18px 40px -12px rgb(0 0 0 / 0.65);
+  --shadow-float: 0 20px 50px -20px rgb(0 0 0 / 0.8);
+}
+
+/* Theme switch: the new theme is revealed by a circle from the toggle (see lib/theme.ts) */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+::view-transition-new(root) {
+  z-index: 2;
+}
+/* Freeze CSS transitions during the switch so every colour lands at once inside the reveal */
+.theme-switching,
+.theme-switching * {
+  transition: none !important;
 }
 
 html {
@@ -201,7 +248,9 @@ summary {
     }
   }
 
-  /* Buttons: one primary, one quiet. 48px touch target. */
+  /* Buttons: one primary, one quiet (+ two for dark panels). 48px touch target.
+     Every button grows slightly and takes on the accent when hovered, and again while pressed,
+     so touch screens get the same feedback as a mouse. */
   .btn {
     display: inline-flex;
     align-items: center;
@@ -214,7 +263,7 @@ summary {
     font-weight: 500;
     letter-spacing: -0.01em;
     transition:
-      transform var(--duration-fast) var(--ease-out),
+      transform var(--duration-base) var(--ease-out),
       background-color var(--duration-base) ease,
       border-color var(--duration-base) ease,
       color var(--duration-base) ease,
@@ -223,27 +272,80 @@ summary {
     white-space: nowrap;
   }
   .btn:active {
-    transform: scale(0.97);
+    transform: scale(1.06);
+    transition-duration: var(--duration-fast);
   }
   .btn-primary {
     background: var(--color-fg);
-    color: #fff;
+    color: var(--color-on-fg);
     box-shadow: 0 8px 20px -10px rgb(0 0 0 / 0.45);
   }
   .btn-quiet {
     color: var(--color-fg);
-    background: rgb(255 255 255 / 0.7);
+    background: color-mix(in srgb, var(--color-surface) 70%, transparent);
     border: 1px solid var(--color-line-strong);
     backdrop-filter: blur(12px);
   }
+  /* On dark panels: a white button and an outlined one */
+  .btn-light {
+    background: #fff;
+    color: var(--color-fg);
+  }
+  .btn-ghost-light {
+    color: #fff;
+    border: 1px solid rgb(255 255 255 / 0.2);
+  }
+
+  .btn-primary:active {
+    background: var(--color-accent);
+    color: var(--color-on-accent);
+    box-shadow: 0 14px 30px -12px rgb(4 120 87 / 0.55);
+  }
+  .btn-quiet:active {
+    background: var(--color-accent-soft);
+    border-color: rgb(4 120 87 / 0.35);
+    color: var(--color-accent);
+  }
+  .btn-light:active {
+    background: var(--color-accent);
+    color: var(--color-on-accent);
+  }
+  .btn-ghost-light:active {
+    background: #fff;
+    border-color: #fff;
+    color: var(--color-fg);
+  }
   @media (hover: hover) and (pointer: fine) {
+    .btn:hover {
+      transform: scale(1.04);
+    }
+    .btn:hover:active {
+      transform: scale(1.06);
+    }
     .btn-primary:hover {
-      background: #000;
-      box-shadow: 0 12px 28px -12px rgb(0 0 0 / 0.5);
+      background: var(--color-accent);
+      color: var(--color-on-accent);
+      box-shadow: 0 14px 30px -12px rgb(4 120 87 / 0.55);
     }
     .btn-quiet:hover {
+      background: var(--color-accent-soft);
+      border-color: rgb(4 120 87 / 0.35);
+      color: var(--color-accent);
+    }
+    .btn-light:hover {
+      background: var(--color-accent);
+      color: var(--color-on-accent);
+    }
+    .btn-ghost-light:hover {
       background: #fff;
-      border-color: rgb(0 0 0 / 0.24);
+      border-color: #fff;
+      color: var(--color-fg);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .btn:active,
+    .btn:hover {
+      transform: none !important;
     }
   }
 }
@@ -261,6 +363,10 @@ summary {
   opacity: 0.025;
   mix-blend-mode: multiply;
   background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+}
+[data-theme="dark"] .grain::after {
+  mix-blend-mode: screen;
+  opacity: 0.035;
 }
 @media (hover: hover) and (pointer: fine) {
   .grain::after {

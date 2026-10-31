@@ -105,7 +105,7 @@ export function Features() {
                       <div className="flex items-center gap-3">
                         <span
                           className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[11px] font-semibold tabular-nums transition-colors duration-500 ${
-                            done ? 'bg-accent-bright text-white' : isActive ? 'bg-fg text-white' : 'bg-raised text-muted'
+                            done ? 'bg-accent-bright text-white' : isActive ? 'bg-fg text-on-fg' : 'bg-raised text-muted'
                           }`}
                         >
                           {done ? (
@@ -171,9 +171,9 @@ export function Features() {
           <div className="card overflow-hidden !rounded-[22px]">
             <div className="flex items-center gap-2 border-b border-line bg-raised px-3 py-2">
               <span className="flex gap-1">
-                <span className="h-2 w-2 rounded-full bg-black/10" />
-                <span className="h-2 w-2 rounded-full bg-black/10" />
-                <span className="h-2 w-2 rounded-full bg-black/10" />
+                <span className="h-2 w-2 rounded-full bg-fg/15" />
+                <span className="h-2 w-2 rounded-full bg-fg/15" />
+                <span className="h-2 w-2 rounded-full bg-fg/15" />
               </span>
               <span className="mx-auto rounded-full bg-surface px-3 py-0.5 text-[11px] text-muted">lumendental.ie</span>
               <span
@@ -410,7 +410,7 @@ function QuoteCalculator({ auto }: { auto?: number }) {
               setPremium(value as boolean);
             }}
             aria-pressed={premium === value}
-            className={`relative flex-1 cursor-pointer rounded-full px-3 py-1 transition-colors duration-300 ${premium === value ? 'bg-fg text-white' : 'text-muted hover:text-fg'}`}
+            className={`relative flex-1 cursor-pointer rounded-full px-3 py-1 transition-colors duration-300 ${premium === value ? 'bg-fg text-on-fg' : 'text-muted hover:text-fg'}`}
           >
             {label as string}
             {playing && value === true && a >= 0.58 && a < 0.75 && (

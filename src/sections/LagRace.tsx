@@ -140,12 +140,12 @@ function Phone({
               </motion.div>
             ) : (
               <motion.div key="skeleton" exit={{ opacity: 0 }} className="absolute inset-0 flex flex-col gap-2 p-3 sm:p-4">
-                <div className="h-[38%] rounded-xl bg-black/[0.06]" />
-                <div className="h-2.5 w-4/5 rounded-full bg-black/[0.06]" />
-                <div className="h-2.5 w-3/5 rounded-full bg-black/[0.06]" />
-                <div className="h-1.5 w-full rounded-full bg-black/[0.05]" />
+                <div className="h-[38%] rounded-xl bg-fg/[0.06]" />
+                <div className="h-2.5 w-4/5 rounded-full bg-fg/[0.06]" />
+                <div className="h-2.5 w-3/5 rounded-full bg-fg/[0.06]" />
+                <div className="h-1.5 w-full rounded-full bg-fg/[0.05]" />
                 <div className="pointer-events-none absolute inset-0 overflow-hidden">
-                  <div className="h-full w-full animate-[shimmer_1.4s_linear_infinite] bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.7),transparent)]" />
+                  <div className="h-full w-full animate-[shimmer_1.4s_linear_infinite] bg-[linear-gradient(90deg,transparent,color-mix(in_srgb,var(--color-surface)_70%,transparent),transparent)]" />
                 </div>
               </motion.div>
             )}

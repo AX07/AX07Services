@@ -1,9 +1,11 @@
 import { Eyebrow, Headline, Reveal, RevealGroup, RevealItem } from '../components/Reveal';
 import { plans, whatsappLink } from '../lib/content';
+import { WaveBackdrop } from '../components/WaveBackdrop';
 
 export function Pricing() {
   return (
-    <section id="pricing" className="relative gutter section-y">
+    <section id="pricing" className="relative isolate gutter section-y">
+      <WaveBackdrop fade="both" className="inset-y-0 opacity-60" />
       <div className="mx-auto max-w-6xl">
         <Eyebrow index="07" className="mb-5">
           Pricing

@@ -1,6 +1,7 @@
 import { Eyebrow, Headline, Reveal, RevealGroup, RevealItem } from '../components/Reveal';
 import { whatsappLink } from '../lib/content';
 import { linkProps } from '../lib/router';
+import { WaveBackdrop } from '../components/WaveBackdrop';
 
 const LINKEDIN = 'https://www.linkedin.com/in/alexpintosmollahan/';
 
@@ -33,7 +34,8 @@ const STACK = [
 
 export function AboutPage() {
   return (
-    <main className="relative z-10 px-5 pb-28 pt-32 sm:px-6 sm:pt-40">
+    <main className="relative isolate z-10 px-5 pb-28 pt-32 sm:px-6 sm:pt-40">
+      <WaveBackdrop eager />
       <div className="mx-auto max-w-6xl">
         {/* Manifesto */}
         <Eyebrow className="mb-5">About the studio</Eyebrow>

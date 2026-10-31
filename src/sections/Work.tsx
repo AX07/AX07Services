@@ -74,9 +74,9 @@ export function Work() {
               >
                 <div className="flex items-center gap-3 px-4 py-2.5">
                   <div className="flex gap-1.5">
-                    <span className="h-2 w-2 rounded-full bg-black/10" />
-                    <span className="h-2 w-2 rounded-full bg-black/10" />
-                    <span className="h-2 w-2 rounded-full bg-black/10" />
+                    <span className="h-2 w-2 rounded-full bg-fg/15" />
+                    <span className="h-2 w-2 rounded-full bg-fg/15" />
+                    <span className="h-2 w-2 rounded-full bg-fg/15" />
                   </div>
                   <span className="mx-auto truncate rounded-full bg-ink px-3 py-0.5 text-[11px] text-muted">
                     {new URL(p.url).hostname.replace(/^www\./, '')}
