@@ -48,7 +48,7 @@ export function Hero() {
             as="h1"
             trigger="mount"
             delay={0.1}
-            text={[{ text: 'Slow websites kill businesses.' }, { text: 'We kill the lag.', className: 'accent-serif text-accent' }]}
+            text={[{ text: 'We build custom web experiences' }, { text: 'that convert.', className: 'accent-serif text-accent' }]}
             className="display text-balance text-display-1"
           />
 
@@ -56,9 +56,10 @@ export function Hero() {
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.9, ease: EASE_OUT, delay: 0.55 }}
-            className="mt-5 max-w-[30rem] text-pretty text-lead text-muted"
+            className="mt-5 max-w-[36rem] text-pretty text-lead text-muted"
           >
-            Custom websites that load in under a second and turn visitors into bookings.
+            Interactive 3D visuals, sub-second edge performance, and direct 1-click WhatsApp booking systems crafted for Irish
+            business owners.
           </motion.p>
 
           <motion.div

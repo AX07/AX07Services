@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type ComponentType } from 'react';
-import { AnimatePresence, motion, useMotionValueEvent, useScroll } from 'motion/react';
+import { AnimatePresence, motion, useMotionValueEvent, useScroll, useTransform } from 'motion/react';
 import { EASE_OUT, Eyebrow, Headline } from '../components/Reveal';
 import { AutoScrollFrame } from '../components/showcase/AutoScrollFrame';
 import { DentalSite, EstateSite, LawSite } from '../components/showcase/IndustrySites';
@@ -64,8 +64,9 @@ function useIsPhone() {
 }
 
 /**
- * "Want a website like this?" Beautiful sites for real industries, playing like screen
- * recordings. Scroll (or tap) through them; each one ends in an invitation to build yours.
+ * "Want a website like this?" Beautiful sites for real industries. On larger screens they play
+ * like screen recordings; on phones the visitor's scroll scrolls the mini site itself, then
+ * moves on to the next industry. Each one ends in an invitation to build yours.
  */
 export function Showcase() {
   const ref = useRef<HTMLElement>(null);
@@ -78,11 +79,20 @@ export function Showcase() {
     setActive((prev) => (prev === next ? prev : next));
   });
 
+  // Phones: each industry's share of the scroll scrolls its mini site from top to bottom, with a
+  // short hold at both ends before handing over to the next one
+  const pageProgress = useTransform(scrollYProgress, (v) => {
+    const x = v * industries.length;
+    const i = Math.min(industries.length - 1, Math.floor(x * 0.999));
+    return Math.min(1, Math.max(0, (x - i - 0.1) / 0.75));
+  });
+
   const jumpTo = (i: number) => {
     const el = ref.current;
     if (!el) return;
     const top = el.getBoundingClientRect().top + window.scrollY;
-    scrollToY(top + (el.offsetHeight - window.innerHeight) * ((i + 0.5) / industries.length));
+    // Land at the top of that industry's site on phones, mid-recording on larger screens
+    scrollToY(top + (el.offsetHeight - window.innerHeight) * ((i + (phone ? 0.04 : 0.5)) / industries.length));
   };
 
   const current = industries[active];
@@ -95,7 +105,7 @@ export function Showcase() {
   );
 
   return (
-    <section ref={ref} id="showcase" className="relative h-[360vh]">
+    <section ref={ref} id="showcase" className="relative h-[480vh] sm:h-[360vh]">
       <div className="sticky top-0 flex h-[100svh] items-center overflow-hidden">
         <div className="mx-auto grid w-full max-w-6xl grid-cols-1 items-center gap-5 px-5 pt-16 sm:px-6 lg:grid-cols-[0.8fr_1.2fr] lg:gap-14 lg:pt-0">
           {/* Copy */}
@@ -196,7 +206,7 @@ export function Showcase() {
                     transition={{ duration: 0.6, ease: EASE_OUT }}
                     className="absolute inset-0"
                   >
-                    <AutoScrollFrame virtualWidth={phone ? 390 : 1280}>
+                    <AutoScrollFrame virtualWidth={phone ? 390 : 1280} progress={phone ? pageProgress : undefined}>
                       <Site m={phone} />
                     </AutoScrollFrame>
                   </motion.div>
