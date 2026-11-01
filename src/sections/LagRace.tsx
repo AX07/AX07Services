@@ -1,13 +1,22 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion, useMotionValueEvent, useScroll } from 'motion/react';
 import { EASE_OUT, Eyebrow } from '../components/Reveal';
 import { useRange } from '../lib/motion';
+import { crossedForward, railPulse, type RailPulse } from '../lib/rail';
 
 const SLOW_LOAD = 3.2; // seconds: a typical template site on 4G
 const FAST_LOAD = 0.4; // seconds: an ax07 build
 const RACE_LENGTH = 4;
 
 /** Share of visitors still waiting after t seconds (53% gone by 3s, Google mobile research) */
+// The race, as told to the progress rail: green when ours lands, red as the template loses people
+const RAIL_MOMENTS: { at: number; pulse: RailPulse }[] = [
+  { at: FAST_LOAD, pulse: { tone: 'accent', size: 'lg', label: 'ax07 build loaded · 0.4s' } },
+  { at: 1.3, pulse: { tone: 'accent', size: 'sm', label: 'Booking received' } },
+  { at: 2.6, pulse: { tone: 'danger', size: 'sm', label: 'Visitor gave up' } },
+  { at: SLOW_LOAD, pulse: { tone: 'danger', size: 'lg', label: 'Template loaded · 3.2s' } },
+];
+
 const stillWaiting = (t: number) => Math.round(100 - Math.min(1, Math.max(0, (t - 1) / 2)) * 53 - Math.max(0, t - 3) * 8);
 
 /**
@@ -32,6 +41,12 @@ export function LagRace() {
     const rounded = Math.round(v * 20) / 20;
     setT((prev) => (prev === rounded ? prev : rounded));
   });
+
+  const lastT = useRef(0);
+  useEffect(() => {
+    RAIL_MOMENTS.forEach((m) => crossedForward(lastT.current, t, m.at) && railPulse(m.pulse));
+    lastT.current = t;
+  }, [t]);
 
   const waiting = stillWaiting(t);
 

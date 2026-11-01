@@ -386,6 +386,20 @@ summary {
   to { transform: none; }
 }
 
+/* Progress rail: the head ripples when a section reports a moment, and its caption slides in */
+@keyframes rail-ripple {
+  from { transform: scale(1); opacity: 0.9; }
+  to { transform: scale(3.2); opacity: 0; }
+}
+@keyframes rail-ripple-lg {
+  from { transform: scale(1); opacity: 1; }
+  to { transform: scale(6); opacity: 0; }
+}
+@keyframes rail-label {
+  from { opacity: 0; transform: translate(-8px, -50%); }
+  to { opacity: 1; transform: translate(0, -50%); }
+}
+
 /* Hero scroll cue: a short line travels down its track */
 @keyframes cue {
   0% { transform: translateY(-100%); }

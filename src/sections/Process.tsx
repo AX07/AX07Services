@@ -3,6 +3,7 @@ import { useRange } from '../lib/motion';
 import { motion, transform, useMotionValueEvent, useScroll } from 'motion/react';
 import { Eyebrow, Headline, RevealGroup, RevealItem } from '../components/Reveal';
 import { processSteps } from '../lib/content';
+import { railPulse } from '../lib/rail';
 
 export function Process() {
   const section = useRef<HTMLElement>(null);
@@ -18,11 +19,27 @@ export function Process() {
   const cards = useRef<(HTMLDivElement | null)[]>([]);
   const pick = (next: number) => setActive((prev) => (prev === next ? prev : next));
 
+  // Progress rail: each step the timeline reaches is echoed on the rail, numbered like the step.
+  // Rewinds when the visitor scrolls back above the section, so it replays on the way down.
+  const lastStep = useRef(-1);
+  const echo = (started: boolean, step: number) => {
+    if (!started) {
+      lastStep.current = -1;
+      return;
+    }
+    if (step <= lastStep.current) return;
+    lastStep.current = step;
+    const s = processSteps[step];
+    railPulse({ tone: 'accent', size: step === processSteps.length - 1 ? 'lg' : 'sm', label: `${s.step} · ${s.title}` });
+  };
+
   useMotionValueEvent(pinned, 'change', (v) => {
     if (window.innerWidth < 1024) return;
-    pick(Math.min(processSteps.length - 1, Math.floor(transform(v, [0.05, 0.85], [0, 1]) * processSteps.length)));
+    const next = Math.min(processSteps.length - 1, Math.floor(transform(v, [0.05, 0.85], [0, 1]) * processSteps.length));
+    pick(next);
+    echo(v > 0.05, next);
   });
-  useMotionValueEvent(scrollYProgress, 'change', () => {
+  useMotionValueEvent(scrollYProgress, 'change', (v) => {
     if (window.innerWidth >= 1024) return;
     // Stacked: the card crossing the middle of the viewport is the active one
     const mid = window.innerHeight * 0.55;
@@ -31,6 +48,7 @@ export function Process() {
       if (el && el.getBoundingClientRect().top < mid) next = i;
     });
     pick(next);
+    echo(v > 0, next);
   });
 
   return (

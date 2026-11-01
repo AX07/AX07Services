@@ -38,6 +38,15 @@ function updateScene() {
   const cta = document.getElementById('final-cta');
   const layer = document.getElementById('scene-layer');
 
+  // Page → world mapping, measured from the canvas itself: window.innerWidth includes a desktop
+  // scrollbar and innerHeight moves with mobile browser bars, either of which nudges the logo off
+  // the element it is meant to sit on
+  const view = document.getElementById('scene-canvas')?.getBoundingClientRect();
+  const viewH = view?.height || vh;
+  const centreX = view ? view.left + view.width / 2 : document.documentElement.clientWidth / 2;
+  const centreY = view ? view.top + viewH / 2 : vh / 2;
+  const worldPerPx = VISIBLE_WORLD_HEIGHT / viewH;
+
   let heroProgress = 1;
   if (hero) {
     const r = hero.getBoundingClientRect();
@@ -59,8 +68,7 @@ function updateScene() {
   const heroSlotRect = heroSlot?.getBoundingClientRect();
   scene.heroSlotOn = !!heroSlotRect && heroSlotRect.height > 0;
   if (heroSlotRect && scene.heroSlotOn) {
-    const worldPerPx = VISIBLE_WORLD_HEIGHT / vh;
-    scene.heroSlotY = (vh / 2 - (heroSlotRect.top + heroSlotRect.height / 2)) * worldPerPx;
+    scene.heroSlotY = (centreY - (heroSlotRect.top + heroSlotRect.height / 2)) * worldPerPx;
     scene.heroSlotScale = (heroSlotRect.height * worldPerPx * 0.95) / LOGO_WORLD_SIZE;
   }
 
@@ -68,17 +76,15 @@ function updateScene() {
   const beatRect = beatSlot?.getBoundingClientRect();
   scene.beatOn = !!beatRect && beatRect.height > 0;
   if (beatRect && scene.beatOn) {
-    const worldPerPx = VISIBLE_WORLD_HEIGHT / vh;
-    scene.beatX = (beatRect.left + beatRect.width / 2 - window.innerWidth / 2) * worldPerPx;
-    scene.beatY = (vh / 2 - (beatRect.top + beatRect.height / 2)) * worldPerPx;
+    scene.beatX = (beatRect.left + beatRect.width / 2 - centreX) * worldPerPx;
+    scene.beatY = (centreY - (beatRect.top + beatRect.height / 2)) * worldPerPx;
     scene.beatScale = (Math.min(beatRect.height, beatRect.width) * worldPerPx * 0.82) / LOGO_WORLD_SIZE;
   }
 
   const slot = document.getElementById('cta-logo-slot');
   if (slot) {
     const r = slot.getBoundingClientRect();
-    const worldPerPx = VISIBLE_WORLD_HEIGHT / vh;
-    scene.ctaY = (vh / 2 - (r.top + r.height / 2)) * worldPerPx;
+    scene.ctaY = (centreY - (r.top + r.height / 2)) * worldPerPx;
     scene.ctaScale = (r.height * worldPerPx * 0.92) / LOGO_WORLD_SIZE;
   }
   // The burst keeps drifting outwards through the lag race (staying dense and on screen), then gathers into the showcase device
@@ -102,9 +108,8 @@ function updateScene() {
     // Released again once hidden, so the logo can reassemble cleanly in the final call to action
     scene.form = visible > 0 ? clamp01((vh * 0.9 - top) / (vh * 0.85)) : 0;
     const d = device.getBoundingClientRect();
-    const worldPerPx = VISIBLE_WORLD_HEIGHT / vh;
-    scene.frameX = (d.left + d.width / 2 - window.innerWidth / 2) * worldPerPx;
-    scene.frameY = (vh / 2 - (d.top + d.height / 2)) * worldPerPx;
+    scene.frameX = (d.left + d.width / 2 - centreX) * worldPerPx;
+    scene.frameY = (centreY - (d.top + d.height / 2)) * worldPerPx;
     scene.frameHalfW = (d.width / 2) * worldPerPx;
     scene.frameHalfH = (d.height / 2) * worldPerPx;
     scene.frameR = (parseFloat(getComputedStyle(device).borderTopLeftRadius) || 20) * worldPerPx;

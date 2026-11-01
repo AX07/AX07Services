@@ -4,6 +4,7 @@ import { EASE_OUT } from './Reveal';
 import { Gauge } from './Gauge';
 import { QuotaError, quickEstimate, runSpeedTest, type SpeedResult } from '../lib/pagespeed';
 import { whatsappLink } from '../lib/content';
+import { railPulse } from '../lib/rail';
 
 const OUR_SCORE = 98;
 const STEPS = ['Contacting Google PageSpeed…', 'Loading your site on a simulated 4G phone…', 'Measuring first paint and layout…', 'Scoring performance…'];
@@ -44,6 +45,9 @@ export function SpeedTest() {
         result = await quickEstimate(url, controller.signal);
       }
       setState({ kind: 'done', result });
+      // Progress rail: their score in its traffic-light colour, then ours answering in green
+      railPulse({ tone: result.score >= 90 ? 'accent' : result.score >= 50 ? 'warn' : 'danger', size: 'lg', label: `Your site · ${result.score}` });
+      window.setTimeout(() => railPulse({ tone: 'accent', size: 'lg', label: `ax07 build · ${OUR_SCORE}` }), 1400);
     } catch (err) {
       if (controller.signal.aborted) return;
       setState({ kind: 'error', message: err instanceof Error ? err.message : 'Something went wrong. Please try again.' });

@@ -6,6 +6,7 @@ import { DentalSite, EstateSite, LawSite } from '../components/showcase/Industry
 import { whatsappLink } from '../lib/content';
 import { scrollToY } from '../lib/smooth-scroll';
 import { SPRING } from '../lib/tokens';
+import { crossedForward, railPulse } from '../lib/rail';
 
 interface Industry {
   id: string;
@@ -77,9 +78,19 @@ export function Showcase() {
   const [active, setActive] = useState(0);
   const phone = useIsPhone();
 
+  // Progress rail: a light pulse every quarter of the way through a site, a big one (with the
+  // industry's name) each time a new one takes over
+  const lastX = useRef(0);
   useMotionValueEvent(scrollYProgress, 'change', (v) => {
     const next = Math.min(industries.length - 1, Math.floor(v * industries.length * 0.999));
     setActive((prev) => (prev === next ? prev : next));
+
+    const x = v * industries.length;
+    industries.forEach((ind, k) => {
+      if (crossedForward(lastX.current, x, k === 0 ? 0.001 : k)) railPulse({ tone: 'accent', size: 'lg', label: ind.tab });
+      [0.25, 0.5, 0.75].forEach((q) => crossedForward(lastX.current, x, k + q) && railPulse({ tone: 'accent', size: 'sm' }));
+    });
+    lastX.current = x;
   });
 
   // Phones: each industry's share of the scroll scrolls its mini site from top to bottom, with a

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion, useMotionValueEvent, useReducedMotion, useScroll } from 'motion/react';
 import { EASE_OUT, Eyebrow } from '../components/Reveal';
 import { whatsappLink } from '../lib/content';
+import { railPulse } from '../lib/rail';
 
 /**
  * The tools we build into a site, assembled live as the visitor scrolls: a blank page gets its
@@ -75,6 +76,21 @@ export function Features() {
   const finale = clamp01((progress - FINALE) / (1 - FINALE));
   const slots = MODULES.map((_, i) => slotState(progress, i, compact));
   const built = slots.filter((s) => s.phase === 'live').length;
+
+  // Progress rail: a pulse as each tool switches on (on phones, as each one comes into view),
+  // and a big one once the site is complete. Steps back silently when scrolling up.
+  const milestone = compact ? (progress > SCAFFOLD ? Math.min(3, active) + 1 : 0) : built + (finale >= 1 ? 1 : 0);
+  const lastMilestone = useRef(0);
+  useEffect(() => {
+    if (milestone > lastMilestone.current && !reduce) {
+      railPulse(
+        milestone <= MODULES.length
+          ? { tone: 'accent', size: 'sm', label: `${MODULES[milestone - 1].title} · live` }
+          : { tone: 'accent', size: 'lg', label: 'Site complete' },
+      );
+    }
+    lastMilestone.current = milestone;
+  }, [milestone, reduce]);
 
   return (
     <section ref={ref} id="features" className="relative h-[340vh]">
