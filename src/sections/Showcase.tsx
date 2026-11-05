@@ -119,7 +119,7 @@ export function Showcase() {
 
   const cta = (
     <a href={whatsappLink(current.message)} target="_blank" rel="noopener noreferrer" className="btn btn-primary w-full sm:w-auto">
-      Want one like this? Let’s build it together
+      Get this website
     </a>
   );
 
