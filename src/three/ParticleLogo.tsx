@@ -327,10 +327,10 @@ export function ParticleLogo({ count }: Props) {
       // Beat 2: glide from above the headline into its own half of the screen beside the copy
       const b = THREE.MathUtils.smoothstep(h, 0.1, 0.32);
       const introY = store.heroSlotOn ? store.heroSlotY : -2.6;
-      heroScale = THREE.MathUtils.lerp(baseScale, store.beatScale, b) * (1 + Math.max(0, h - 0.68) * 0.8);
+      heroScale = THREE.MathUtils.lerp(baseScale, store.beatScale, b) * (1 + Math.max(0, h - 0.78) * 0.8);
       // Centre the cloud as it bursts, so it fills the screen behind the next chapter (the beat
       // slot itself scrolls away with the hero, so it can't anchor the cloud past this point)
-      const burst = THREE.MathUtils.smoothstep(h, 0.68, 1);
+      const burst = THREE.MathUtils.smoothstep(h, 0.78, 1);
       heroY = THREE.MathUtils.lerp(introY, store.beatY, b) * (1 - burst);
       heroX = store.beatX * b * (1 - burst);
     }

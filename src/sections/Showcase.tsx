@@ -206,7 +206,13 @@ export function Showcase() {
               }`}
             >
               {phone && (
-                <span aria-hidden="true" className="absolute left-1/2 top-2 z-10 h-[14px] w-[52px] -translate-x-1/2 rounded-full bg-fg" />
+                <div aria-hidden="true" className="relative z-10 flex h-7 items-center justify-between bg-white px-4 text-[9px] font-semibold text-black">
+                  <span>9:41</span>
+                  <span className="absolute left-1/2 top-2 h-[14px] w-[52px] -translate-x-1/2 rounded-full bg-black" />
+                  <span className="flex items-center gap-1">
+                    <span className="h-1.5 w-3 rounded-[2px] border border-black/70" />
+                  </span>
+                </div>
               )}
               {!phone && (
                 <div className="flex items-center gap-3 border-b border-line bg-raised px-4 py-3">
@@ -222,7 +228,7 @@ export function Showcase() {
                   </span>
                 </div>
               )}
-              <div className={`relative ${phone ? 'aspect-[9/17]' : 'aspect-[16/10]'}`}>
+              <div className={`relative ${phone ? 'aspect-[9/16]' : 'aspect-[16/10]'}`}>
                 <AnimatePresence initial={false}>
                   <motion.div
                     key={`${current.id}-${phone}`}

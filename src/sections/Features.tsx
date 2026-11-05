@@ -10,7 +10,7 @@ import { railPulse } from '../lib/rail';
  */
 
 // Scroll budget: scaffold, three modules, then the "and more" finale
-const SCAFFOLD = 0.1;
+const SCAFFOLD = 0.06;
 const MODULE = 0.24;
 const FINALE = SCAFFOLD + MODULE * 3;
 // Within a module: the first 60% is code being written, the rest is the live feature
@@ -209,7 +209,7 @@ export function Features() {
                 <div className="flex items-center gap-2">
                   <span className="hidden h-1.5 w-8 rounded-full bg-raised sm:block" />
                   <span className="hidden h-1.5 w-8 rounded-full bg-raised sm:block" />
-                  <span className="rounded-full bg-fg px-2.5 py-1 text-[10px] font-medium text-white">Book</span>
+                  <span className="rounded-full bg-fg px-2.5 py-1 text-[10px] font-medium text-on-fg">Book</span>
                 </div>
               </div>
 
@@ -255,32 +255,38 @@ function Slot({ state, code, className, children }: { state: SlotState; code: st
           >
             {children}
           </motion.div>
+        ) : state.phase === 'empty' ? (
+          // Not built yet: a faint, desaturated preview of the finished tool, so the page never
+          // shows a placeholder, only something waiting to be switched on
+          <motion.div
+            key="ghost"
+            inert
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2, ease: EASE_OUT }}
+            className="pointer-events-none h-full opacity-30 grayscale"
+          >
+            {children}
+          </motion.div>
         ) : (
           <motion.div
             key="build"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
             exit={{ opacity: 0, scale: 1.02 }}
             transition={{ duration: 0.25, ease: EASE_OUT }}
-            className={`flex h-full flex-col overflow-hidden rounded-md border border-dashed transition-colors duration-300 ${
-              state.phase === 'building' ? 'border-accent-bright/60 bg-night' : 'border-line-strong bg-[linear-gradient(var(--color-line)_1px,transparent_1px),linear-gradient(90deg,var(--color-line)_1px,transparent_1px)] bg-[size:16px_16px]'
-            }`}
+            className="flex h-full flex-col overflow-hidden rounded-md border border-dashed border-accent-bright/60 bg-night"
           >
-            {state.phase === 'empty' ? (
-              <div className="m-auto rounded-full bg-surface px-3 py-1 font-mono text-[11px] text-subtle">{`<${name} />`}</div>
-            ) : (
-              <>
-                <pre className="flex-1 overflow-hidden p-3 font-mono text-[11px] leading-relaxed text-[#d1fae5] sm:text-[12px]">
-                  {typed}
-                  <span className="ml-px inline-block h-3 w-1.5 translate-y-0.5 animate-pulse bg-accent-bright" />
-                </pre>
-                <div className="flex items-center gap-2 border-t border-white/10 px-3 py-2 text-[10px] text-white/60">
-                  <span className="tabular-nums">Building {name}</span>
-                  <span className="h-1 flex-1 overflow-hidden rounded-full bg-white/10">
-                    <span className="block h-full origin-left bg-accent-bright" style={{ transform: `scaleX(${state.build})` }} />
-                  </span>
-                  <span className="tabular-nums">{Math.round(state.build * 100)}%</span>
-                </div>
-              </>
-            )}
+            <pre className="flex-1 overflow-hidden p-3 font-mono text-[11px] leading-relaxed text-[#d1fae5] sm:text-[12px]">
+              {typed}
+              <span className="ml-px inline-block h-3 w-1.5 translate-y-0.5 animate-pulse bg-accent-bright" />
+            </pre>
+            <div className="flex items-center gap-2 border-t border-white/10 px-3 py-2 text-[10px] text-white/60">
+              <span className="tabular-nums">Building {name}</span>
+              <span className="h-1 flex-1 overflow-hidden rounded-full bg-white/10">
+                <span className="block h-full origin-left bg-accent-bright" style={{ transform: `scaleX(${state.build})` }} />
+              </span>
+              <span className="tabular-nums">{Math.round(state.build * 100)}%</span>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>

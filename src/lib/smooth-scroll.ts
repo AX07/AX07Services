@@ -94,7 +94,7 @@ function updateScene() {
     lagProgress = clamp01((vh * 0.6 - r.top) / (r.height - vh * 0.4));
   }
   // Holds together while beat 2 is read, then bursts as the copy leaves
-  const heroDisperse = clamp01((heroProgress - 0.68) / 0.32) + lagProgress * 0.3;
+  const heroDisperse = clamp01((heroProgress - 0.78) / 0.22) + lagProgress * 0.3;
   scene.disperse = ctaProgress > 0 ? 1 - ctaProgress : heroDisperse;
 
   // The scattered field then gathers into the showcase device's outline as that section arrives,

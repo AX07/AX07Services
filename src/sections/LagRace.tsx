@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion, useMotionValueEvent, useScroll } from 'motion/react';
 import { EASE_OUT, Eyebrow } from '../components/Reveal';
 import { useRange } from '../lib/motion';
+import { AutoScrollFrame } from '../components/showcase/AutoScrollFrame';
+import { DentalSite } from '../components/showcase/IndustrySites';
 import { crossedForward, railPulse, type RailPulse } from '../lib/rail';
 
 const SLOW_LOAD = 3.2; // seconds: a typical template site on 4G
@@ -31,10 +33,10 @@ export function LagRace() {
   // Handoff from the hero: once its last line has gone and the logo has burst, the headline
   // fades up through the particle field, then the phones follow
   const { scrollYProgress: enter } = useScroll({ target: ref, offset: ['start end', 'start start'] });
-  const headerOpacity = useRange(enter, [0.5, 0.92], [0, 1]);
-  const headerY = useRange(enter, [0.5, 0.92], [36, 0]);
-  const phonesOpacity = useRange(enter, [0.75, 1], [0, 1]);
-  const phonesY = useRange(enter, [0.75, 1], [48, 0]);
+  const headerOpacity = useRange(enter, [0.06, 0.42], [0, 1]);
+  const headerY = useRange(enter, [0.06, 0.42], [36, 0]);
+  const phonesOpacity = useRange(enter, [0.3, 0.75], [0, 1]);
+  const phonesY = useRange(enter, [0.3, 0.75], [48, 0]);
   const [t, setT] = useState(0);
 
   useMotionValueEvent(clock, 'change', (v) => {
@@ -53,7 +55,7 @@ export function LagRace() {
   return (
     <section ref={ref} id="lag" className="relative h-[210vh]">
       <div className="sticky top-0 flex h-[100svh] items-center overflow-hidden">
-        <div className="mx-auto w-full max-w-6xl px-5 pt-14 sm:px-6">
+        <div className="mx-auto w-full max-w-6xl px-5 pt-20 sm:px-6 sm:pt-24">
           <motion.div style={{ opacity: headerOpacity, y: headerY }} className="flex flex-col items-center text-center">
             <Eyebrow index="01" className="mb-4">
               The cost of lag
@@ -72,8 +74,8 @@ export function LagRace() {
             </div>
           </motion.div>
 
-          <motion.div style={{ opacity: phonesOpacity, y: phonesY }} className="mx-auto mt-6 grid max-w-[min(48rem,calc((100svh-320px)*1.1))] grid-cols-2 gap-3 sm:mt-8 sm:gap-8">
-            <Phone label="Typical template site" loadAt={SLOW_LOAD} t={t} tone="slow">
+          <motion.div style={{ opacity: phonesOpacity, y: phonesY }} className="mx-auto mt-6 grid max-w-[min(48rem,calc((100svh-380px)*1.1))] grid-cols-2 gap-3 sm:mt-8 sm:gap-8">
+            <Phone label="Typical template site" short="Template site" loadAt={SLOW_LOAD} t={t} tone="slow">
               <div className="flex items-center justify-between text-[11px] sm:text-[13px]">
                 <span className="text-muted">Visitors still waiting</span>
                 <span className={`font-semibold tabular-nums ${waiting < 60 ? 'text-danger' : 'text-fg'}`}>{waiting}%</span>
@@ -86,7 +88,7 @@ export function LagRace() {
               </div>
             </Phone>
 
-            <Phone label="Built by ax07" loadAt={FAST_LOAD} t={t} tone="fast">
+            <Phone label="Built by ax07" short="ax07 build" loadAt={FAST_LOAD} t={t} tone="fast">
               <div className="flex items-center justify-between text-[11px] sm:text-[13px]">
                 <span className="text-muted">Visitors still here</span>
                 <span className="font-semibold tabular-nums text-accent">100%</span>
@@ -97,7 +99,7 @@ export function LagRace() {
             </Phone>
           </motion.div>
 
-          <p className="mx-auto mt-6 max-w-md text-center text-[12px] text-subtle sm:text-[13px]">
+          <p className="mx-auto mt-6 w-fit max-w-md rounded-full bg-ink/80 px-3 py-1 text-center text-[12px] text-muted backdrop-blur-sm sm:text-[13px]">
             53% of mobile visitors leave a page that takes longer than 3 seconds to load. Source: Google.
           </p>
         </div>
@@ -108,12 +110,15 @@ export function LagRace() {
 
 function Phone({
   label,
+  short,
   loadAt,
   t,
   tone,
   children,
 }: {
   label: string;
+  /** Shorter label for phones, where two labels and timers share one narrow row */
+  short: string;
   loadAt: number;
   t: number;
   tone: 'slow' | 'fast';
@@ -126,7 +131,10 @@ function Phone({
   return (
     <div className="flex flex-col gap-3">
       <div className="flex items-baseline justify-between gap-2 px-1">
-        <span className={`text-[12px] font-medium sm:text-[14px] ${tone === 'fast' ? 'text-fg' : 'text-muted'}`}>{label}</span>
+        <span className={`text-[12px] font-medium sm:text-[14px] ${tone === 'fast' ? 'text-fg' : 'text-muted'}`}>
+          <span className="sm:hidden">{short}</span>
+          <span className="hidden sm:inline">{label}</span>
+        </span>
         <span className={`text-[12px] tabular-nums sm:text-[13px] ${loaded ? (tone === 'fast' ? 'text-accent' : 'text-muted') : 'text-subtle'}`}>
           {loaded ? `${loadAt.toFixed(1)}s` : 'Loading…'}
         </span>
@@ -142,16 +150,12 @@ function Phone({
                 initial={{ opacity: 0, scale: 1.03 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.5, ease: EASE_OUT }}
-                className="absolute inset-0 flex flex-col bg-surface"
+                className="absolute inset-0 bg-white"
               >
-                <div className="h-[42%] bg-[linear-gradient(160deg,#0b3b57,#04263b_55%,#ffb34766)]" />
-                <div className="flex flex-1 flex-col gap-2 p-3 sm:p-4">
-                  <div className="h-2.5 w-4/5 rounded-full bg-fg/85 sm:h-3" />
-                  <div className="h-2.5 w-3/5 rounded-full bg-fg/85 sm:h-3" />
-                  <div className="mt-1 h-1.5 w-full rounded-full bg-raised" />
-                  <div className="h-1.5 w-5/6 rounded-full bg-raised" />
-                  <div className="mt-auto h-7 w-full rounded-full bg-fg sm:h-9" />
-                </div>
+                {/* The same real site on both phones: only the speed differs */}
+                <AutoScrollFrame virtualWidth={390}>
+                  <DentalSite m />
+                </AutoScrollFrame>
               </motion.div>
             ) : (
               <motion.div key="skeleton" exit={{ opacity: 0 }} className="absolute inset-0 flex flex-col gap-2 p-3 sm:p-4">

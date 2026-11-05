@@ -44,7 +44,7 @@ export function Work() {
           </Eyebrow>
           <div className="flex items-end justify-between gap-8">
             <Headline
-              text={[{ text: 'Work that pays' }, { text: 'for itself.', className: 'text-muted' }]}
+              text={[{ text: 'Work that pays' }, { text: 'for itself.' }]}
               className="display text-display-2"
             />
             <div className="mb-2 flex shrink-0 flex-col items-end gap-4">

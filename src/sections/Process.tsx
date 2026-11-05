@@ -52,13 +52,13 @@ export function Process() {
   });
 
   return (
-    <section ref={section} id="process" className="relative gutter section-y lg:h-[260vh] lg:py-0">
+    <section ref={section} id="process" className="relative gutter section-y lg:h-[220vh] lg:py-0">
       <div className="mx-auto max-w-6xl lg:sticky lg:top-0 lg:flex lg:h-[100svh] lg:flex-col lg:justify-center lg:pt-12">
         <Eyebrow index="05" className="mb-5">
           How it works
         </Eyebrow>
         <Headline
-          text={[{ text: 'From first message to live site.' }, { text: 'In days, not months.', className: 'text-muted' }]}
+          text={[{ text: 'From first message to live site.' }, { text: 'In days, not months.', className: 'text-accent' }]}
           className="display max-w-3xl text-display-2"
         />
 
@@ -89,7 +89,7 @@ export function Process() {
                     className={`rounded-md border p-5 transition-[background-color,border-color,box-shadow,opacity,transform] duration-500 ease-out sm:p-6 ${
                       isActive
                         ? 'border-line bg-surface opacity-100 shadow-raised lg:-translate-y-1'
-                        : 'border-transparent opacity-45'
+                        : 'border-transparent opacity-75'
                     }`}
                   >
                     <div className="flex items-baseline gap-3">

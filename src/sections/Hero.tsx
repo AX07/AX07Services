@@ -15,8 +15,8 @@ export function Hero() {
 
   const introOpacity = useRange(scrollYProgress, [0, 0.2], [1, 0]);
   const introY = useRange(scrollYProgress, [0, 0.2], [0, -48]);
-  const lineOpacity = useRange(scrollYProgress, [0.24, 0.34, 0.62, 0.72], [0, 1, 1, 0]);
-  const lineY = useRange(scrollYProgress, [0.24, 0.34, 0.62, 0.72], [24, 0, 0, -24]);
+  const lineOpacity = useRange(scrollYProgress, [0.24, 0.34, 0.76, 0.86], [0, 1, 1, 0]);
+  const lineY = useRange(scrollYProgress, [0.24, 0.34, 0.76, 0.86], [24, 0, 0, -24]);
   const cueOpacity = useRange(scrollYProgress, [0, 0.06], [1, 0]);
 
   return (

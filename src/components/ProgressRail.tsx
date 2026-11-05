@@ -121,6 +121,15 @@ export function ProgressRail() {
           headRef.current?.setAttribute('transform', `translate(${X} ${headY})`);
           if (captionRef.current) captionRef.current.style.transform = `translateY(${headY}px)`;
 
+          // Step back where something else owns the edge: the full-bleed work gallery, and on
+          // phones the How it works timeline, which draws its own line beside the rail
+          const vh = window.innerHeight;
+          const covers = (id: string) => {
+            const r = document.getElementById(id)?.getBoundingClientRect();
+            return !!r && r.top < vh * 0.6 && r.bottom > vh * 0.4;
+          };
+          svg.style.opacity = covers('work') || (window.innerWidth < 1024 && covers('process')) ? '0.2' : '1';
+
           const nodeEls = svg.querySelectorAll<SVGGElement>('[data-at]');
           let current = -1;
           nodeEls.forEach((el, i) => {
@@ -150,7 +159,7 @@ export function ProgressRail() {
   return (
     // Decorative: the menu bar carries the same section links for assistive tech. On phones and
     // tablets the rail hugs the screen edge, clear of the content gutter.
-    <div aria-hidden="true" className="pointer-events-none fixed inset-y-0 left-0 z-40 w-12 py-[max(88px,12svh)] max-lg:-translate-x-[18px]">
+    <div aria-hidden="true" className="pointer-events-none fixed inset-y-0 left-0 z-40 w-12 [&>svg]:transition-opacity [&>svg]:duration-500 py-[max(88px,12svh)] max-lg:-translate-x-[18px]">
       <svg ref={svgRef} className="h-full w-full overflow-visible" role="presentation">
         <line x1={X} x2={X} y1={y0} y2={y1} stroke="var(--color-line-strong)" strokeWidth="1.5" strokeLinecap="round" />
         <line ref={fillRef} x1={X} x2={X} y1={y0} y2={y0} stroke="var(--color-accent-bright)" strokeWidth="2.5" strokeLinecap="round" />
@@ -208,8 +217,9 @@ export function ProgressRail() {
         </g>
       </svg>
 
-      {/* Caption for the latest moment, riding beside the head (larger screens) */}
-      <div ref={captionRef} className="absolute left-11 top-[max(88px,12svh)] hidden lg:block">
+      {/* Caption for the latest moment, riding beside the head. Only where the page margin is
+          wide enough to hold it without touching the content column (≥1536px). */}
+      <div ref={captionRef} className="absolute left-11 top-[max(88px,12svh)] hidden 2xl:block">
         {caption && (
           <span
             key={caption.id}

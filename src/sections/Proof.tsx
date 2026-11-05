@@ -67,7 +67,7 @@ export function Proof() {
             <div className="flex flex-col justify-between gap-4 border-l border-line pl-4">
               <span className="eyebrow">Before you approve</span>
               <div className="display text-stat-sm">
-                €<CountTo from={1270} to={0} duration={1.8} />
+                €0
               </div>
             </div>
           </RevealItem>

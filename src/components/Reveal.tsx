@@ -6,7 +6,7 @@ import { EASE_OUT } from '../lib/tokens';
 // Re-exported so existing imports keep working; the source of truth is lib/tokens.ts
 export { EASE_OUT };
 
-const VIEWPORT = { once: true, amount: 0.25, margin: '0px 0px -10% 0px' } as const;
+const VIEWPORT = { once: true, amount: 0.08, margin: '0px 0px -6% 0px' } as const;
 
 type Tag = 'div' | 'section' | 'li' | 'article' | 'p' | 'span';
 

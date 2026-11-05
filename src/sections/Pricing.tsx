@@ -11,7 +11,7 @@ export function Pricing() {
           Pricing
         </Eyebrow>
         <Headline
-          text={[{ text: 'One honest price.' }, { text: 'No surprises after launch.', className: 'text-muted' }]}
+          text={[{ text: 'One honest price.' }, { text: 'No surprises after launch.' }]}
           className="display max-w-3xl text-display-2"
         />
         <Reveal className="mt-6 max-w-xl text-body text-muted">
