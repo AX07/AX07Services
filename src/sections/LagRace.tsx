@@ -4,6 +4,7 @@ import { EASE_OUT, Eyebrow } from '../components/Reveal';
 import { useRange } from '../lib/motion';
 import { AutoScrollFrame } from '../components/showcase/AutoScrollFrame';
 import { DentalSite } from '../components/showcase/IndustrySites';
+import { OldTemplateSite } from '../components/showcase/OldTemplateSite';
 import { crossedForward, railPulse, type RailPulse } from '../lib/rail';
 
 const SLOW_LOAD = 3.2; // seconds: a typical template site on 4G
@@ -152,10 +153,8 @@ function Phone({
                 transition={{ duration: 0.5, ease: EASE_OUT }}
                 className="absolute inset-0 bg-white"
               >
-                {/* The same real site on both phones: only the speed differs */}
-                <AutoScrollFrame virtualWidth={390}>
-                  <DentalSite m />
-                </AutoScrollFrame>
+                {/* The same practice twice: a dated boxed theme on the slow phone, ours on the fast one */}
+                <AutoScrollFrame virtualWidth={390}>{tone === 'slow' ? <OldTemplateSite /> : <DentalSite m />}</AutoScrollFrame>
               </motion.div>
             ) : (
               <motion.div key="skeleton" exit={{ opacity: 0 }} className="absolute inset-0 flex flex-col gap-2 p-3 sm:p-4">
@@ -178,14 +177,16 @@ function Phone({
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: 8 }}
                 transition={{ duration: 0.4, ease: EASE_OUT }}
-                className="absolute inset-x-2 top-2 flex items-center gap-2 rounded-2xl bg-surface/95 px-2.5 py-2 text-[10px] shadow-lg backdrop-blur sm:inset-x-3 sm:top-3 sm:text-[12px]"
+                className="absolute right-1.5 top-1.5 flex items-center gap-1 rounded-full bg-surface/95 py-1 pl-1 pr-2 text-[9px] shadow-md backdrop-blur sm:inset-x-3 sm:top-3 sm:gap-2 sm:rounded-2xl sm:px-2.5 sm:py-2 sm:text-[12px] sm:shadow-lg"
               >
-                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-wa text-white sm:h-6 sm:w-6">
-                  <svg viewBox="0 0 16 16" className="h-3 w-3" aria-hidden="true">
+                <span className="flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full bg-wa text-white sm:h-6 sm:w-6">
+                  <svg viewBox="0 0 16 16" className="h-2 w-2 sm:h-3 sm:w-3" aria-hidden="true">
                     <path d="M3 8.5l3 3 7-7" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
                 </span>
-                <span className="font-medium leading-tight">New booking via WhatsApp</span>
+                {/* Phones: a small "Booked" chip, so the site underneath stays visible */}
+                <span className="font-medium leading-tight sm:hidden">Booked</span>
+                <span className="hidden font-medium leading-tight sm:inline">New booking via WhatsApp</span>
               </motion.div>
             )}
             {abandoned && (

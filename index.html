@@ -42,8 +42,8 @@
     <link rel="icon" type="image/png" href="/logo-mark.png" />
     <link rel="apple-touch-icon" href="/logo-mark.png" />
 
-    <!-- Fetch the 3D model early but behind everything the first paint needs -->
-    <link rel="preload" href="/logo.glb" as="fetch" crossorigin="anonymous" fetchpriority="low" />
+    <!-- The hero logo's particle positions (≈130 KB), fetched alongside the page so the 3D can start at once -->
+    <link rel="preload" href="/logo-points.bin" as="fetch" crossorigin="anonymous" />
 
     <script type="application/ld+json">
       {

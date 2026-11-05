@@ -3,30 +3,30 @@ import { Hero } from '../sections/Hero';
 import { LagRace } from '../sections/LagRace';
 import { initSmoothScroll, scrollToId } from '../lib/smooth-scroll';
 
-// three.js + the model load after the page is interactive, so type and layout are on screen instantly
-const Scene = lazy(() => import('../three/Scene'));
+// three.js downloads straight away, in parallel with first paint, but only mounts once the page
+// has loaded, so type and layout are on screen first
+const sceneChunk = import('../three/Scene');
+const Scene = lazy(() => sceneChunk);
 
 // The rest of the page is its own chunk: fetched straight away, in parallel with first paint,
 // and rendered in a transition so React can yield to the browser while it builds it
 const restChunk = import('./HomeRest');
 const HomeRest = lazy(() => restChunk);
 
-/** True once the page has loaded and the browser is idle: the 3D scene waits for this. */
+/** True once the page has loaded: the 3D scene waits for this. */
 function useAfterLoad() {
   const [ready, setReady] = useState(false);
   useEffect(() => {
-    let idle = 0;
+    let t = 0;
+    // A timeout, not a frame or idle callback: lets the load event's own work finish first
     const go = () => {
-      idle = window.requestIdleCallback
-        ? window.requestIdleCallback(() => setReady(true), { timeout: 1500 })
-        : window.setTimeout(() => setReady(true), 200);
+      t = window.setTimeout(() => setReady(true), 0);
     };
     if (document.readyState === 'complete') go();
     else window.addEventListener('load', go, { once: true });
     return () => {
       window.removeEventListener('load', go);
-      if (window.cancelIdleCallback) window.cancelIdleCallback(idle);
-      else window.clearTimeout(idle);
+      window.clearTimeout(t);
     };
   }, []);
   return ready;

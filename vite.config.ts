@@ -28,7 +28,7 @@ function pageHtml(): Plugin {
         const url = SITE_URL + path;
         const html = base
           // No 3D on the inner pages: skip the model download
-          .replace(/\s*<link rel="preload" href="\/logo\.glb"[^>]*>/, '')
+          .replace(/\s*<link rel="preload" href="\/logo-points\.bin"[^>]*>/, '')
           .replace(/<title>[^<]*<\/title>/, `<title>${escape(meta.title)}</title>`)
           .replace(/(<meta\s+name="description"\s+content=")[^"]*(")/, `$1${escape(meta.description)}$2`)
           .replace(/(<meta\s+property="og:title"\s+content=")[^"]*(")/, `$1${escape(meta.title)}$2`)

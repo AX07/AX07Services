@@ -1,19 +1,18 @@
-import { useEffect, useMemo, useRef } from 'react';
-import { useFrame, useLoader, useThree } from '@react-three/fiber';
+import { use, useEffect, useMemo, useRef } from 'react';
+import { useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
-import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
-import { MeshSurfaceSampler } from 'three/examples/jsm/math/MeshSurfaceSampler.js';
 import { scene as store } from '../lib/scene-store';
 
-const MODEL_URL = '/logo.glb';
-
-// One decoder for the whole app, configured identically for preload and load
-const draco = new DRACOLoader().setDecoderPath('/draco/');
-const withDraco = (loader: GLTFLoader) => {
-  loader.setDRACOLoader(draco);
-};
-useLoader.preload(GLTFLoader, MODEL_URL, withDraco);
+// The logo's surface, pre-sampled at build time (scripts/bake-logo-points.mjs): Int16 x, y, z per
+// point over ±POINTS_RANGE, shuffled so any prefix is an even sample. index.html preloads it.
+const POINTS_URL = '/logo-points.bin';
+const POINTS_RANGE = 2;
+const pointsRequest = fetch(POINTS_URL)
+  .then((r) => {
+    if (!r.ok) throw new Error(`${POINTS_URL}: ${r.status}`);
+    return r.arrayBuffer();
+  })
+  .then((buf) => new Int16Array(buf));
 
 // Particle ink per theme (switched instantly so the theme reveal shows the new colour)
 const INK_LIGHT = new THREE.Color('#1d1d1f');
@@ -148,7 +147,7 @@ interface Props {
 }
 
 export function ParticleLogo({ count }: Props) {
-  const gltf = useLoader(GLTFLoader, MODEL_URL, withDraco);
+  const baked = use(pointsRequest);
   const groupRef = useRef<THREE.Group>(null);
   const pointsRef = useRef<THREE.Points>(null);
   const { camera, gl } = useThree();
@@ -163,48 +162,14 @@ export function ParticleLogo({ count }: Props) {
     [],
   );
 
-  // Sample the logo surface once into a GPU buffer
+  // The baked logo surface into a GPU buffer, plus each particle's scatter, seed and frame slot
   const geometry = useMemo(() => {
-    const meshes: THREE.Mesh[] = [];
-    gltf.scene.updateMatrixWorld(true);
-    gltf.scene.traverse((o) => {
-      if ((o as THREE.Mesh).isMesh) meshes.push(o as THREE.Mesh);
-    });
-
-    const totalVerts = meshes.reduce((n, m) => n + m.geometry.attributes.position.count, 0) || 1;
-    const targets: number[] = [];
-    const p = new THREE.Vector3();
-    const n = new THREE.Vector3();
-    const normalMatrix = new THREE.Matrix3();
-
-    for (const mesh of meshes) {
-      const share = Math.max(1, Math.round((mesh.geometry.attributes.position.count / totalVerts) * count));
-      const sampler = new MeshSurfaceSampler(mesh).build();
-      normalMatrix.getNormalMatrix(mesh.matrixWorld);
-      let placed = 0;
-      let guard = 0;
-      while (placed < share && guard < share * 4) {
-        guard++;
-        sampler.sample(p, n);
-        n.applyMatrix3(normalMatrix).normalize();
-        if (n.z < -0.35) continue; // skip the back plate: keeps the silhouette crisp from the front
-        p.applyMatrix4(mesh.matrixWorld);
-        targets.push(p.x, p.y, p.z);
-        placed++;
-      }
-    }
+    const total = Math.min(count, baked.length / 3);
+    const targets = new Float32Array(total * 3);
+    for (let i = 0; i < targets.length; i++) targets[i] = (baked[i] / 32767) * POINTS_RANGE;
 
     const geo = new THREE.BufferGeometry();
-    geo.setAttribute('position', new THREE.Float32BufferAttribute(targets, 3));
-    geo.computeBoundingBox();
-    const box = geo.boundingBox!;
-    const center = box.getCenter(new THREE.Vector3());
-    const size = box.getSize(new THREE.Vector3());
-    const scale = 3 / Math.max(size.x, size.y);
-    geo.translate(-center.x, -center.y, -center.z);
-    geo.scale(scale, scale, scale);
-
-    const total = targets.length / 3;
+    geo.setAttribute('position', new THREE.BufferAttribute(targets, 3));
     const scatter = new Float32Array(total * 3);
     const seeds = new Float32Array(total);
     for (let i = 0; i < total; i++) {
@@ -223,7 +188,7 @@ export function ParticleLogo({ count }: Props) {
     geo.setAttribute('aFrame', new THREE.BufferAttribute(frame, 3));
     geo.computeBoundingSphere();
     return geo;
-  }, [gltf, count]);
+  }, [baked, count]);
 
   const material = useMemo(
     () =>
