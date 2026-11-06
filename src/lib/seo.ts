@@ -12,9 +12,9 @@ export interface PageMeta {
 
 export const PAGES: Record<string, PageMeta> = {
   '/': {
-    title: 'ax07.dev | Custom websites & WhatsApp booking for Irish businesses',
+    title: 'ax07.dev | Custom websites & WhatsApp booking in Ireland & the Algarve',
     description:
-      'Custom web experiences that convert: interactive 3D visuals, sub-second load times and 1-click WhatsApp booking for Irish business owners. See a working preview in 48 hours, before you pay.',
+      'Custom websites that win local businesses in Ireland and the Algarve more enquiries and bookings, sent straight to WhatsApp. See a working preview in 48 hours, before you pay.',
   },
   '/work': {
     title: 'Selected work | ax07.dev',

@@ -47,8 +47,8 @@ export function Hero() {
           />
 
           <p className="mt-5 max-w-[36rem] animate-[hero-in_0.9s_var(--ease-out)_0.35s_both] text-pretty text-lead text-muted">
-            Interactive 3D visuals, sub-second edge performance, and direct 1-click WhatsApp booking systems crafted for Irish
-            business owners.
+            More enquiries and bookings for local businesses. Custom websites that open instantly on a phone and send customers
+            straight to your WhatsApp, not to a competitor.
           </p>
 
           <div className="mt-8 flex w-full animate-[hero-in_0.9s_var(--ease-out)_0.5s_both] flex-col items-center gap-3 sm:w-auto sm:flex-row">

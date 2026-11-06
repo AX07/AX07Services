@@ -54,7 +54,7 @@ export function Process() {
   return (
     <section ref={section} id="process" className="relative gutter section-y lg:h-[220vh] lg:py-0">
       <div className="mx-auto max-w-6xl lg:sticky lg:top-0 lg:flex lg:h-[100svh] lg:flex-col lg:justify-center lg:pt-12">
-        <Eyebrow index="05" className="mb-5">
+        <Eyebrow index="07" className="mb-5">
           How it works
         </Eyebrow>
         <Headline

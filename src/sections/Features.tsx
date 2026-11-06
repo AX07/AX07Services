@@ -101,7 +101,7 @@ export function Features() {
         <div className="mx-auto grid w-full max-w-6xl grid-cols-1 gap-5 px-5 pt-16 sm:px-6 lg:grid-cols-[0.85fr_1.15fr] lg:items-center lg:gap-14 lg:pt-12">
           {/* Left: what's being built */}
           <div>
-            <Eyebrow index="03" className="mb-3 lg:mb-5">
+            <Eyebrow index="05" className="mb-3 lg:mb-5">
               Built in, not bolted on
             </Eyebrow>
             <h2 className="display text-display-3">

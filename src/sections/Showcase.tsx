@@ -53,7 +53,7 @@ const industries: Industry[] = [
 ];
 
 const SUBTITLE =
-  'We build a complete interactive 3D prototype for your business within 48 hours. You test it live on your own phone before spending a single euro.';
+  'Visitors see what you offer, trust what they see and book in a tap. We build yours in 48 hours, and you try it on your own phone before spending a euro.';
 
 function useIsPhone() {
   const [phone, setPhone] = useState(() => typeof window !== 'undefined' && window.innerWidth < 640);

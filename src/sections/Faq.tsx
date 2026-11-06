@@ -6,7 +6,7 @@ export function Faq() {
     <section id="faq" className="relative gutter section-y">
       <div className="mx-auto grid max-w-6xl grid-cols-1 gap-12 lg:grid-cols-[0.8fr_1.2fr] lg:gap-20">
         <div>
-          <Eyebrow index="08" className="mb-5">
+          <Eyebrow index="09" className="mb-5">
             Questions
           </Eyebrow>
           <Headline text="Good questions, straight answers." className="display text-display-2" />

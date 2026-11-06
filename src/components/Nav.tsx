@@ -8,9 +8,9 @@ import { ThemeToggle } from './ThemeToggle';
 
 const links = [
   { id: 'showcase', label: 'Showcase' },
-  { id: 'features', label: 'Features' },
-  { id: 'proof', label: 'Speed test' },
   { id: 'work', label: 'Work' },
+  { id: 'preview', label: 'Free preview' },
+  { id: 'features', label: 'Features' },
   { id: 'pricing', label: 'Pricing' },
 ];
 

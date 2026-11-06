@@ -2,6 +2,7 @@ import { Showcase } from '../sections/Showcase';
 import { Features } from '../sections/Features';
 import { Proof } from '../sections/Proof';
 import { Process } from '../sections/Process';
+import { PreviewOffer } from '../sections/PreviewOffer';
 import { Work } from '../sections/Work';
 import { Pricing } from '../sections/Pricing';
 import { Faq } from '../sections/Faq';
@@ -12,10 +13,11 @@ export default function HomeRest() {
   return (
     <>
       <Showcase />
+      <Work />
+      <PreviewOffer />
       <Features />
       <Proof />
       <Process />
-      <Work />
       <Pricing />
       <Faq />
       <FinalCta />

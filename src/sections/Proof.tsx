@@ -1,5 +1,5 @@
 import { motion } from 'motion/react';
-import { EASE_OUT, Eyebrow, Headline, RevealGroup, RevealItem } from '../components/Reveal';
+import { EASE_OUT, Eyebrow, Headline, Reveal, RevealGroup, RevealItem } from '../components/Reveal';
 import { CountTo } from '../components/Gauge';
 import { SpeedTest } from '../components/SpeedTest';
 
@@ -10,13 +10,17 @@ export function Proof() {
   return (
     <section id="proof" className="relative gutter section-y">
       <div className="mx-auto max-w-6xl">
-        <Eyebrow index="04" className="mb-5">
+        <Eyebrow index="06" className="mb-5">
           Proof, not promises
         </Eyebrow>
         <Headline
           text={[{ text: 'Fast is a feature.' }, { text: 'Test it yourself.', className: 'text-muted' }]}
           className="display max-w-3xl text-display-2"
         />
+        <Reveal delay={0.1} className="mt-5 max-w-xl text-body text-muted">
+          Customers searching on their phone don’t wait for a slow page. They go back to Google and ring the next result. Run your
+          own site against ours.
+        </Reveal>
 
         <RevealGroup className="mt-14 grid grid-cols-1 gap-4 lg:grid-cols-3 lg:grid-rows-[auto_auto]">
           {/* Live speed test: the visitor's own site vs ours */}
