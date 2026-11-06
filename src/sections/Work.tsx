@@ -2,7 +2,7 @@ import { useLayoutEffect, useRef, useState } from 'react';
 import { useRange } from '../lib/motion';
 import { motion, useScroll } from 'motion/react';
 import { Eyebrow, Headline } from '../components/Reveal';
-import { projects } from '../lib/content';
+import { projects, rememberWorkReturn, workPath } from '../lib/content';
 import { linkProps } from '../lib/router';
 
 /**
@@ -66,10 +66,9 @@ export function Work() {
             >
               {/* The real site, framed in a browser window */}
               <a
-                href={p.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={`Visit ${p.title}`}
+                {...linkProps(workPath(p.id))}
+                onClickCapture={() => rememberWorkReturn('/#work')}
+                aria-label={`View the ${p.title} site`}
                 className="flex flex-col border-b border-line bg-raised lg:w-[62%] lg:border-b-0 lg:border-r"
               >
                 <div className="flex items-center gap-3 px-4 py-2.5">

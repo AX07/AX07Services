@@ -27,6 +27,26 @@ export const processSteps = [
   },
 ] as const;
 
+/** A portfolio site shown full screen on ax07.dev, under the "Built by ax07" bar */
+export const workPath = (id: string) => `/demo/${id}?view=work`;
+
+const RETURN_KEY = 'ax07_work_return';
+/** Where the site view's back button goes: the page (and section) the visitor opened it from */
+export function rememberWorkReturn(path: string) {
+  try {
+    sessionStorage.setItem(RETURN_KEY, path);
+  } catch {
+    /* storage blocked: back falls through to /work */
+  }
+}
+export function workReturnPath() {
+  try {
+    return sessionStorage.getItem(RETURN_KEY) || '/work';
+  } catch {
+    return '/work';
+  }
+}
+
 export type ProjectCategory = 'clinics' | 'tours' | 'hospitality' | 'in-house';
 
 export const projects: readonly {

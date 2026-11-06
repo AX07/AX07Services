@@ -10,8 +10,11 @@ import '@fontsource/instrument-serif/400-italic.css';
 import App from './App';
 import './index.css';
 
-// Admin and client previews are private: keep them out of the stats
-const isPrivate = (url: string) => /\/(admin|demo\/)/.test(new URL(url, window.location.origin).pathname);
+// Admin and client previews are private: keep them out of the stats (portfolio views still count)
+const isPrivate = (url: string) => {
+  const u = new URL(url, window.location.origin);
+  return /\/(admin|demo\/)/.test(u.pathname) && u.searchParams.get('view') !== 'work';
+};
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

@@ -1,9 +1,8 @@
 import { useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { EASE_OUT, Eyebrow, Headline, Reveal } from '../components/Reveal';
-import { DEFAULT_WHATSAPP_MESSAGE, projects, whatsappLink, type ProjectCategory } from '../lib/content';
+import { DEFAULT_WHATSAPP_MESSAGE, projects, rememberWorkReturn, whatsappLink, workPath, type ProjectCategory } from '../lib/content';
 import { goToSection, linkProps } from '../lib/router';
-import { demoPath } from '../lib/clients';
 import { SPRING } from '../lib/tokens';
 import { WaveBackdrop } from '../components/WaveBackdrop';
 
@@ -60,6 +59,7 @@ export function WorkPage() {
             {shown.map((p, i) => (
               <motion.article
                 key={p.id}
+                onClickCapture={() => rememberWorkReturn('/work')}
                 layout
                 initial={{ opacity: 0, y: 24 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -68,8 +68,8 @@ export function WorkPage() {
                 className="card group flex flex-col overflow-hidden !p-0"
               >
                 <a
-                  {...linkProps(demoPath({ slug: p.id, stagingUrl: p.url }))}
-                  aria-label={`Open the live preview of ${p.title}`}
+                  {...linkProps(workPath(p.id))}
+                  aria-label={`View the ${p.title} site`}
                   className="block border-b border-line bg-raised"
                 >
                   <div className="flex items-center gap-3 px-4 py-2.5">
@@ -116,11 +116,11 @@ export function WorkPage() {
                   )}
 
                   <div className="mt-auto flex flex-wrap gap-2 pt-6">
-                    <a {...linkProps(demoPath({ slug: p.id, stagingUrl: p.url }))} className="btn btn-primary !min-h-[42px] !px-5 text-[14px]">
-                      Live preview
+                    <a {...linkProps(workPath(p.id))} className="btn btn-primary !min-h-[42px] !px-5 text-[14px]">
+                      View the site
                     </a>
                     <a href={p.url} target="_blank" rel="noopener noreferrer" className="btn btn-quiet !min-h-[42px] !px-5 text-[14px]">
-                      Visit site ↗
+                      Live site ↗
                     </a>
                     <a
                       href={whatsappLink(`Hi ax07, I saw the ${p.title} site in your portfolio and would like something like it for my business.`)}

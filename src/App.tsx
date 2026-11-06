@@ -5,6 +5,7 @@ import { Footer } from './sections/Footer';
 import { HomePage } from './pages/HomePage';
 import { usePath } from './lib/router';
 import { applyPageMeta } from './lib/seo';
+import { projects } from './lib/content';
 
 // Secondary pages load on demand so the home page stays light
 const WorkPage = lazy(() => import('./pages/WorkPage').then((m) => ({ default: m.WorkPage })));
@@ -22,7 +23,9 @@ export default function App() {
 
   useEffect(() => {
     applyPageMeta(path);
-    if (demoSlug) document.title = `Preview — ${demoSlug} | ax07.dev`;
+    const work = demoSlug && new URLSearchParams(window.location.search).get('view') === 'work' ? projects.find((p) => p.id === demoSlug) : undefined;
+    if (work) document.title = `${work.title}, built by ax07 | ax07.dev`;
+    else if (demoSlug) document.title = `Preview — ${demoSlug} | ax07.dev`;
     else if (path === '/admin') document.title = 'Admin | ax07.dev';
     else if (notFound) document.title = 'Page not found | ax07.dev';
     // Admin and client previews stay out of search results
