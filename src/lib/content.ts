@@ -113,7 +113,7 @@ export const projects: readonly {
     category: 'in-house',
     description:
       'Our own crypto education brand. Clear explainers and a booking flow that turns readers into 1:1 coaching sessions.',
-    shot: '/work/cryptoax07',
+    shot: '/work/cryptoax07-v2',
     title: 'CryptoAX07',
     place: 'In-house venture',
     kind: 'Crypto education',
