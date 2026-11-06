@@ -17,6 +17,16 @@ interface RevealProps {
   as?: Tag;
 }
 
+/** Marks a reveal as a chapter target the particle field gathers around (see updateScene). */
+export interface SceneTarget {
+  'data-scene-target'?: string;
+  'data-scene-tint'?: string;
+  'data-scene-share'?: string;
+  /** Takes its turn with the section's other targets on wide screens: index, and how many */
+  'data-scene-step'?: string;
+  'data-scene-steps'?: string;
+}
+
 /** Fade + rise on enter. Starts from 24px and 0 opacity, never from scale 0. */
 export function Reveal({ children, className, delay = 0, as = 'div' }: RevealProps) {
   const reduce = useReducedMotion();
@@ -54,11 +64,12 @@ export function RevealGroup({
   );
 }
 
-export function RevealItem({ children, className, as = 'div' }: RevealProps) {
+export function RevealItem({ children, className, as = 'div', ...target }: RevealProps & SceneTarget) {
   const reduce = useReducedMotion();
   const MotionTag = motion[as];
   return (
     <MotionTag
+      {...target}
       className={className}
       variants={{
         hidden: reduce ? { opacity: 0 } : { opacity: 0, y: 24 },

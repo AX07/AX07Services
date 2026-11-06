@@ -45,7 +45,7 @@ export function SpeedTest() {
         result = await quickEstimate(url, controller.signal);
       }
       setState({ kind: 'done', result });
-      // Progress rail: their score in its traffic-light colour, then ours answering in green
+      // Story beat: the field flashes their score's traffic-light colour, then ours answers in green
       railPulse({ tone: result.score >= 90 ? 'accent' : result.score >= 50 ? 'warn' : 'danger', size: 'lg', label: `Your site · ${result.score}` });
       window.setTimeout(() => railPulse({ tone: 'accent', size: 'lg', label: `ax07 build · ${OUR_SCORE}` }), 1400);
     } catch (err) {

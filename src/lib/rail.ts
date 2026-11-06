@@ -1,7 +1,7 @@
 /**
- * Moments a section wants the progress rail to mark: the rail answers with a pulse at its head in
- * the moment's colour, and a short caption beside it. Sections fire these as their own story
- * unfolds (a page finishing loading, a step being reached), so the rail reads like a live log.
+ * Story moments: sections fire these as their own story unfolds (a page finishing loading, a
+ * visitor giving up, a step being reached, a new site in the showcase) and the 3D field answers
+ * each with a ripple in the moment's colour, so the whole page moves to one beat.
  */
 export type RailTone = 'accent' | 'danger' | 'warn';
 

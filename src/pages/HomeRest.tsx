@@ -12,18 +12,12 @@ export default function HomeRest() {
   return (
     <>
       <Showcase />
-      <div className="relative bg-ink">
-        <Features />
-        <Proof />
-        <Process />
-      </div>
-      <div className="relative bg-ink">
-        <Work />
-      </div>
-      <div className="relative bg-ink">
-        <Pricing />
-        <Faq />
-      </div>
+      <Features />
+      <Proof />
+      <Process />
+      <Work />
+      <Pricing />
+      <Faq />
       <FinalCta />
     </>
   );

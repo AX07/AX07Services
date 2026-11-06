@@ -3,6 +3,7 @@ import { AnimatePresence, motion, useMotionValueEvent, useReducedMotion, useScro
 import { EASE_OUT, Eyebrow } from '../components/Reveal';
 import { whatsappLink } from '../lib/content';
 import { railPulse } from '../lib/rail';
+import { traces } from '../lib/scene-store';
 
 /**
  * The tools we build into a site, assembled live as the visitor scrolls: a blank page gets its
@@ -72,13 +73,15 @@ export function Features() {
   }, []);
 
   const progress = reduce ? 1 : p;
+  // The particle field traces the site's outline as it is built, closing the loop as it goes live
+  traces.features = clamp01((progress - SCAFFOLD) / (FINALE - SCAFFOLD));
   const active = Math.min(3, Math.max(0, Math.floor((progress - SCAFFOLD) / MODULE)));
   const finale = clamp01((progress - FINALE) / (1 - FINALE));
   const slots = MODULES.map((_, i) => slotState(progress, i, compact));
   const built = slots.filter((s) => s.phase === 'live').length;
 
-  // Progress rail: a pulse as each tool switches on (on phones, as each one comes into view),
-  // and a big one once the site is complete. Steps back silently when scrolling up.
+  // Story beats: the field ripples as each tool switches on (on phones, as each one comes into
+  // view), and strongest once the site is complete. Steps back silently when scrolling up.
   const milestone = compact ? (progress > SCAFFOLD ? Math.min(3, active) + 1 : 0) : built + (finale >= 1 ? 1 : 0);
   const lastMilestone = useRef(0);
   useEffect(() => {
@@ -184,7 +187,7 @@ export function Features() {
           </div>
 
           {/* Right: the site under construction */}
-          <div className="card overflow-hidden !rounded-[22px]">
+          <div data-scene-target="features" className="card overflow-hidden !rounded-[22px]">
             <div className="flex items-center gap-2 border-b border-line bg-raised px-3 py-2">
               <span className="flex gap-1">
                 <span className="h-2 w-2 rounded-full bg-fg/15" />

@@ -19,8 +19,24 @@ export const scene = {
   /** World-space centre and scale of the logo slot in the final CTA (it tracks the layout) */
   ctaY: 0,
   ctaScale: 1,
-  /** 0 → 1 as the scattered field gathers into the showcase device's outline */
+  /**
+   * 0 → 1 as the field gathers around the current chapter's target (an element marked
+   * data-scene-target: the showcase phone, the features build, the speed test, the process line,
+   * the featured price). `target` names it, so the scene can glide from one to the next.
+   */
   form: 0,
+  target: '',
+  /** Share of particles that trace the outline, how much of it is traced (0..1), whether the rest
+   *  fill the inside in rows, accent tint, and 1 when the target is a line rather than a box */
+  share: 0.72,
+  trace: 1,
+  fill: 1,
+  tint: 0,
+  line: 0,
+  /** 0 → 1 as the showcase phone bursts apart on the way out */
+  burst: 0,
+  /** Brightness of particles not on a target: 1 in the opening chapters, faint behind later copy */
+  ambient: 1,
   /** That outline in world space: centre, half-size and corner radius */
   frameX: 0,
   frameY: 0,
@@ -39,7 +55,12 @@ export const scene = {
   pointerX: 0,
   pointerY: 0,
   pointerActive: false,
+  /** Counts touch taps, so the scene can answer each one */
+  tap: 0,
 };
+
+/** Per-target progress written by sections (e.g. how much of the features site is built). */
+export const traces: Record<string, number> = {};
 
 type Listener = (visible: boolean) => void;
 const listeners = new Set<Listener>();

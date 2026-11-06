@@ -4,7 +4,7 @@ import { EASE_OUT, Eyebrow, Headline } from '../components/Reveal';
 import { AutoScrollFrame } from '../components/showcase/AutoScrollFrame';
 import { DentalSite, EstateSite, LawSite } from '../components/showcase/IndustrySites';
 import { whatsappLink } from '../lib/content';
-import { scrollToY } from '../lib/smooth-scroll';
+import { SHOWCASE_EXIT, scrollToY } from '../lib/smooth-scroll';
 import { SPRING } from '../lib/tokens';
 import { crossedForward, railPulse } from '../lib/rail';
 
@@ -68,9 +68,9 @@ function useIsPhone() {
 }
 
 /**
- * "Want a website like this?" Beautiful sites for real industries. On larger screens they play
- * like screen recordings; on phones the visitor's scroll scrolls the mini site itself, then
- * moves on to the next industry. Each one ends in an invitation to build yours.
+ * "Want a website like this?" Beautiful sites for real industries. The visitor's own scroll
+ * scrolls each site in its device (a phone, or a browser window on larger screens), then moves
+ * on to the next industry. Each one ends in an invitation to build yours.
  */
 export function Showcase() {
   const ref = useRef<HTMLElement>(null);
@@ -78,8 +78,8 @@ export function Showcase() {
   const [active, setActive] = useState(0);
   const phone = useIsPhone();
 
-  // Progress rail: a light pulse every quarter of the way through a site, a big one (with the
-  // industry's name) each time a new one takes over
+  // Story beat: the field around the device ripples each time a new site takes over, and holds
+  // still while one is being scrolled
   const lastX = useRef(0);
   useMotionValueEvent(scrollYProgress, 'change', (v) => {
     const next = Math.min(industries.length - 1, Math.floor(v * industries.length * 0.999));
@@ -88,17 +88,22 @@ export function Showcase() {
     const x = v * industries.length;
     industries.forEach((ind, k) => {
       if (crossedForward(lastX.current, x, k === 0 ? 0.001 : k)) railPulse({ tone: 'accent', size: 'lg', label: ind.tab });
-      [0.25, 0.5, 0.75].forEach((q) => crossedForward(lastX.current, x, k + q) && railPulse({ tone: 'accent', size: 'sm' }));
     });
     lastX.current = x;
   });
 
-  // Phones: each industry's share of the scroll scrolls its mini site from top to bottom, with a
+  // Each industry's share of the scroll scrolls its site from top to bottom, with a
   // short hold at both ends before handing over to the next one
   // The scattered particles gather into the device's outline as the section arrives; the device
   // itself fades in once they have formed it (see updateScene)
   const { scrollYProgress: arrival } = useScroll({ target: ref, offset: ['start end', 'start start'] });
-  const deviceOpacity = useTransform(arrival, [0.9, 1], [0, 1]);
+  // On the way out it dissolves again as the field bursts out of it
+  const { scrollYProgress: exit } = useScroll({ target: ref, offset: ['end end', 'end start'] });
+  const deviceOpacity = useTransform(() => {
+    const arrived = Math.min(1, Math.max(0, (arrival.get() - 0.9) / 0.1));
+    const gone = Math.min(1, Math.max(0, exit.get() / (SHOWCASE_EXIT * 0.4)));
+    return arrived * (1 - gone);
+  });
 
   const pageProgress = useTransform(scrollYProgress, (v) => {
     const x = v * industries.length;
@@ -198,6 +203,10 @@ export function Showcase() {
 
             <motion.div
               id="showcase-device"
+              data-scene-target="showcase"
+              data-scene-share="0.72"
+              data-scene-fill="1"
+              data-scene-pad="4"
               style={{ opacity: deviceOpacity }}
               className={`card relative mx-auto overflow-hidden p-0 ${
                 phone
@@ -238,7 +247,7 @@ export function Showcase() {
                     transition={{ duration: 0.6, ease: EASE_OUT }}
                     className="absolute inset-0"
                   >
-                    <AutoScrollFrame virtualWidth={phone ? 390 : 1280} progress={phone ? pageProgress : undefined}>
+                    <AutoScrollFrame virtualWidth={phone ? 390 : 1280} progress={pageProgress}>
                       <Site m={phone} />
                     </AutoScrollFrame>
                   </motion.div>

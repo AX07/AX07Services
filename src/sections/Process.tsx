@@ -19,7 +19,7 @@ export function Process() {
   const cards = useRef<(HTMLDivElement | null)[]>([]);
   const pick = (next: number) => setActive((prev) => (prev === next ? prev : next));
 
-  // Progress rail: each step the timeline reaches is echoed on the rail, numbered like the step.
+  // Story beats: each step the timeline reaches ripples the field gathered along it.
   // Rewinds when the visitor scrolls back above the section, so it replays on the way down.
   const lastStep = useRef(-1);
   const echo = (started: boolean, step: number) => {
@@ -65,8 +65,8 @@ export function Process() {
         <div ref={ref} className="relative mt-20 lg:mt-16">
           {/* Track + drawn line: horizontal on desktop, vertical on mobile */}
           <div aria-hidden="true" className="absolute left-[11px] top-2 bottom-2 w-px bg-line lg:left-0 lg:right-0 lg:top-[11px] lg:bottom-auto lg:h-px lg:w-auto">
-            <motion.div style={{ scaleY: line }} className="h-full w-px origin-top bg-accent lg:hidden" />
-            <motion.div style={{ scaleX: pinnedLine }} className="hidden h-px w-full origin-left bg-accent lg:block" />
+            <motion.div data-scene-target="process" data-scene-line="1" data-scene-pad="3" data-scene-share="0.35" style={{ scaleY: line }} className="h-full w-px origin-top bg-accent lg:hidden" />
+            <motion.div data-scene-target="process-wide" data-scene-pad="6" data-scene-share="0.35" style={{ scaleX: pinnedLine }} className="hidden h-px w-full origin-left bg-accent lg:block" />
           </div>
 
           <RevealGroup stagger={0.08} className="grid grid-cols-1 gap-6 lg:grid-cols-3 lg:gap-6">

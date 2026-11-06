@@ -22,6 +22,9 @@ export function Pricing() {
           {plans.map((plan) => (
             <RevealItem
               key={plan.id}
+              // The field closes the page's argument by outlining the plan we recommend, in green
+              data-scene-target={plan.featured ? 'pricing' : undefined}
+              data-scene-tint={plan.featured ? '1' : undefined}
               className={`card relative flex flex-col p-8 sm:p-10 ${plan.featured ? '!border-accent/40' : ''}`}
             >
               {plan.featured && (

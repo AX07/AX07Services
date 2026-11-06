@@ -20,12 +20,12 @@ export function Proof() {
 
         <RevealGroup className="mt-14 grid grid-cols-1 gap-4 lg:grid-cols-3 lg:grid-rows-[auto_auto]">
           {/* Live speed test: the visitor's own site vs ours */}
-          <RevealItem className="card p-6 sm:p-8 lg:col-span-2 lg:row-span-2">
+          <RevealItem data-scene-target="proof" data-scene-step="0" data-scene-steps="3" className="card p-6 sm:p-8 lg:col-span-2 lg:row-span-2">
             <SpeedTest />
           </RevealItem>
 
           {/* First paint timeline */}
-          <RevealItem className="card flex flex-col justify-between gap-6 p-6 sm:p-7">
+          <RevealItem data-scene-target="proof-paint" data-scene-step="1" data-scene-steps="3" className="card flex flex-col justify-between gap-6 p-6 sm:p-7">
             <span className="eyebrow">First paint on 4G</span>
             <div className="display text-stat">
               <CountTo to={0.4} decimals={1} />
@@ -56,7 +56,7 @@ export function Proof() {
           </RevealItem>
 
           {/* 48h + €0 */}
-          <RevealItem className="card grid grid-cols-2 gap-4 p-6 sm:p-7">
+          <RevealItem data-scene-target="proof-preview" data-scene-step="2" data-scene-steps="3" className="card grid grid-cols-2 gap-4 p-6 sm:p-7">
             <div className="flex flex-col justify-between gap-4">
               <span className="eyebrow">To your preview</span>
               <div className="display text-stat-sm">

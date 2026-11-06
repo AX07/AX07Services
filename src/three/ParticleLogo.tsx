@@ -2,6 +2,7 @@ import { use, useEffect, useMemo, useRef } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import { scene as store } from '../lib/scene-store';
+import { onRailPulse, type RailTone } from '../lib/rail';
 
 // The logo's surface, pre-sampled at build time (scripts/bake-logo-points.mjs): Int16 x, y, z per
 // point over ±POINTS_RANGE, shuffled so any prefix is an even sample. index.html preloads it.
@@ -17,6 +18,15 @@ const pointsRequest = fetch(POINTS_URL)
 // Particle ink per theme (switched instantly so the theme reveal shows the new colour)
 const INK_LIGHT = new THREE.Color('#1d1d1f');
 const INK_DARK = new THREE.Color('#e8e8ed');
+// Seconds for one shape to break apart and the pieces to rebuild the next
+const SWITCH_TIME = 1.3;
+
+// Rail moments flash the field in the same colours the rail uses
+const KICK_COLOR: Record<RailTone, THREE.Color> = {
+  accent: new THREE.Color('#10b981'),
+  danger: new THREE.Color('#dc2626'),
+  warn: new THREE.Color('#d97706'),
+};
 
 const vertexShader = /* glsl */ `
   uniform float uTime;
@@ -27,10 +37,18 @@ const vertexShader = /* glsl */ `
   uniform float uPixelRatio;
   uniform vec3 uPointer;
   uniform float uPointerOn;
+  uniform vec2 uPointerWorld;
   uniform float uForm;
   uniform vec2 uFrameCenter;
   uniform vec2 uFrameHalf;
   uniform float uFrameR;
+  uniform float uShare;
+  uniform float uTrace;
+  uniform float uFill;
+  uniform float uLine;
+  uniform float uKick;
+  uniform float uBurst;
+  uniform float uSwitch;
 
   attribute vec3 aScatter;
   attribute float aSeed;
@@ -64,6 +82,7 @@ const vertexShader = /* glsl */ `
   varying float vGlow;
   varying float vSeed;
   varying float vFade;
+  varying float vForm;
 
   void main() {
     vec3 target = position;
@@ -87,28 +106,54 @@ const vertexShader = /* glsl */ `
     // Scroll velocity sends a ripple through the logo (the touch-device interaction)
     p.z += sin(target.y * 3.0 - uTime * 6.0) * uVelocity * 0.35;
 
-    // Cursor pushes particles aside (fine pointers only)
+    // Cursor (or a tap) pushes particles aside
     vec2 delta = p.xy - uPointer.xy;
     float dist = length(delta);
     float force = smoothstep(0.75, 0.0, dist) * uPointerOn;
-    p.xy += normalize(delta + 1e-5) * force * 0.38;
+    p.xy += normalize(delta + 1e-5) * force * 0.5;
     p.z += force * 0.35;
 
-    // Gather into the showcase device: most particles trace its outline, the rest fill the screen
-    // in faint rows, so the field visibly re-forms into the next section (in world space)
+    // Gather around the current chapter's target (in world space): a share of the particles trace
+    // its outline, as far as the section has got (uTrace); in the showcase the rest fill it in faint
+    // rows; everything else keeps drifting as the ambient field
     vec4 world = modelMatrix * vec4(p, 1.0);
-    float f = clamp(uForm * 1.6 - aSeed * 0.6, 0.0, 1.0);
+    bool outline = aFrame.z < uShare;
+    float eligible = outline ? smoothstep(uTrace + 0.02, uTrace - 0.02, aFrame.x) : (aFrame.z >= 0.72 ? uFill : 0.0);
+    float f = clamp(uForm * eligible * 1.6 - aSeed * 0.6, 0.0, 1.0);
     f = f * f * (3.0 - 2.0 * f);
+    vec2 jitter = (vec2(aFrame.y, fract(aFrame.y * 7.31)) - 0.5) * 0.04;
     vec2 fp;
-    if (aFrame.z < 0.72) {
-      fp = roundedRect(aFrame.x, uFrameHalf, uFrameR) + (vec2(aFrame.y, fract(aFrame.y * 7.31)) - 0.5) * 0.04;
+    if (outline) {
+      vec2 box = roundedRect(aFrame.x, uFrameHalf, uFrameR);
+      vec2 seg = vec2(0.0, mix(uFrameHalf.y, -uFrameHalf.y, aFrame.x)) + vec2(uFrameHalf.x * (aFrame.y - 0.5) * 2.0, 0.0);
+      fp = mix(box, seg, uLine) + jitter;
     } else {
       float rows = 14.0;
       float row = floor(aFrame.y * rows);
       fp = vec2((aFrame.x * 2.0 - 1.0) * (uFrameHalf.x - uFrameR * 0.6) * mix(0.55, 0.9, fract(row * 0.37)),
                 uFrameHalf.y - (row + 0.75) / rows * uFrameHalf.y * 2.0);
     }
-    world.xyz = mix(world.xyz, vec3(uFrameCenter + fp, 0.0), f);
+    vec3 formed = vec3(uFrameCenter + fp, 0.0);
+    // Every moment the rail marks ripples through the formed shape too
+    formed.xy += normalize(fp + 1e-5) * uKick * (0.04 + aSeed * 0.08);
+    // Break and rebuild: a shape shatters as the field lets go of it (uForm falling) or hands over
+    // to the next target (uSwitch), and the same pieces fly back in to build the next one. Leaving
+    // the showcase it bursts on the scroll itself (uBurst), thrown outwards and tumbling down
+    float shatter = clamp(max(uSwitch, 1.0 - uForm) * 1.15, 0.0, 1.0);
+    shatter = shatter * shatter * (3.0 - 2.0 * shatter);
+    float b = uBurst * uBurst * (3.0 - 2.0 * uBurst);
+    // A handover stays a tight cloud around the shape, so it reads as the same pieces regrouping;
+    // the showcase exit is the big one
+    float reach = b * 1.6 + shatter * 0.55;
+    formed += (vec3(normalize(fp + 1e-5) * reach, 0.0) + aScatter * (b * 0.45 + shatter * 0.12)) * (0.45 + aSeed * 1.1);
+    formed.y -= b * b * (0.6 + aSeed) * 1.2;
+    world.xyz = mix(world.xyz, formed, f);
+
+    // Shapes the field has formed answer the cursor (or a tap) too, parting around it
+    vec2 away = world.xy - uPointerWorld;
+    float near = smoothstep(0.9, 0.0, length(away)) * uPointerOn * f;
+    world.xy += normalize(away + 1e-5) * near * 0.32;
+    force = max(force, near);
 
     vec4 mv = viewMatrix * world;
     gl_Position = projectionMatrix * mv;
@@ -118,7 +163,8 @@ const vertexShader = /* glsl */ `
     vSeed = aSeed;
     // Past 1 the burst keeps expanding and thins out as it goes
     vFade = mix(1.0, 0.75, clamp(uDisperse, 0.0, 1.0)) * (1.0 - clamp(uDisperse - 1.0, 0.0, 1.0) * 0.25);
-    vFade = mix(vFade, aFrame.z < 0.72 ? 1.0 : 0.45, f);
+    vFade = mix(vFade, outline ? 1.0 : 0.45, f);
+    vForm = f;
   }
 `;
 
@@ -126,10 +172,16 @@ const fragmentShader = /* glsl */ `
   uniform vec3 uColor;
   uniform vec3 uAccent;
   uniform float uOpacity;
+  uniform float uAmbient;
+  uniform float uForm;
+  uniform float uTint;
+  uniform float uKick;
+  uniform vec3 uKickColor;
 
   varying float vGlow;
   varying float vSeed;
   varying float vFade;
+  varying float vForm;
 
   void main() {
     vec2 c = gl_PointCoord - 0.5;
@@ -137,8 +189,12 @@ const fragmentShader = /* glsl */ `
     if (r > 0.5) discard;
     float alpha = smoothstep(0.5, 0.0, r);
     float accentMix = clamp(vGlow * 1.4 + step(0.93, vSeed) * 0.85, 0.0, 1.0);
-    vec3 color = mix(uColor, uAccent, accentMix);
-    gl_FragColor = vec4(color, alpha * uOpacity * vFade * (0.55 + vSeed * 0.45));
+    vec3 color = mix(uColor, uAccent, max(accentMix, uTint * vForm));
+    color = mix(color, uKickColor, uKick * (0.35 + 0.65 * vForm));
+    // While the field is gathered on a target only the gathered particles show: no second layer
+    // drifting behind it
+    float presence = mix(uAmbient * (1.0 - uForm), 1.0, vForm);
+    gl_FragColor = vec4(color, alpha * uOpacity * vFade * presence * (0.55 + vSeed * 0.45));
   }
 `;
 
@@ -156,6 +212,10 @@ export function ParticleLogo({ count }: Props) {
   const leftHero = useRef(false);
   const replayStart = useRef<number | null>(null);
   const tilt = useRef({ x: 0, y: 0 });
+  // Gliding from one chapter target to the next: where the outline was when the target changed
+  const glide = useRef({ target: '', from: [0, 0, 1, 1, 0.1], t: 1 });
+  const kick = useRef(0);
+  const lastTap = useRef(0);
   const raycaster = useMemo(() => new THREE.Raycaster(), []);
   const reduceMotion = useMemo(
     () => typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches,
@@ -207,10 +267,21 @@ export function ParticleLogo({ count }: Props) {
           uPixelRatio: { value: Math.min(window.devicePixelRatio, 1.75) },
           uPointer: { value: new THREE.Vector3(99, 99, 0) },
           uPointerOn: { value: 0 },
+          uPointerWorld: { value: new THREE.Vector2(99, 99) },
           uForm: { value: 0 },
           uFrameCenter: { value: new THREE.Vector2() },
           uFrameHalf: { value: new THREE.Vector2(1, 1) },
           uFrameR: { value: 0.1 },
+          uShare: { value: 0.72 },
+          uTrace: { value: 1 },
+          uFill: { value: 1 },
+          uLine: { value: 0 },
+          uKick: { value: 0 },
+          uBurst: { value: 0 },
+          uSwitch: { value: 0 },
+          uKickColor: { value: new THREE.Color('#10b981') },
+          uAmbient: { value: 1 },
+          uTint: { value: 0 },
           uColor: { value: new THREE.Color('#1d1d1f') },
           uAccent: { value: new THREE.Color('#10b981') },
           uOpacity: { value: 0.78 },
@@ -231,10 +302,21 @@ export function ParticleLogo({ count }: Props) {
     material.uniforms.uPixelRatio.value = gl.getPixelRatio();
   }, [gl, material]);
 
+  // One conductor: every story moment a section marks (lib/rail.ts) ripples the field
+  useEffect(
+    () =>
+      onRailPulse((p) => {
+        kick.current = Math.max(kick.current, p.size === 'lg' ? 1 : 0.55);
+        (material.uniforms.uKickColor.value as THREE.Color).copy(KICK_COLOR[p.tone ?? 'accent']);
+      }),
+    [material],
+  );
+
   const plane = useMemo(() => new THREE.Plane(), []);
   const hit = useMemo(() => new THREE.Vector3(), []);
   const ndc = useMemo(() => new THREE.Vector2(), []);
   const normal = useMemo(() => new THREE.Vector3(), []);
+  const flat = useMemo(() => new THREE.Vector2(), []);
 
   useFrame((state, delta) => {
     const group = groupRef.current;
@@ -272,9 +354,36 @@ export function ParticleLogo({ count }: Props) {
     u.uDisperse.value += (store.disperse - u.uDisperse.value) * k;
     u.uForm.value += (store.form - u.uForm.value) * k;
     (u.uColor.value as THREE.Color).copy(store.dark ? INK_DARK : INK_LIGHT);
-    (u.uFrameCenter.value as THREE.Vector2).set(store.frameX, store.frameY);
-    (u.uFrameHalf.value as THREE.Vector2).set(store.frameHalfW, store.frameHalfH);
-    u.uFrameR.value = store.frameR;
+    // Same target: the outline follows it exactly as it scrolls. New target: glide across to it
+    const g = glide.current;
+    const frame = [store.frameX, store.frameY, store.frameHalfW, store.frameHalfH, store.frameR];
+    if (store.target !== g.target) {
+      const c = u.uFrameCenter.value as THREE.Vector2;
+      const hh = u.uFrameHalf.value as THREE.Vector2;
+      // The very first target is formed from the scattered field, with nothing to break first
+      g.t = g.target ? 0 : 1;
+      g.from = g.target ? [c.x, c.y, hh.x, hh.y, u.uFrameR.value] : frame;
+      g.target = store.target;
+    }
+    // The old shape breaks apart, the frame moves across while the pieces are in the air, and they
+    // land on the new one
+    g.t = Math.min(1, g.t + delta / SWITCH_TIME);
+    const e = THREE.MathUtils.smoothstep(g.t, 0.35, 0.65);
+    u.uSwitch.value = reduceMotion ? 0 : Math.sin(Math.PI * g.t);
+    const at = (i: number) => g.from[i] + (frame[i] - g.from[i]) * e;
+    (u.uFrameCenter.value as THREE.Vector2).set(at(0), at(1));
+    (u.uFrameHalf.value as THREE.Vector2).set(at(2), at(3));
+    u.uFrameR.value = at(4);
+    const soft = 1 - Math.pow(0.02, delta);
+    u.uShare.value += (store.share - u.uShare.value) * soft;
+    u.uFill.value += (store.fill - u.uFill.value) * soft;
+    u.uLine.value += (store.line - u.uLine.value) * soft;
+    u.uTint.value += (store.tint - u.uTint.value) * soft;
+    u.uTrace.value += (store.trace - u.uTrace.value) * k;
+    u.uAmbient.value += (store.ambient - u.uAmbient.value) * k;
+    u.uBurst.value += (store.burst - u.uBurst.value) * k;
+    kick.current *= Math.pow(0.04, delta);
+    u.uKick.value = reduceMotion ? 0 : kick.current;
     const vel = Math.min(1, Math.abs(store.velocity) / 40);
     u.uVelocity.value += (vel - u.uVelocity.value) * (1 - Math.pow(0.02, delta));
 
@@ -325,7 +434,20 @@ export function ParticleLogo({ count }: Props) {
       if (raycaster.ray.intersectPlane(plane, hit)) {
         points.worldToLocal(hit);
         (u.uPointer.value as THREE.Vector3).lerp(hit, 0.35);
+        // A tap on the assembled logo shatters it and it rebuilds itself
+        if (store.tap !== lastTap.current) {
+          lastTap.current = store.tap;
+          const onLogo = Math.hypot(hit.x, hit.y) < 1.7 && u.uForm.value < 0.1 && u.uDisperse.value < 0.3;
+          if (onLogo && replayStart.current === null && !reduceMotion) {
+            replayStart.current = t;
+            kick.current = 1;
+            (u.uKickColor.value as THREE.Color).copy(KICK_COLOR.accent);
+          }
+        }
       }
+      // The same point on the page plane, for the shapes the field forms there
+      plane.set(normal.set(0, 0, 1), 0);
+      if (raycaster.ray.intersectPlane(plane, hit)) (u.uPointerWorld.value as THREE.Vector2).lerp(flat.set(hit.x, hit.y), 0.35);
       u.uPointerOn.value += (1 - u.uPointerOn.value) * 0.1;
     } else {
       u.uPointerOn.value += (0 - u.uPointerOn.value) * 0.08;

@@ -1,7 +1,6 @@
 import { lazy, Suspense, useEffect } from 'react';
 import { MotionConfig } from 'motion/react';
 import { Nav } from './components/Nav';
-import { ProgressRail } from './components/ProgressRail';
 import { Footer } from './sections/Footer';
 import { HomePage } from './pages/HomePage';
 import { usePath } from './lib/router';
@@ -57,7 +56,6 @@ export default function App() {
     <MotionConfig reducedMotion="user">
       <div className="grain">
         <Nav />
-        <ProgressRail />
         {path === '/work' || path === '/about' ? (
           <Suspense fallback={<div className="min-h-[100svh]" />}>{path === '/work' ? <WorkPage /> : <AboutPage />}</Suspense>
         ) : (
