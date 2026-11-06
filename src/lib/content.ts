@@ -27,7 +27,7 @@ export const processSteps = [
   },
 ] as const;
 
-export type ProjectCategory = 'tours' | 'hospitality' | 'in-house';
+export type ProjectCategory = 'clinics' | 'tours' | 'hospitality' | 'in-house';
 
 export const projects: readonly {
   id: string;
@@ -43,6 +43,21 @@ export const projects: readonly {
   author: string;
   url: string;
 }[] = [
+  {
+    id: 'digital-dentistry',
+    category: 'clinics',
+    description:
+      'One site for a dental practice with two clinics: before and after cases, a 3D implant bridge that comes apart as you scroll, and an assessment request that goes straight to the clinic. In Portuguese and English.',
+    shot: '/work/digital-dentistry',
+    title: 'Miguel Reis Digital Dentistry',
+    place: 'Lisbon & Monte Gordo',
+    kind: 'Dental clinics',
+    stat: '2',
+    statLabel: 'clinics, one booking flow',
+    quote: '',
+    author: '',
+    url: 'https://digital-dentistry-ten.vercel.app/',
+  },
   {
     id: 'flyfoil',
     category: 'tours',

@@ -9,6 +9,7 @@ import { WaveBackdrop } from '../components/WaveBackdrop';
 
 const FILTERS: { id: 'all' | ProjectCategory; label: string }[] = [
   { id: 'all', label: 'All work' },
+  { id: 'clinics', label: 'Clinics' },
   { id: 'tours', label: 'Tours & watersports' },
   { id: 'hospitality', label: 'Hospitality' },
   { id: 'in-house', label: 'In-house' },
