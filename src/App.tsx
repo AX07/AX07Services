@@ -10,6 +10,7 @@ import { applyPageMeta } from './lib/seo';
 const WorkPage = lazy(() => import('./pages/WorkPage').then((m) => ({ default: m.WorkPage })));
 const AboutPage = lazy(() => import('./pages/AboutPage').then((m) => ({ default: m.AboutPage })));
 const AdminPage = lazy(() => import('./pages/AdminPage').then((m) => ({ default: m.AdminPage })));
+const NotFoundPage = lazy(() => import('./pages/NotFoundPage').then((m) => ({ default: m.NotFoundPage })));
 const DemoPage = lazy(() => import('./pages/DemoPage').then((m) => ({ default: m.DemoPage })));
 
 
@@ -17,14 +18,16 @@ export default function App() {
   const path = usePath();
   const demoSlug = path.startsWith('/demo/') ? decodeURIComponent(path.slice(6).split('/')[0]) : null;
   const isPrivate = path === '/admin' || !!demoSlug;
+  const notFound = !demoSlug && !['/', '/work', '/about', '/admin'].includes(path);
 
   useEffect(() => {
     applyPageMeta(path);
     if (demoSlug) document.title = `Preview — ${demoSlug} | ax07.dev`;
     else if (path === '/admin') document.title = 'Admin | ax07.dev';
+    else if (notFound) document.title = 'Page not found | ax07.dev';
     // Admin and client previews stay out of search results
     let robots = document.querySelector<HTMLMetaElement>('meta[name="robots"]');
-    if (isPrivate) {
+    if (isPrivate || notFound) {
       if (!robots) {
         robots = document.createElement('meta');
         robots.name = 'robots';
@@ -34,7 +37,7 @@ export default function App() {
     } else {
       robots?.remove();
     }
-  }, [path, demoSlug, isPrivate]);
+  }, [path, demoSlug, isPrivate, notFound]);
 
   if (demoSlug) {
     return (
@@ -56,7 +59,11 @@ export default function App() {
     <MotionConfig reducedMotion="user">
       <div className="grain">
         <Nav />
-        {path === '/work' || path === '/about' ? (
+        {notFound ? (
+          <Suspense fallback={<div className="min-h-[100svh]" />}>
+            <NotFoundPage />
+          </Suspense>
+        ) : path === '/work' || path === '/about' ? (
           <Suspense fallback={<div className="min-h-[100svh]" />}>{path === '/work' ? <WorkPage /> : <AboutPage />}</Suspense>
         ) : (
           <HomePage />

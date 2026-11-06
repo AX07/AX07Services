@@ -39,6 +39,13 @@ function pageHtml(): Plugin {
         mkdirSync(dirname(file), { recursive: true });
         writeFileSync(file, html);
       }
+      // Vercel serves dist/404.html, with a 404 status, for any address that has no file and no
+      // rewrite. The app sees the unknown path and renders the not-found page.
+      const notFound = base
+        .replace(/\s*<link rel="preload" href="\/logo-points\.bin"[^>]*>/, '')
+        .replace(/<title>[^<]*<\/title>/, '<title>Page not found | ax07.dev</title>\n    <meta name="robots" content="noindex" />')
+        .replace(/\s*<link\s+rel="canonical"[^>]*>/, '');
+      writeFileSync(resolve(outDir, '404.html'), notFound);
     },
   };
 }
