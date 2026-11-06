@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { AnimatePresence, motion } from 'motion/react';
+import { AnimatePresence, motion, useMotionValue } from 'motion/react';
 import { EASE_OUT } from '../components/Reveal';
 import { linkProps } from '../lib/router';
 import { SPRING } from '../lib/tokens';
@@ -12,7 +12,16 @@ import { ensureAbsoluteUrl, getClientBySlug } from '../lib/clients';
 export function DemoPage({ slug }: { slug: string }) {
   const [loaded, setLoaded] = useState(false);
   const [expanded, setExpanded] = useState(true);
+  // Opened by a tap: stays until the visitor picks something or closes it
+  const [pinned, setPinned] = useState(false);
+  const [arrived, setArrived] = useState(false);
+  // While the bubble is dragged the frame ignores the pointer, or it would swallow the moves
+  const [dragging, setDragging] = useState(false);
   const timer = useRef(0);
+  const bounds = useRef<HTMLDivElement>(null);
+  // The bubble keeps the spot it was dragged to each time it comes back
+  const bubbleX = useMotionValue(0);
+  const bubbleY = useMotionValue(0);
 
   // Collapse after `ms`; any later show/hide replaces the pending one
   const hideSoon = useCallback((ms: number) => {
@@ -20,18 +29,32 @@ export function DemoPage({ slug }: { slug: string }) {
     timer.current = window.setTimeout(() => setExpanded(false), ms);
   }, []);
   const show = useCallback(
-    (forMs?: number) => {
+    (forMs?: number, pin = false) => {
       window.clearTimeout(timer.current);
       setExpanded(true);
+      if (pin) setPinned(true);
       if (forMs) hideSoon(forMs);
     },
     [hideSoon],
   );
+  const collapse = useCallback(() => {
+    window.clearTimeout(timer.current);
+    setPinned(false);
+    setExpanded(false);
+  }, []);
 
   useEffect(() => {
     hideSoon(3000);
-    return () => window.clearTimeout(timer.current);
-  }, [hideSoon]);
+    const t = window.setTimeout(() => setArrived(true), 1000);
+    // Tapping into the site moves focus into the frame: an open bar gets out of the way
+    const onBlur = () => window.setTimeout(() => document.activeElement?.tagName === 'IFRAME' && collapse(), 0);
+    window.addEventListener('blur', onBlur);
+    return () => {
+      window.clearTimeout(timer.current);
+      window.clearTimeout(t);
+      window.removeEventListener('blur', onBlur);
+    };
+  }, [hideSoon, collapse]);
 
   const client = useMemo(() => {
     const override = new URLSearchParams(window.location.search).get('url');
@@ -65,47 +88,35 @@ export function DemoPage({ slug }: { slug: string }) {
         src={client.url}
         title={`${client.name} preview`}
         onLoad={() => setLoaded(true)}
-        className="absolute inset-0 h-full w-full border-0"
+        className={`absolute inset-0 h-full w-full border-0 ${dragging ? 'pointer-events-none' : ''}`}
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
       />
 
-      {/* Floating bar: fully shown on arrival, then after 3s it glides into a small back-to-ax07 pill
-          in the bottom-left corner (clear of the site's own logo and menu) so the site has the whole
-          screen. Hover, or the dots, brings the full bar back. */}
-      <motion.div
-        initial={{ opacity: 0, y: -16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, ease: EASE_OUT, delay: 0.3 }}
-        className={`pointer-events-none fixed inset-x-0 z-10 flex px-3 sm:px-4 ${
-          expanded ? 'top-3 justify-center sm:top-4' : 'bottom-3 justify-start sm:bottom-4'
-        }`}
-      >
-        <motion.header
-          layout
-          transition={SPRING}
-          onMouseEnter={() => show()}
-          onMouseLeave={() => hideSoon(1200)}
-          style={{ borderRadius: 999 }}
-          className={`pointer-events-auto flex items-center gap-2 border border-white/15 bg-night/85 py-1.5 text-white shadow-[0_20px_50px_rgba(0,0,0,0.45)] backdrop-blur-xl ${
-            expanded ? 'w-full max-w-5xl justify-between pl-3 pr-1.5 sm:pl-4' : 'pl-3 pr-1.5'
-          }`}
-        >
-          <motion.a layout="position" {...linkProps('/')} aria-label="Back to ax07.dev" className="flex shrink-0 items-center gap-2 py-1 text-[13px] font-medium text-white/80 hover:text-white">
-            <span aria-hidden="true">←</span>
-            <img src="/logo-mark.png" alt="" width={18} height={18} className="h-[18px] w-[18px] invert" />
-            {expanded && <span className="hidden font-display sm:inline">ax07</span>}
-          </motion.a>
-
-          <AnimatePresence initial={false} mode="popLayout">
-            {expanded ? (
-              <motion.div
-                key="full"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1, transition: { delay: 0.15, duration: 0.3 } }}
-                exit={{ opacity: 0, transition: { duration: 0.15 } }}
-                className="flex min-w-0 flex-1 items-center justify-between gap-2"
+      {/* Arrival: the full bar shows for 3s, then shrinks into a small bubble so the site has the whole
+          screen. The bubble can be dragged anywhere, clear of the site's own menu and booking bar;
+          tapping it brings the bar back until the visitor picks an action or closes it. */}
+      <div ref={bounds} className="pointer-events-none fixed inset-0 z-10">
+        <AnimatePresence initial={false}>
+          {expanded ? (
+            <motion.div
+              key="bar"
+              initial={{ opacity: 0, y: -16 }}
+              animate={{ opacity: 1, y: 0, transition: { duration: 0.5, ease: EASE_OUT, delay: arrived ? 0 : 0.3 } }}
+              exit={{ opacity: 0, y: -12, transition: { duration: 0.25 } }}
+              className="absolute inset-x-0 top-3 flex justify-center px-3 sm:top-4 sm:px-4"
+            >
+              <header
+                onMouseEnter={() => show()}
+                onMouseLeave={() => !pinned && hideSoon(1200)}
+                className="pointer-events-auto flex w-full max-w-5xl items-center justify-between gap-2 rounded-full border border-white/15 bg-night/85 py-1.5 pl-3 pr-1.5 text-white shadow-[0_20px_50px_rgba(0,0,0,0.45)] backdrop-blur-xl sm:pl-4"
               >
-                <div className="flex min-w-0 items-center gap-2 text-[12px] text-white/70 sm:text-[13px]">
+                <a {...linkProps('/')} aria-label="Back to ax07.dev" className="flex shrink-0 items-center gap-2 py-1 text-[13px] font-medium text-white/80 hover:text-white">
+                  <span aria-hidden="true">←</span>
+                  <img src="/logo-mark.png" alt="" width={18} height={18} className="h-[18px] w-[18px] invert" />
+                  <span className="hidden font-display sm:inline">ax07</span>
+                </a>
+
+                <div className="flex min-w-0 flex-1 items-center gap-2 text-[12px] text-white/70 sm:text-[13px]">
                   <span className="h-1.5 w-1.5 shrink-0 animate-pulse rounded-full bg-accent-bright" />
                   <span className="truncate">
                     <span className="hidden sm:inline">Preview for </span>
@@ -125,29 +136,47 @@ export function DemoPage({ slug }: { slug: string }) {
                   <a href={approve} target="_blank" rel="noopener noreferrer" className="btn btn-light !min-h-0 !px-3.5 !py-1.5 !text-[12px] font-semibold sm:!px-4 sm:!text-[13px]">
                     Approve & launch
                   </a>
+                  <button
+                    type="button"
+                    onClick={collapse}
+                    aria-label="Hide the preview bar"
+                    className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full text-white/70 hover:bg-white/10 hover:text-white"
+                  >
+                    <svg viewBox="0 0 16 16" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden="true">
+                      <path d="M4 4l8 8M12 4l-8 8" />
+                    </svg>
+                  </button>
                 </div>
-              </motion.div>
-            ) : (
-              <motion.button
-                key="mini"
-                type="button"
-                onClick={() => show(4000)}
-                aria-label="Show the preview bar"
-                initial={{ opacity: 0, scale: 0.6 }}
-                animate={{ opacity: 1, scale: 1, transition: { delay: 0.2, duration: 0.3 } }}
-                exit={{ opacity: 0, scale: 0.6, transition: { duration: 0.12 } }}
-                className="flex h-7 w-7 cursor-pointer items-center justify-center rounded-full text-white/70 hover:bg-white/10 hover:text-white"
-              >
-                <svg viewBox="0 0 16 16" className="h-3.5 w-3.5" fill="currentColor" aria-hidden="true">
-                  <circle cx="3" cy="8" r="1.4" />
-                  <circle cx="8" cy="8" r="1.4" />
-                  <circle cx="13" cy="8" r="1.4" />
-                </svg>
-              </motion.button>
-            )}
-          </AnimatePresence>
-        </motion.header>
-      </motion.div>
+              </header>
+            </motion.div>
+          ) : (
+            <motion.button
+              key="bubble"
+              type="button"
+              drag
+              dragConstraints={bounds}
+              dragMomentum={false}
+              dragElastic={0.08}
+              onPointerDown={() => {
+                // From the first press, so a quick flick can't land its moves in the frame
+                setDragging(true);
+                window.addEventListener('pointerup', () => setDragging(false), { once: true });
+              }}
+              onTap={() => show(undefined, true)}
+              aria-label={`Show the preview options for ${client.name}`}
+              style={{ x: bubbleX, y: bubbleY }}
+              initial={{ opacity: 0, scale: 0.4 }}
+              animate={{ opacity: 1, scale: 1, transition: { ...SPRING, delay: 0.15 } }}
+              exit={{ opacity: 0, scale: 0.4, transition: { duration: 0.15 } }}
+              whileTap={{ scale: 0.92 }}
+              className="pointer-events-auto absolute bottom-24 left-3 flex h-11 w-11 cursor-pointer touch-none items-center justify-center rounded-full border border-white/20 bg-night/80 shadow-[0_10px_30px_rgba(0,0,0,0.45)] backdrop-blur-xl sm:bottom-5 sm:left-5"
+            >
+              <img src="/logo-mark.png" alt="" width={18} height={18} draggable={false} className="h-[18px] w-[18px] invert" />
+              <span className="absolute right-0.5 top-0.5 h-2 w-2 rounded-full border border-night bg-accent-bright" />
+            </motion.button>
+          )}
+        </AnimatePresence>
+      </div>
     </div>
   );
 }
