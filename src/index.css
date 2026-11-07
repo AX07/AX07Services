@@ -287,9 +287,10 @@ summary {
     backdrop-filter: blur(12px);
   }
   /* On dark panels: a white button and an outlined one */
+  /* Fixed ink, not a theme colour: in dark mode the theme's foreground is white too */
   .btn-light {
     background: #fff;
-    color: var(--color-fg);
+    color: #1d1d1f;
   }
   .btn-ghost-light {
     color: #fff;
@@ -313,7 +314,7 @@ summary {
   .btn-ghost-light:active {
     background: #fff;
     border-color: #fff;
-    color: var(--color-fg);
+    color: #1d1d1f;
   }
   @media (hover: hover) and (pointer: fine) {
     .btn:hover {
@@ -339,7 +340,7 @@ summary {
     .btn-ghost-light:hover {
       background: #fff;
       border-color: #fff;
-      color: var(--color-fg);
+      color: #1d1d1f;
     }
   }
   @media (prefers-reduced-motion: reduce) {

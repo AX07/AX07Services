@@ -12,18 +12,21 @@ export const processSteps = [
     title: 'Tell us about your business',
     body: 'A 15-minute WhatsApp chat. Who your customers are, how they find you, what makes you different. That’s the brief.',
     meta: 'Day 0',
+    points: ['Your name, logo, photos and reviews come from what is already public', 'No forms, no deposit, no card'],
   },
   {
     step: '02',
     title: 'We build your preview',
-    body: 'Real design, real copy, real code. Not a mock-up. You get a private link that works on your phone within 48 hours.',
+    body: 'Real design, real copy, real code. Not a mock-up. A private link that works on your phone within 48 hours.',
     meta: 'Within 48h',
+    points: ['Every page, menu and button works', 'Bookings reach your WhatsApp or the form you use now'],
   },
   {
     step: '03',
     title: 'Approve it, and it’s live',
     body: 'We connect your domain, hosting and analytics. Then we keep it fast, secure and up to date while you run the business.',
     meta: 'Launch day',
+    points: ['Not right for you? You owe nothing and we delete it'],
   },
 ] as const;
 

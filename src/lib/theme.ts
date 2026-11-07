@@ -4,7 +4,7 @@ import { scene } from './scene-store';
 
 /**
  * Light / dark theme. The choice lives on <html data-theme> (set before first paint by the inline
- * script in index.html), is remembered per visitor, and follows the system setting until they pick.
+ * script in index.html), is remembered per visitor, and is dark until they pick light.
  */
 export type Theme = 'light' | 'dark';
 
@@ -36,7 +36,7 @@ export function useTheme() {
       return () => listeners.delete(fn);
     },
     getTheme,
-    () => 'light' as Theme,
+    () => 'dark' as Theme,
   );
 }
 

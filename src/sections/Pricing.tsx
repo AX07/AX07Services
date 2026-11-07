@@ -7,7 +7,7 @@ export function Pricing() {
     <section id="pricing" className="relative isolate gutter section-y">
       <WaveBackdrop fade="both" className="inset-y-0 opacity-60" />
       <div className="mx-auto max-w-6xl">
-        <Eyebrow index="08" className="mb-5">
+        <Eyebrow index="07" className="mb-5">
           Pricing
         </Eyebrow>
         <Headline
