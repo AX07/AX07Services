@@ -9,17 +9,17 @@
       content="Custom websites that win local businesses in Ireland and the Algarve more enquiries and bookings, sent straight to WhatsApp. See a working preview in 48 hours, before you pay."
     />
     <link rel="canonical" href="https://www.ax07.dev/" />
-    <meta name="theme-color" content="#0a0a0c" />
-    <!-- Theme before first paint: the visitor's saved choice, else dark (no flash) -->
+    <meta name="theme-color" content="#f3f4f6" />
+    <!-- Theme before first paint: the visitor's saved choice, else light (no flash) -->
     <script>
       (function () {
         var t;
         try { t = localStorage.getItem('ax07-theme'); } catch (e) {}
-        if (t !== 'dark' && t !== 'light') t = 'dark';
+        if (t !== 'dark' && t !== 'light') t = 'light';
         var r = document.documentElement;
         r.dataset.theme = t;
         r.style.colorScheme = t;
-        if (t === 'light') document.querySelector('meta[name="theme-color"]').setAttribute('content', '#fbfbfd');
+        if (t === 'dark') document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0a0a0c');
       })();
     </script>
 

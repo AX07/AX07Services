@@ -2,11 +2,24 @@ import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { EASE_OUT } from './Reveal';
 import { Gauge } from './Gauge';
-import { QuotaError, quickEstimate, runSpeedTest, type SpeedResult } from '../lib/pagespeed';
+import { QuotaError, quickEstimate, runSpeedTest, scoreTone, type SpeedResult } from '../lib/pagespeed';
 import { whatsappLink } from '../lib/content';
 import { railPulse } from '../lib/rail';
 
 const OUR_SCORE = 98;
+
+/**
+ * Well-known sites to try when the visitor has no site of their own to hand. No labels: the test
+ * itself tells them how each one does.
+ */
+const SUGGESTED = ['google.com', 'ikea.com', 'ebay.com'] as const;
+
+// Google's own bands for a mobile performance score
+const VERDICT = {
+  good: { word: 'Fast', className: 'bg-accent-soft text-accent' },
+  average: { word: 'Average', className: 'bg-warn-soft text-warn' },
+  poor: { word: 'Slow', className: 'bg-danger-soft text-danger' },
+} as const;
 const STEPS = ['Contacting Google PageSpeed…', 'Loading your site on a simulated 4G phone…', 'Measuring first paint and layout…', 'Scoring performance…'];
 
 type State = { kind: 'idle' } | { kind: 'running'; step: number } | { kind: 'done'; result: SpeedResult } | { kind: 'error'; message: string };
@@ -28,8 +41,18 @@ export function SpeedTest() {
 
   useEffect(() => () => abortRef.current?.abort(), []);
 
-  const handleSubmit = async (e: FormEvent) => {
+  const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
+    run(url);
+  };
+
+  // A suggested site fills the box and runs straight away
+  const trySite = (site: string) => {
+    setUrl(site);
+    run(site);
+  };
+
+  const run = async (url: string) => {
     if (!url.trim() || state.kind === 'running') return;
     abortRef.current?.abort();
     const controller = new AbortController();
@@ -85,6 +108,21 @@ export function SpeedTest() {
           {state.kind === 'running' ? 'Testing…' : 'Run free test'}
         </button>
       </form>
+
+      <div className="mt-3 flex flex-wrap items-center gap-2">
+        <span className="w-full text-[13px] text-subtle">No site to hand? Try one everyone knows:</span>
+        {SUGGESTED.map((site) => (
+          <button
+            key={site}
+            type="button"
+            onClick={() => trySite(site)}
+            disabled={state.kind === 'running'}
+            className="btn btn-quiet !min-h-[34px] !px-3.5 text-[13px] disabled:opacity-60"
+          >
+            {site}
+          </button>
+        ))}
+      </div>
 
       <div className="mt-6 flex flex-1 items-center justify-center">
         <AnimatePresence mode="wait">
@@ -155,6 +193,13 @@ export function SpeedTest() {
                 <Gauge score={result.score} size={120} label={result.estimated ? `${host} · estimate` : host} />
                 <Gauge score={OUR_SCORE} size={120} label="ax07 build" />
               </div>
+              <p className="mt-4 text-center text-[15px] text-muted">
+                {host} is{' '}
+                <span className={`rounded-full px-2.5 py-0.5 text-[13px] font-semibold ${VERDICT[scoreTone(result.score)].className}`}>
+                  {VERDICT[scoreTone(result.score)].word}
+                </span>{' '}
+                on a phone
+              </p>
               {result.estimated && (
                 <p className="mt-4 text-center text-[12px] leading-relaxed text-subtle">
                   Google’s full test is unavailable right now, so this is a quick estimate from your site’s response time

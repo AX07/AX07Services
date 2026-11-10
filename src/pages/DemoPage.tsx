@@ -140,7 +140,7 @@ export function DemoPage({ slug }: { slug: string }) {
               <header
                 onMouseEnter={() => show()}
                 onMouseLeave={() => !pinned && hideSoon(1200)}
-                className="pointer-events-auto flex w-full max-w-5xl items-center justify-between gap-2 rounded-full border border-white/15 bg-night/85 py-1.5 pl-3 pr-1.5 text-white shadow-[0_20px_50px_rgba(0,0,0,0.45)] backdrop-blur-xl sm:pl-4"
+                className="pointer-events-auto flex w-full max-w-5xl items-center justify-between gap-2 rounded-full border border-white/15 bg-[rgb(30_30_34/0.45)] py-1.5 pl-3 pr-1.5 text-white shadow-[0_20px_50px_rgba(0,0,0,0.35)] backdrop-blur-[40px] backdrop-saturate-[1.8] sm:pl-4"
               >
                 <a {...back} aria-label={project ? 'Back to the work' : 'Back to ax07.dev'} className="flex shrink-0 items-center gap-2 py-1 text-[13px] font-medium text-white/80 hover:text-white">
                   <span aria-hidden="true">←</span>
@@ -161,7 +161,7 @@ export function DemoPage({ slug }: { slug: string }) {
                     href={client.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="hidden rounded-full border border-white/15 px-3 py-1.5 text-[12px] text-white/80 hover:bg-white/10 hover:text-white sm:inline-block"
+                    className="hidden rounded-full border border-white/15 bg-white/5 px-3 py-1.5 text-[12px] text-white/80 hover:bg-white/10 hover:text-white sm:inline-block"
                   >
                     {project ? 'Live site ↗' : 'New tab ↗'}
                   </a>
@@ -208,7 +208,7 @@ export function DemoPage({ slug }: { slug: string }) {
               animate={{ opacity: 1, scale: 1, transition: { ...SPRING, delay: 0.15 } }}
               exit={{ opacity: 0, scale: 0.4, transition: { duration: 0.15 } }}
               whileTap={{ scale: 0.92 }}
-              className="pointer-events-auto absolute bottom-24 left-3 flex h-11 w-11 cursor-pointer touch-none items-center justify-center rounded-full border border-white/20 bg-night/80 shadow-[0_10px_30px_rgba(0,0,0,0.45)] backdrop-blur-xl sm:bottom-5 sm:left-5"
+              className="pointer-events-auto absolute bottom-24 left-3 flex h-11 w-11 cursor-pointer touch-none items-center justify-center rounded-full border border-white/10 bg-[rgb(30_30_34/0.45)] shadow-[0_10px_30px_rgba(0,0,0,0.35)] backdrop-blur-[40px] backdrop-saturate-[1.8] sm:bottom-5 sm:left-5"
             >
               <img src="/logo-mark.png" alt="" width={18} height={18} draggable={false} className="h-[18px] w-[18px] invert" />
               <span className="absolute right-0.5 top-0.5 h-2 w-2 rounded-full border border-night bg-accent-bright" />

@@ -21,9 +21,9 @@
  */
 @theme static {
   /* ── Surfaces: page → card → inset ─────────────────────────────── */
-  --color-ink: #fbfbfd;
+  --color-ink: #f3f4f6; /* a touch of grey, so white glass panels lift off the page */
   --color-surface: #ffffff;
-  --color-raised: #f5f5f7;
+  --color-raised: #eceef1;
   --color-night: #0f1115; /* code panels, demo viewer chrome */
   --color-line: rgb(0 0 0 / 0.08);
   --color-line-strong: rgb(0 0 0 / 0.14);
@@ -114,6 +114,16 @@
 
 :root {
   color-scheme: light;
+  /* Glass: translucent panels over the page atmosphere, with a lit top edge */
+  /* Liquid glass: a nearly clear pane that frosts whatever is behind it into soft colour, with a
+     bright rim where light catches the edge and a faint glow just inside it. Saturation lifts the
+     colour underneath, so each pane takes its tint from what it sits on. */
+  --glass-bg: rgb(255 255 255 / 0.2);
+  --glass-bg-strong: rgb(255 255 255 / 0.2);
+  --glass-border: rgb(255 255 255 / 0.75);
+  --glass-ring: rgb(15 23 42 / 0.07);
+  --glass-highlight: inset 0 1px 0 rgb(255 255 255 / 0.85), inset 0 0 22px rgb(255 255 255 / 0.35);
+  --glass-blur: blur(22px) saturate(190%) brightness(1.04);
 }
 
 /* ── Dark theme: same roles, night values. Contrast kept ≥ 4.5:1 for text on ink. ── */
@@ -141,6 +151,12 @@
   --shadow-card: 0 1px 2px rgb(0 0 0 / 0.4), 0 24px 48px -24px rgb(0 0 0 / 0.7);
   --shadow-raised: 0 1px 2px rgb(0 0 0 / 0.4), 0 18px 40px -12px rgb(0 0 0 / 0.65);
   --shadow-float: 0 20px 50px -20px rgb(0 0 0 / 0.8);
+  --glass-bg: rgb(255 255 255 / 0.045);
+  --glass-bg-strong: rgb(30 30 34 / 0.35);
+  --glass-border: rgb(255 255 255 / 0.16);
+  --glass-ring: rgb(0 0 0 / 0.25);
+  --glass-highlight: inset 0 1px 0 rgb(255 255 255 / 0.16), inset 0 0 22px rgb(255 255 255 / 0.04);
+  --glass-blur: blur(22px) saturate(170%);
 }
 
 /* Theme switch: the new theme is revealed by a circle from the toggle (see lib/theme.ts) */
@@ -173,7 +189,8 @@ html.lenis body {
 }
 
 body {
-  background: var(--color-ink);
+  /* No fill of its own: the page colour comes from html, so the atmosphere below shows through */
+  background: transparent;
   color: var(--color-fg);
   font-family: var(--font-sans);
   font-feature-settings: "cv11", "ss01";
@@ -181,6 +198,25 @@ body {
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
   overflow-x: clip;
+}
+
+/* Page atmosphere: soft emerald and silver light behind everything, so glass has something to
+   refract and the light theme has the depth the dark one gets from its glowing particles */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(60% 50% at 8% 0%, rgb(16 185 129 / 0.14), transparent 70%),
+    radial-gradient(50% 45% at 100% 35%, rgb(148 163 184 / 0.3), transparent 70%),
+    radial-gradient(55% 50% at 20% 100%, rgb(16 185 129 / 0.1), transparent 70%);
+}
+[data-theme="dark"] body::before {
+  background:
+    radial-gradient(60% 50% at 8% 0%, rgb(16 185 129 / 0.07), transparent 70%),
+    radial-gradient(50% 45% at 100% 35%, rgb(148 163 184 / 0.05), transparent 70%);
 }
 
 ::selection {
@@ -225,11 +261,22 @@ summary {
   /* The one surface style used by every card, with a cursor spotlight on fine pointers */
   .card {
     position: relative;
-    background: var(--color-surface);
-    border: 1px solid var(--color-line);
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
     border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-card);
+    box-shadow: var(--glass-highlight), 0 0 0 1px var(--glass-ring), var(--shadow-card);
+    background-clip: padding-box;
+    -webkit-backdrop-filter: var(--glass-blur);
+    backdrop-filter: var(--glass-blur);
     isolation: isolate;
+  }
+  /* Glass bars and chips (nav, demo bar, small panels) */
+  .glass {
+    background: var(--glass-bg-strong);
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--glass-highlight), 0 0 0 1px var(--glass-ring), var(--shadow-float);
+    -webkit-backdrop-filter: var(--glass-blur);
+    backdrop-filter: var(--glass-blur);
   }
   .card::after {
     content: "";
@@ -275,16 +322,21 @@ summary {
     transform: scale(1.06);
     transition-duration: var(--duration-fast);
   }
+  /* Tinted matte glass: the ink colour, slightly see-through and frosted */
   .btn-primary {
-    background: var(--color-fg);
+    background-color: color-mix(in srgb, var(--color-fg) 94%, transparent);
     color: var(--color-on-fg);
-    box-shadow: 0 8px 20px -10px rgb(0 0 0 / 0.45);
+    box-shadow: 0 8px 20px -10px rgb(0 0 0 / 0.35);
+    -webkit-backdrop-filter: blur(24px) saturate(160%);
+    backdrop-filter: blur(24px) saturate(160%);
   }
   .btn-quiet {
     color: var(--color-fg);
-    background: color-mix(in srgb, var(--color-surface) 70%, transparent);
-    border: 1px solid var(--color-line-strong);
-    backdrop-filter: blur(12px);
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--glass-highlight), 0 0 0 1px var(--glass-ring), var(--shadow-xs);
+    -webkit-backdrop-filter: var(--glass-blur);
+    backdrop-filter: var(--glass-blur);
   }
   /* On dark panels: a white button and an outlined one */
   /* Fixed ink, not a theme colour: in dark mode the theme's foreground is white too */
@@ -294,11 +346,14 @@ summary {
   }
   .btn-ghost-light {
     color: #fff;
-    border: 1px solid rgb(255 255 255 / 0.2);
+    background: rgb(255 255 255 / 0.05);
+    border: 1px solid rgb(255 255 255 / 0.16);
+    -webkit-backdrop-filter: blur(30px) saturate(170%);
+    backdrop-filter: blur(30px) saturate(170%);
   }
 
   .btn-primary:active {
-    background: var(--color-accent);
+    background-color: var(--color-accent);
     color: var(--color-on-accent);
     box-shadow: 0 14px 30px -12px rgb(4 120 87 / 0.55);
   }
@@ -324,7 +379,7 @@ summary {
       transform: scale(1.06);
     }
     .btn-primary:hover {
-      background: var(--color-accent);
+      background-color: var(--color-accent);
       color: var(--color-on-accent);
       box-shadow: 0 14px 30px -12px rgb(4 120 87 / 0.55);
     }
@@ -431,4 +486,37 @@ summary {
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+}
+
+/* Work carousel: the active dot fills over the time each project is shown */
+@keyframes carousel-fill {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+/* Particle clusters behind glass panels: a round field of dots in the 3D field's ink, densest in
+   the middle and thinning out at the edge, with every seventh-ish dot faintly green */
+.particle-orb {
+  border-radius: 999px;
+  --orb-ink: rgb(12 13 16 / 0.32);
+  --orb-tint: rgb(16 185 129 / 0.4);
+  background-image:
+    radial-gradient(circle, var(--orb-tint) 1.6px, transparent 2.2px),
+    radial-gradient(circle, var(--orb-ink) 1.3px, transparent 1.9px),
+    radial-gradient(circle, var(--orb-ink) 1px, transparent 1.6px);
+  background-size: 41px 37px, 11px 11px, 17px 19px;
+  background-position: 7px 5px, 0 0, 5px 8px;
+  -webkit-mask-image: radial-gradient(circle, black 30%, rgb(0 0 0 / 0.5) 52%, transparent 70%);
+  mask-image: radial-gradient(circle, black 30%, rgb(0 0 0 / 0.5) 52%, transparent 70%);
+}
+[data-theme="dark"] .particle-orb {
+  --orb-ink: rgb(232 232 237 / 0.22);
+  --orb-tint: rgb(52 211 153 / 0.35);
+}
+
+/* Particle clusters behind glass panels drift slowly, so the frost on top is always shifting a little */
+@keyframes orb-drift {
+  0% { transform: translate3d(0, 0, 0) scale(1); }
+  50% { transform: translate3d(4%, -6%, 0) scale(1.06); }
+  100% { transform: translate3d(-5%, 4%, 0) scale(0.96); }
 }

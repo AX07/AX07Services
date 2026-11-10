@@ -6,7 +6,6 @@ import { DentalSite, EstateSite, LawSite } from '../components/showcase/Industry
 import { whatsappLink } from '../lib/content';
 import { SHOWCASE_EXIT, scrollToY } from '../lib/smooth-scroll';
 import { SPRING } from '../lib/tokens';
-import { crossedForward, railPulse } from '../lib/rail';
 
 interface Industry {
   id: string;
@@ -78,18 +77,10 @@ export function Showcase() {
   const [active, setActive] = useState(0);
   const phone = useIsPhone();
 
-  // Story beat: the field around the device ripples each time a new site takes over, and holds
-  // still while one is being scrolled
-  const lastX = useRef(0);
+  // The field around the device stays at rest while the sites change: no ripple between them
   useMotionValueEvent(scrollYProgress, 'change', (v) => {
     const next = Math.min(industries.length - 1, Math.floor(v * industries.length * 0.999));
     setActive((prev) => (prev === next ? prev : next));
-
-    const x = v * industries.length;
-    industries.forEach((ind, k) => {
-      if (crossedForward(lastX.current, x, k === 0 ? 0.001 : k)) railPulse({ tone: 'accent', size: 'lg', label: ind.tab });
-    });
-    lastX.current = x;
   });
 
   // Each industry's share of the scroll scrolls its site from top to bottom, with a
@@ -241,8 +232,8 @@ export function Showcase() {
                 <AnimatePresence initial={false}>
                   <motion.div
                     key={`${current.id}-${phone}`}
-                    initial={{ opacity: 0, scale: 1.02 }}
-                    animate={{ opacity: 1, scale: 1 }}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.6, ease: EASE_OUT }}
                     className="absolute inset-0"

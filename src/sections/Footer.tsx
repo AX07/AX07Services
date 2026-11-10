@@ -33,7 +33,7 @@ export function Footer() {
   const [policy, setPolicy] = useState<Policy | null>(null);
 
   return (
-    <footer className="relative border-t border-line px-5 pb-10 pt-16 sm:px-6">
+    <footer className="relative overflow-hidden border-t border-line px-5 pb-8 pt-16 sm:px-6 sm:pt-20">
       <div className="mx-auto max-w-6xl">
         <div className="grid grid-cols-1 gap-12 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1fr]">
           {/* Brand */}
@@ -115,6 +115,21 @@ export function Footer() {
             </a>
           </div>
         </div>
+      </div>
+
+      {/* Signature: the brand artwork closes the page */}
+      <div className="mx-auto mt-10 max-w-6xl overflow-hidden rounded-lg border border-line shadow-card">
+        <img
+          src="/brand/footer-banner-1400.webp"
+          srcSet="/brand/footer-banner-800.webp 800w, /brand/footer-banner-1400.webp 1400w, /brand/footer-banner-2000.webp 2000w"
+          sizes="(min-width: 1200px) 72rem, 100vw"
+          width={2000}
+          height={1116}
+          alt="ax07.dev, 3D web experience"
+          loading="lazy"
+          decoding="async"
+          className="block h-auto w-full"
+        />
       </div>
 
       <PolicyDialog policy={policy} onClose={() => setPolicy(null)} />
@@ -242,7 +257,7 @@ function PolicyDialog({ policy, onClose }: { policy: Policy | null; onClose: () 
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 16, scale: 0.98 }}
             transition={{ duration: 0.35, ease: EASE_OUT }}
-            className="card relative max-h-[85svh] w-full max-w-lg overflow-y-auto p-7 sm:p-9"
+            className="card relative max-h-[85svh] w-full max-w-lg overflow-y-auto !bg-surface/95 p-7 sm:p-9"
           >
             <div className="flex items-start justify-between gap-6">
               <div>

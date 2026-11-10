@@ -4,7 +4,7 @@ import { scene } from './scene-store';
 
 /**
  * Light / dark theme. The choice lives on <html data-theme> (set before first paint by the inline
- * script in index.html), is remembered per visitor, and is dark until they pick light.
+ * script in index.html), is remembered per visitor, and is light until they pick dark.
  */
 export type Theme = 'light' | 'dark';
 
@@ -19,7 +19,7 @@ function apply(theme: Theme) {
   const root = document.documentElement;
   root.dataset.theme = theme;
   root.style.colorScheme = theme;
-  document.querySelector('meta[name="theme-color"]')?.setAttribute('content', theme === 'dark' ? '#0a0a0c' : '#fbfbfd');
+  document.querySelector('meta[name="theme-color"]')?.setAttribute('content', theme === 'dark' ? '#0a0a0c' : '#f3f4f6');
   scene.dark = theme === 'dark';
   try {
     localStorage.setItem(KEY, theme);
@@ -36,7 +36,7 @@ export function useTheme() {
       return () => listeners.delete(fn);
     },
     getTheme,
-    () => 'dark' as Theme,
+    () => 'light' as Theme,
   );
 }
 

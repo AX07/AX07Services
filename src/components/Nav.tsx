@@ -51,7 +51,7 @@ export function Nav() {
     >
       <nav
         className={`flex w-full max-w-5xl items-center justify-between gap-4 rounded-full border px-2 py-2 pl-4 transition-[background-color,border-color,box-shadow] duration-500 ${
-          scrolled ? 'border-line bg-surface/75 shadow-float backdrop-blur-xl' : 'border-transparent bg-transparent'
+          scrolled ? 'glass' : 'border-transparent bg-transparent'
         }`}
         aria-label="Main"
       >
@@ -67,7 +67,7 @@ export function Nav() {
                 <motion.span
                   layoutId="nav-active"
                   transition={SPRING}
-                  className="absolute inset-0 rounded-full bg-raised"
+                  className="absolute inset-0 rounded-full bg-fg/[0.07]"
                 />
               )}
               <button
@@ -83,7 +83,7 @@ export function Nav() {
           ))}
           {pages.map((pg) => (
             <li key={pg.path} className="relative">
-              {path === pg.path && <span className="absolute inset-0 rounded-full bg-raised" />}
+              {path === pg.path && <span className="absolute inset-0 rounded-full bg-fg/[0.07]" />}
               <a
                 {...linkProps(pg.path)}
                 className={`relative rounded-full px-3.5 py-2 text-sm transition-colors duration-200 hover:text-fg ${path === pg.path ? 'text-fg' : 'text-muted'}`}

@@ -1,3 +1,4 @@
+import { WaveBackdrop } from '../components/WaveBackdrop';
 import { lazy, startTransition, Suspense, useEffect, useState } from 'react';
 import { Hero } from '../sections/Hero';
 import { LagRace } from '../sections/LagRace';
@@ -71,6 +72,14 @@ export function HomePage() {
 
   return (
     <>
+      {/* Hero backdrop: the silver waves from pricing, pinned for the length of the hero. Below the
+          particle layer, so the logo assembles over the glass rather than behind it */}
+      <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-0 z-0 h-[260vh]">
+        <div className="sticky top-0 isolate h-[100svh]">
+          <WaveBackdrop eager className="inset-y-0" />
+        </div>
+      </div>
+
       {/* The scroll driver sets this layer's opacity as chapters change */}
       <div id="scene-layer" className="fixed inset-0 z-0 pointer-events-none">
         {show3d && (

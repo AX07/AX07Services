@@ -1,7 +1,7 @@
 import { lazy, Suspense, useEffect } from 'react';
 import { MotionConfig } from 'motion/react';
 import { Nav } from './components/Nav';
-import { Footer } from './sections/Footer';
+import { FooterReveal } from './sections/FooterReveal';
 import { HomePage } from './pages/HomePage';
 import { usePath } from './lib/router';
 import { applyPageMeta } from './lib/seo';
@@ -71,9 +71,7 @@ export default function App() {
         ) : (
           <HomePage />
         )}
-        <div className="relative z-10 bg-ink">
-          <Footer />
-        </div>
+        <FooterReveal />
       </div>
     </MotionConfig>
   );

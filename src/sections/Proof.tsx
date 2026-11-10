@@ -1,3 +1,4 @@
+import { GlassOrbs } from '../components/GlassOrbs';
 import { motion } from 'motion/react';
 import { EASE_OUT, Eyebrow, Headline, Reveal, RevealGroup, RevealItem } from '../components/Reveal';
 import { CountTo } from '../components/Gauge';
@@ -8,7 +9,8 @@ const VIEW = { once: false, amount: 0.6 } as const;
 
 export function Proof() {
   return (
-    <section id="proof" className="relative gutter section-y">
+    <section id="proof" className="relative isolate gutter section-y">
+      <GlassOrbs layout="spread" />
       <div className="mx-auto max-w-6xl">
         <Eyebrow index="06" className="mb-5">
           Proof, not promises

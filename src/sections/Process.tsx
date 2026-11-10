@@ -1,3 +1,4 @@
+import { GlassOrbs } from '../components/GlassOrbs';
 import { useRef, useState } from 'react';
 import { useRange } from '../lib/motion';
 import { motion, transform, useMotionValueEvent, useScroll } from 'motion/react';
@@ -56,7 +57,8 @@ export function Process() {
 
   return (
     <section ref={section} id="process" className="relative gutter section-y lg:h-[220vh] lg:py-0">
-      <div className="mx-auto max-w-6xl lg:sticky lg:top-0 lg:flex lg:h-[100svh] lg:flex-col lg:justify-center lg:pt-12">
+      <div className="relative isolate mx-auto max-w-6xl lg:sticky lg:top-0 lg:flex lg:h-[100svh] lg:flex-col lg:justify-center lg:pt-12">
+        <GlassOrbs layout="spread" className="-inset-x-[20vw] overflow-visible" />
         <Eyebrow index="04" className="mb-5">
           Your free preview
         </Eyebrow>

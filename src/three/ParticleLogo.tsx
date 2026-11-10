@@ -16,7 +16,9 @@ const pointsRequest = fetch(POINTS_URL)
   .then((buf) => new Int16Array(buf));
 
 // Particle ink per theme (switched instantly so the theme reveal shows the new colour)
-const INK_LIGHT = new THREE.Color('#1d1d1f');
+// Light theme: near-black, drawn more opaque and a little larger, so the field reads as strongly on
+// the pale page as the glowing one does on night
+const INK_LIGHT = new THREE.Color('#0c0d10');
 const INK_DARK = new THREE.Color('#e8e8ed');
 // Seconds for one shape to break apart and the pieces to rebuild the next
 const SWITCH_TIME = 1.3;
@@ -354,6 +356,8 @@ export function ParticleLogo({ count }: Props) {
     u.uDisperse.value += (store.disperse - u.uDisperse.value) * k;
     u.uForm.value += (store.form - u.uForm.value) * k;
     (u.uColor.value as THREE.Color).copy(store.dark ? INK_DARK : INK_LIGHT);
+    u.uOpacity.value = store.dark ? 0.78 : 0.95;
+    u.uSize.value = store.dark ? 24 : 27;
     // Same target: the outline follows it exactly as it scrolls. New target: glide across to it
     const g = glide.current;
     const frame = [store.frameX, store.frameY, store.frameHalfW, store.frameHalfH, store.frameR];
