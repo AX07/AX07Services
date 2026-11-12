@@ -7,9 +7,10 @@ import { goToSection, linkProps } from '../lib/router';
 
 type Policy = 'cookies' | 'privacy' | 'terms';
 
-const EMAIL = 'ax07.dev@gmail.com';
+const EMAIL = 'info@ax07.dev';
 
 const socials = [
+  { name: 'Instagram', href: 'https://www.instagram.com/ax07.dev/', icon: <InstagramIcon /> },
   { name: 'LinkedIn', href: 'https://www.linkedin.com/company/ax07dev/', icon: <LinkedInIcon /> },
   { name: 'Google reviews', href: 'https://share.google/1em5V7FtwTtUx9awY', icon: <GoogleIcon /> },
   { name: 'GitHub', href: 'https://github.com/AX07', icon: <GitHubIcon /> },
@@ -290,6 +291,24 @@ function PolicyDialog({ policy, onClose }: { policy: Policy | null; onClose: () 
 }
 
 /* ---------------------------------------------------------------- Icons */
+
+function InstagramIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" aria-hidden="true">
+      <defs>
+        <linearGradient id="ig-grad" x1="0" y1="1" x2="1" y2="0">
+          <stop offset="0" stopColor="#feda75" />
+          <stop offset="0.35" stopColor="#fa7e1e" />
+          <stop offset="0.6" stopColor="#d62976" />
+          <stop offset="1" stopColor="#4f5bd5" />
+        </linearGradient>
+      </defs>
+      <rect x="2.5" y="2.5" width="19" height="19" rx="5.5" fill="none" stroke="url(#ig-grad)" strokeWidth="2" />
+      <circle cx="12" cy="12" r="4.3" fill="none" stroke="url(#ig-grad)" strokeWidth="2" />
+      <circle cx="17.4" cy="6.6" r="1.3" fill="url(#ig-grad)" />
+    </svg>
+  );
+}
 
 function LinkedInIcon() {
   return (

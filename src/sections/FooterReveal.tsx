@@ -7,11 +7,12 @@ import { Footer } from './Footer';
  * like a panel opening. No fade: whatever is uncovered is already solid.
  *
  * The wrapper holds the footer's place in the page and clips the footer to it. Inside, the footer
- * is held still while it is being uncovered:
- *  - shorter than the screen: it stays pinned to the bottom of the screen until the page ends;
- *  - taller than the screen (phones, and desktops with the brand artwork): it scrolls in normally,
- *    so its top is never hidden behind the section above.
+ * moves up at half the page's speed while it is uncovered, then sits in its normal place: the
+ * page appears to slide off it, and its top is never left hidden, however tall it is.
  */
+// 0 = footer scrolls with the page, 1 = it stays still while uncovered
+const PARALLAX = 0.5;
+
 export function FooterReveal() {
   const wrap = useRef<HTMLDivElement>(null);
   const y = useMotionValue(0);
@@ -20,15 +21,13 @@ export function FooterReveal() {
   const place = () => {
     const el = wrap.current;
     if (!el) return;
-    // A footer taller than the screen scrolls in normally: pinned, its top would stay hidden
-    // behind the section above until the very end
-    const rest = window.innerHeight - el.offsetHeight;
-    if (rest < 0) {
-      y.set(0);
-      return;
-    }
-    // It fits: it rests with its bottom on the screen's bottom while the page lifts off it
-    y.set(-Math.max(0, el.getBoundingClientRect().top - rest));
+    // Where the footer's top ends up once fully in view: the top of the screen for a tall footer,
+    // or wherever the page ends for one that fits
+    const rest = Math.max(0, window.innerHeight - el.offsetHeight);
+    // While the page lifts off it, the footer rises at half the page's speed: it starts half a
+    // gap higher (under the page) and catches up exactly as it lands, so its top is always in
+    // full view by the time the reveal ends
+    y.set(-Math.max(0, el.getBoundingClientRect().top - rest) * PARALLAX);
   };
 
   useMotionValueEvent(scrollY, 'change', place);
