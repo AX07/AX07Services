@@ -9,8 +9,8 @@ import { Footer } from './Footer';
  * The wrapper holds the footer's place in the page and clips the footer to it. Inside, the footer
  * is held still while it is being uncovered:
  *  - shorter than the screen: it stays pinned to the bottom of the screen until the page ends;
- *  - taller than the screen (phones): it stays pinned to the top while its top is uncovered, then
- *    scrolls up with the page so the rest of it can be read.
+ *  - taller than the screen (phones, and desktops with the brand artwork): it scrolls in normally,
+ *    so its top is never hidden behind the section above.
  */
 export function FooterReveal() {
   const wrap = useRef<HTMLDivElement>(null);
@@ -20,11 +20,15 @@ export function FooterReveal() {
   const place = () => {
     const el = wrap.current;
     if (!el) return;
-    const top = el.getBoundingClientRect().top;
-    // Where the footer rests on screen while it is uncovered: the bottom edge on the screen's bottom
-    // when it fits, its top edge on the screen's top when it doesn't
-    const rest = Math.max(0, window.innerHeight - el.offsetHeight);
-    y.set(Math.max(0, top - rest) * -1);
+    // A footer taller than the screen scrolls in normally: pinned, its top would stay hidden
+    // behind the section above until the very end
+    const rest = window.innerHeight - el.offsetHeight;
+    if (rest < 0) {
+      y.set(0);
+      return;
+    }
+    // It fits: it rests with its bottom on the screen's bottom while the page lifts off it
+    y.set(-Math.max(0, el.getBoundingClientRect().top - rest));
   };
 
   useMotionValueEvent(scrollY, 'change', place);
