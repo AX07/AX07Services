@@ -210,7 +210,7 @@ export function BookingDemo() {
                   <span className="max-sm:hidden">{STEPS[step].body}</span>
                 </motion.p>
               </AnimatePresence>
-              <div className="mt-4">{cta}</div>
+              <div className="mt-3 sm:mt-4">{cta}</div>
             </div>
           </div>
 
@@ -221,7 +221,7 @@ export function BookingDemo() {
                 See it work
               </Eyebrow>
               <h2 className="display text-balance text-display-3">{headline}</h2>
-              <p className="mx-auto mt-2 max-w-md text-pretty text-body-sm text-muted">
+              <p className="mx-auto mt-2 max-w-md text-pretty text-body-sm text-muted max-sm:hidden">
                 Our own site, built the way we build yours. Scroll to watch a booking, or tap and try it.
               </p>
             </div>
@@ -235,7 +235,7 @@ export function BookingDemo() {
               style={{ opacity: deviceOpacity }}
               className={`card relative mx-auto overflow-hidden p-0 ${
                 phone
-                  ? '!rounded-[30px] border-[5px] !border-fg w-[min(72vw,calc((100svh-410px)*0.53))]'
+                  ? '!rounded-[30px] border-[5px] !border-fg w-[min(72vw,calc((100svh-268px)*0.5625))]'
                   : '!rounded-[20px] w-full max-w-[min(100%,calc((100svh-320px)*1.6))] lg:max-w-none'
               }`}
             >

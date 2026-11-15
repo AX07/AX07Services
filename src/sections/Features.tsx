@@ -223,7 +223,7 @@ export function Features() {
                     className={`${i === Math.min(active, 2) ? '' : 'hidden'} lg:block ${i === 0 ? 'lg:row-span-2' : ''}`}
                     style={{ opacity: reduce ? 1 : clamp01((progress / SCAFFOLD) * 2 - i * 0.5) }}
                   >
-                    <Slot state={slots[i]} code={m.code} className={i === 0 ? 'h-[300px] lg:h-full' : i === 1 ? 'h-[300px] lg:h-[262px]' : 'h-[300px] lg:h-[196px]'}>
+                    <Slot state={slots[i]} code={m.code} className={i === 0 ? 'h-[clamp(186px,calc(100svh-424px),300px)] lg:h-full' : i === 1 ? 'h-[clamp(186px,calc(100svh-424px),300px)] lg:h-[262px]' : 'h-[clamp(186px,calc(100svh-424px),300px)] lg:h-[196px]'}>
                       {i === 0 && <ChatModule live={slots[i].live} />}
                       {i === 1 && <AdminModule live={slots[i].live} />}
                       {i === 2 && <ClientModule live={slots[i].live} compact={compact} />}
@@ -390,7 +390,7 @@ function AdminModule({ live }: { live: number }) {
           Live
         </span>
       </div>
-      <div className="grid grid-cols-3 gap-2 px-3 pt-2.5">
+      <div className="grid grid-cols-3 gap-2 px-3 pt-2.5 max-lg:[@media(max-height:700px)]:hidden">
         {stats.map(([label, n]) => (
           <div key={label} className="rounded-sm bg-surface px-2.5 py-1.5">
             <div className="text-[10px] text-muted">{label}</div>
