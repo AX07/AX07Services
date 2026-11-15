@@ -9,7 +9,7 @@ export function Pricing() {
       <WaveBackdrop fade="both" className="inset-y-0 opacity-60" />
       <GlassOrbs layout="pair" />
       <div className="mx-auto max-w-6xl">
-        <Eyebrow index="07" className="mb-5">
+        <Eyebrow index="06" className="mb-5">
           Pricing
         </Eyebrow>
         <Headline

@@ -1,7 +1,7 @@
 import { WaveBackdrop } from '../components/WaveBackdrop';
 import { lazy, startTransition, Suspense, useEffect, useState } from 'react';
 import { Hero } from '../sections/Hero';
-import { LagRace } from '../sections/LagRace';
+import { BookingDemo } from '../sections/BookingDemo';
 import { initSmoothScroll, scrollToId } from '../lib/smooth-scroll';
 
 // three.js downloads straight away, in parallel with first paint, but only mounts once the page
@@ -91,7 +91,7 @@ export function HomePage() {
 
       <main className="relative z-10">
         <Hero />
-        <LagRace />
+        <BookingDemo />
         {showRest && (
           <Suspense fallback={null}>
             <HomeRest />

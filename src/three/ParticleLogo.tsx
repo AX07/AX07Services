@@ -174,6 +174,7 @@ const fragmentShader = /* glsl */ `
   uniform vec3 uColor;
   uniform vec3 uAccent;
   uniform float uOpacity;
+  uniform float uSpark;
   uniform float uAmbient;
   uniform float uForm;
   uniform float uTint;
@@ -196,7 +197,12 @@ const fragmentShader = /* glsl */ `
     // While the field is gathered on a target only the gathered particles show: no second layer
     // drifting behind it
     float presence = mix(uAmbient * (1.0 - uForm), 1.0, vForm);
-    gl_FragColor = vec4(color, alpha * uOpacity * vFade * presence * (0.55 + vSeed * 0.45));
+    // Dark theme: about four in ten particles burn pure white at full strength, so the logo
+    // reads clearly against the dark page
+    float spark = uSpark * step(0.55, vSeed) * (1.0 - step(0.93, vSeed));
+    color = mix(color, vec3(1.0), spark);
+    float shade = mix(0.55 + vSeed * 0.45, 1.0, spark);
+    gl_FragColor = vec4(color, min(1.0, alpha * (1.0 + spark * 0.5)) * uOpacity * vFade * presence * shade);
   }
 `;
 
@@ -287,6 +293,7 @@ export function ParticleLogo({ count }: Props) {
           uColor: { value: new THREE.Color('#1d1d1f') },
           uAccent: { value: new THREE.Color('#10b981') },
           uOpacity: { value: 0.78 },
+          uSpark: { value: 0 },
         },
       }),
     [reduceMotion],
@@ -356,8 +363,9 @@ export function ParticleLogo({ count }: Props) {
     u.uDisperse.value += (store.disperse - u.uDisperse.value) * k;
     u.uForm.value += (store.form - u.uForm.value) * k;
     (u.uColor.value as THREE.Color).copy(store.dark ? INK_DARK : INK_LIGHT);
-    u.uOpacity.value = store.dark ? 0.78 : 0.95;
-    u.uSize.value = store.dark ? 24 : 27;
+    u.uOpacity.value = store.dark ? 0.92 : 0.95;
+    u.uSpark.value = store.dark ? 1 : 0;
+    u.uSize.value = store.dark ? 27 : 27;
     // Same target: the outline follows it exactly as it scrolls. New target: glide across to it
     const g = glide.current;
     const frame = [store.frameX, store.frameY, store.frameHalfW, store.frameHalfH, store.frameR];

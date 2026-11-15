@@ -12,7 +12,7 @@ export function Proof() {
     <section id="proof" className="relative isolate gutter section-y">
       <GlassOrbs layout="spread" />
       <div className="mx-auto max-w-6xl">
-        <Eyebrow index="06" className="mb-5">
+        <Eyebrow index="05" className="mb-5">
           Proof, not promises
         </Eyebrow>
         <Headline

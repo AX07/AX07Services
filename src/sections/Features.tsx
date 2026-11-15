@@ -22,22 +22,22 @@ const clamp01 = (v: number) => Math.min(1, Math.max(0, v));
 const MODULES = [
   {
     title: 'WhatsApp booking',
-    body: 'Customers pick a time in the chat they already use. You get the booking, not a voicemail.',
-    code: `<WhatsAppBooking\n  business="Lumen Dental"\n  slots={calendar.free()}\n  confirm="instant" />`,
+    body: 'A tap on your site opens a chat with the service already chosen. You reply in person, from your own phone.',
+    code: `<WhatsAppBooking\n  business="Lumen Dental"\n  service={selected}\n  reply="in person" />`,
   },
   {
-    title: 'Custom calculators',
-    body: 'Instant quotes, treatment estimates, rental prices: whatever customers ask before they call.',
-    code: `<QuoteCalculator\n  rate={(months) => months * 160}\n  options={['Standard', 'Invisible']}\n  roundTo={50} />`,
+    title: 'Your booking dashboard',
+    body: 'Every booking lands in one place: names, dates, services and who has paid. Nothing lost in a notebook or an inbox.',
+    code: `<BookingDashboard\n  bookings={live}\n  payments="tracked"\n  notify="whatsapp" />`,
   },
   {
-    title: 'Email booking & reminders',
-    body: 'Confirmations, calendar invites and reminders that cut no-shows, sent automatically.',
-    code: `<BookingEmails\n  confirm="on-book"\n  reminder="24h"\n  calendar="ics" />`,
+    title: 'A page for every client',
+    body: 'Each client gets a private link with their appointment, payment status and a calendar invite, and can rebook in one tap.',
+    code: `<ClientPage\n  link="private"\n  calendar="ics"\n  rebook="whatsapp" />`,
   },
 ] as const;
 
-const EXTRAS = ['Deposits & payments', 'Member areas', 'Multi-language', 'Live data feeds'];
+const EXTRAS = ['Quote calculators', 'Email reminders', 'Deposits & payments', 'Multi-language'];
 
 type SlotState = { phase: 'empty' | 'building' | 'live'; build: number; live: number };
 
@@ -101,7 +101,7 @@ export function Features() {
         <div className="mx-auto grid w-full max-w-6xl grid-cols-1 gap-5 px-5 pt-16 sm:px-6 lg:grid-cols-[0.85fr_1.15fr] lg:items-center lg:gap-14 lg:pt-12">
           {/* Left: what's being built */}
           <div>
-            <Eyebrow index="05" className="mb-3 lg:mb-5">
+            <Eyebrow index="04" className="mb-3 lg:mb-5">
               Built in, not bolted on
             </Eyebrow>
             <h2 className="display text-display-3">
@@ -166,7 +166,7 @@ export function Features() {
                             ))}
                           </div>
                           <a
-                            href={whatsappLink("Hi ax07, I'd like a custom booking system or calculator on my website. Can we talk?")}
+                            href={whatsappLink("Hi ax07, I'd like a booking system with a dashboard like this for my business. Can we talk?")}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="btn btn-primary mt-4 hidden lg:inline-flex"
@@ -223,10 +223,10 @@ export function Features() {
                     className={`${i === Math.min(active, 2) ? '' : 'hidden'} lg:block ${i === 0 ? 'lg:row-span-2' : ''}`}
                     style={{ opacity: reduce ? 1 : clamp01((progress / SCAFFOLD) * 2 - i * 0.5) }}
                   >
-                    <Slot state={slots[i]} code={m.code} className={i === 0 ? 'h-[300px] lg:h-full' : i === 1 ? 'h-[240px]' : 'h-[270px] lg:h-[150px]'}>
+                    <Slot state={slots[i]} code={m.code} className={i === 0 ? 'h-[300px] lg:h-full' : i === 1 ? 'h-[300px] lg:h-[262px]' : 'h-[300px] lg:h-[196px]'}>
                       {i === 0 && <ChatModule live={slots[i].live} />}
-                      {i === 1 && <QuoteCalculator auto={compact ? slots[i].live : undefined} />}
-                      {i === 2 && <EmailModule progress={compact ? slots[i].live : undefined} />}
+                      {i === 1 && <AdminModule live={slots[i].live} />}
+                      {i === 2 && <ClientModule live={slots[i].live} compact={compact} />}
                     </Slot>
                   </div>
                 ))}
@@ -301,10 +301,10 @@ function Slot({ state, code, className, children }: { state: SlotState; code: st
 
 const CHAT = [
   { from: 'them', text: 'Hi! Do you have a cleaning slot this Thursday?' },
-  { from: 'bot', text: 'Hi Sarah 👋 Thursday has three openings:' },
+  { from: 'biz', text: 'Hi Sarah 👋 Thursday has three openings:' },
   { from: 'slots', text: '' },
   { from: 'them', text: '10:30 please' },
-  { from: 'done', text: 'Booked ✓ Thu 10:30 with Dr. Byrne. See you then!' },
+  { from: 'done', text: 'Booked ✓ Thu 10:30 with Dr Byrne. Your booking: lumendental.ie/b/sarah' },
 ] as const;
 
 /** The conversation advances with the scroll, then stays complete once the module is built. */
@@ -317,7 +317,7 @@ function ChatModule({ live }: { live: number }) {
         <span className="flex h-6 w-6 items-center justify-center rounded-full bg-white/20 text-[11px] font-semibold">LD</span>
         <div className="leading-tight">
           <div className="text-[12px] font-medium">Lumen Dental</div>
-          <div className="text-[10px] opacity-75">Booking assistant · online</div>
+          <div className="text-[10px] opacity-75">online</div>
         </div>
       </div>
       <div className="flex flex-1 flex-col justify-end gap-1.5 p-2.5">
@@ -361,172 +361,144 @@ function ChatModule({ live }: { live: number }) {
   );
 }
 
-/* ---------------------------------------------------------------- Calculator */
+/* ---------------------------------------------------------------- Dashboard */
 
-/**
- * On phones the calculator plays itself as you scroll (`auto` = 0..1): the slider is dragged
- * out, then "Invisible aligners" is tapped. Touching it hands control to the visitor.
- */
-function QuoteCalculator({ auto }: { auto?: number }) {
-  const [manualSize, setSize] = useState(6);
-  const [manualPremium, setPremium] = useState(false);
-  const [touched, setTouched] = useState(false);
-  const playing = auto !== undefined && !touched;
-  const a = auto ?? 0;
+const BOOKINGS = [
+  { at: 0.08, name: 'Sarah Byrne', service: 'Check-up & clean', when: 'Thu 10:30', status: 'Confirmed', paid: 'Paid' },
+  { at: 0.36, name: 'Tom Walsh', service: 'Teeth whitening', when: 'Fri 14:00', status: 'Confirmed', paid: 'Deposit' },
+  { at: 0.64, name: 'Aoife Kelly', service: 'Emergency visit', when: 'Today 16:15', status: 'New', paid: 'Unpaid' },
+] as const;
 
-  const drag = playing ? 1 - Math.pow(1 - clamp01(a / 0.55), 3) : 0;
-  const size = playing ? 3 + Math.round(drag * 15) : manualSize;
-  const premium = playing ? a >= 0.62 : manualPremium;
-  const rate = premium ? 210 : 160;
-  const total = Math.round((size * rate + 350) / 50) * 50;
-  const thumb = (size - 3) / 15;
-
-  const take = () => {
-    if (!playing) return;
-    setSize(size);
-    setPremium(premium);
-    setTouched(true);
-  };
+/** The admin side: each booking made in WhatsApp drops in at the top as the visitor scrolls. */
+function AdminModule({ live }: { live: number }) {
+  const arrived = BOOKINGS.filter((b) => live >= b.at).reverse();
+  const stats: [string, number][] = [
+    ['Bookings', arrived.length],
+    ['Confirmed', arrived.filter((b) => b.status === 'Confirmed').length],
+    ['Paid', arrived.filter((b) => b.paid === 'Paid').length],
+  ];
 
   return (
-    <div className="flex h-full flex-col rounded-md border border-line bg-raised p-4" onPointerDown={take}>
-      <div className="flex items-center justify-between text-[12px] text-muted">
-        <span>Teeth straightening estimate</span>
-        <span className="rounded-full bg-accent-soft px-2 py-0.5 text-[10px] font-medium text-accent">Try it</span>
+    <div className="flex h-full flex-col overflow-hidden rounded-md border border-line bg-raised">
+      <div className="flex items-center justify-between border-b border-line px-3 py-2">
+        <div className="flex items-center gap-2">
+          <span className="flex h-5 w-5 items-center justify-center rounded-[6px] bg-fg text-[9px] font-semibold text-on-fg">LD</span>
+          <span className="text-[12px] font-semibold">Bookings</span>
+        </div>
+        <span className="flex items-center gap-1.5 rounded-full bg-surface px-2 py-0.5 text-[10px] text-muted">
+          <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-accent-bright" />
+          Live
+        </span>
       </div>
-      <label htmlFor="calc-size" className="mt-3 flex items-baseline justify-between text-[13px]">
-        <span>Treatment length</span>
-        <span className="font-semibold tabular-nums">{size} months</span>
-      </label>
-      <div className="relative">
-        <input
-          id="calc-size"
-          type="range"
-          min={3}
-          max={18}
-          step={1}
-          value={size}
-          onChange={(e) => {
-            setTouched(true);
-            setSize(Number(e.target.value));
-          }}
-          className="mt-1.5 w-full cursor-pointer accent-accent-bright"
-        />
-        {/* A fingertip riding the thumb while the demo plays */}
-        {playing && a > 0 && a < 0.6 && (
-          <span
-            aria-hidden="true"
-            className="pointer-events-none absolute top-1/2 h-7 w-7 -translate-x-1/2 -translate-y-[40%] rounded-full bg-fg/15 ring-2 ring-fg/20"
-            style={{ left: `calc(${thumb} * (100% - 16px) + 8px)` }}
-          />
-        )}
-      </div>
-      <div className="mt-3 flex gap-1 rounded-full bg-surface p-1 text-[12px]">
-        {[
-          ['Standard', false],
-          ['Invisible aligners', true],
-        ].map(([label, value]) => (
-          <button
-            key={String(label)}
-            type="button"
-            onClick={() => {
-              setTouched(true);
-              setSize(size);
-              setPremium(value as boolean);
-            }}
-            aria-pressed={premium === value}
-            className={`relative flex-1 cursor-pointer rounded-full px-3 py-1 transition-colors duration-300 ${premium === value ? 'bg-fg text-on-fg' : 'text-muted hover:text-fg'}`}
-          >
-            {label as string}
-            {playing && value === true && a >= 0.58 && a < 0.75 && (
-              <motion.span
-                aria-hidden="true"
-                initial={{ opacity: 0.6, scale: 0.6 }}
-                animate={{ opacity: 0, scale: 1.6 }}
-                transition={{ duration: 0.6, ease: EASE_OUT }}
-                className="absolute inset-0 m-auto h-6 w-6 rounded-full bg-fg/25"
-              />
-            )}
-          </button>
+      <div className="grid grid-cols-3 gap-2 px-3 pt-2.5">
+        {stats.map(([label, n]) => (
+          <div key={label} className="rounded-sm bg-surface px-2.5 py-1.5">
+            <div className="text-[10px] text-muted">{label}</div>
+            <div className="font-display text-[18px] font-semibold leading-tight tabular-nums">{n}</div>
+          </div>
         ))}
       </div>
-      <div className="mt-auto flex items-end justify-between border-t border-line pt-3">
-        <span className="text-[12px] text-muted">Estimated total</span>
-        <span className="font-display text-[26px] font-semibold tabular-nums">€{total.toLocaleString('en-IE')}</span>
+      <div className="flex flex-1 flex-col gap-1.5 overflow-hidden p-3">
+        <AnimatePresence initial={false}>
+          {arrived.map((b) => (
+            <motion.div
+              key={b.name}
+              layout
+              initial={{ opacity: 0, y: -14 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.5, ease: EASE_OUT }}
+              className="relative flex items-center gap-2.5 overflow-hidden rounded-sm bg-surface px-2.5 py-2 shadow-xs"
+            >
+              {/* A new booking flashes green as it lands */}
+              <motion.span
+                aria-hidden="true"
+                initial={{ opacity: 1 }}
+                animate={{ opacity: 0 }}
+                transition={{ duration: 1.6, ease: EASE_OUT }}
+                className="pointer-events-none absolute inset-0 bg-accent-soft"
+              />
+              <span className="relative flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-raised text-[10px] font-semibold">
+                {b.name
+                  .split(' ')
+                  .map((w) => w[0])
+                  .join('')}
+              </span>
+              <div className="relative min-w-0 flex-1">
+                <div className="truncate text-[12px] font-semibold">{b.name}</div>
+                <div className="truncate text-[10px] text-muted">
+                  {b.service} · {b.when}
+                </div>
+              </div>
+              <span
+                className={`relative rounded-full px-2 py-0.5 text-[10px] font-medium ${
+                  b.status === 'New' ? 'bg-warn-soft text-warn' : 'bg-accent-soft text-accent'
+                }`}
+              >
+                {b.status}
+              </span>
+              <span className="relative hidden w-12 text-right text-[10px] text-muted sm:block">{b.paid}</span>
+            </motion.div>
+          ))}
+        </AnimatePresence>
+        {arrived.length === 0 && <div className="m-auto text-[12px] text-subtle">Waiting for bookings</div>}
       </div>
     </div>
   );
 }
 
-/* ---------------------------------------------------------------- Email */
+/* ---------------------------------------------------------------- Client page */
 
-const EMAILS = [
-  { at: 0.08, from: 'Lumen Dental', time: 'now', title: 'Your appointment is confirmed', body: 'Thu 10:30 · Check-up & clean · Add to calendar' },
-  { at: 0.38, from: 'Booking system', time: 'now', title: 'New booking: Sarah Byrne', body: 'Thu 10:30 · added to your calendar' },
-  { at: 0.68, from: 'Lumen Dental', time: 'Wed 10:30', title: 'Reminder: see you tomorrow', body: 'Sent automatically 24h before' },
-];
+const CLIENT_STEPS = [
+  { at: 0.1, label: 'Booked' },
+  { at: 0.35, label: 'Confirmed' },
+  { at: 0.6, label: 'Paid' },
+  { at: 0.85, label: 'Reminder set' },
+] as const;
 
-/**
- * Desktop: the confirmation and reminder land once the module goes live.
- * Phones (`progress` = 0..1): each email arrives as you scroll, newest on top like a lock screen.
- */
-function EmailModule({ progress }: { progress?: number }) {
-  if (progress !== undefined) {
-    const arrived = EMAILS.filter((m) => progress >= m.at).reverse();
-    return (
-      <div className="flex h-full flex-col gap-2 overflow-hidden rounded-md bg-raised p-2.5">
-        <AnimatePresence initial={false}>
-          {arrived.map((m) => (
-            <motion.div
-              key={m.title}
-              layout
-              initial={{ opacity: 0, y: -20, scale: 0.97 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -12 }}
-              transition={{ duration: 0.45, ease: EASE_OUT }}
-              className="rounded-sm bg-surface p-3 shadow-card"
-            >
-              <div className="flex items-center justify-between text-[10px] text-muted">
-                <span className="flex items-center gap-1.5">
-                  <span className="h-1.5 w-1.5 rounded-full bg-accent-bright" />
-                  {m.from}
-                </span>
-                <span>{m.time}</span>
-              </div>
-              <div className="mt-1 text-[12px] font-semibold">{m.title}</div>
-              <div className="mt-0.5 text-[11px] text-muted">{m.body}</div>
-            </motion.div>
-          ))}
-        </AnimatePresence>
-        {arrived.length === 0 && <div className="m-auto text-[12px] text-subtle">Inbox</div>}
-      </div>
-    );
-  }
-
+/** The client's side: their private booking page, filling in as the booking moves along. */
+function ClientModule({ live, compact }: { live: number; compact: boolean }) {
   return (
-    <div className="h-full overflow-hidden rounded-md bg-raised p-2.5">
-      <motion.div
-        initial={{ opacity: 0, y: -16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, ease: EASE_OUT, delay: 0.1 }}
-        className="rounded-sm bg-surface p-3 shadow-card"
-      >
-        <div className="flex items-center justify-between text-[10px] text-muted">
-          <span>Lumen Dental</span>
-          <span>now</span>
+    <div className="flex h-full flex-col overflow-hidden rounded-md border border-line bg-raised">
+      <div className="flex items-center gap-1.5 border-b border-line px-3 py-1.5 text-[10px] text-muted">
+        <svg viewBox="0 0 16 16" className="h-2.5 w-2.5" aria-hidden="true">
+          <path d="M4.5 7V5.5a3.5 3.5 0 017 0V7M3.5 7h9v6.5h-9z" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
+        </svg>
+        lumendental.ie/b/sarah
+        <span className="ml-auto rounded-full bg-surface px-1.5 py-px text-[9px]">Private link</span>
+      </div>
+      <div className={`flex flex-1 gap-3 p-3 ${compact ? 'flex-col' : ''}`}>
+        <div className="flex-1 rounded-sm bg-surface p-3 shadow-xs">
+          <div className="text-[10px] text-muted">Hi Sarah, your appointment</div>
+          <div className="mt-1 font-display text-[15px] font-semibold leading-tight">Check-up & clean</div>
+          <div className="mt-0.5 text-[11px] text-muted">Thu 10:30 · Dr Byrne</div>
+          <div className="mt-2.5 flex gap-1.5">
+            <span className="rounded-full bg-fg px-2.5 py-1 text-[10px] font-medium text-on-fg">Add to calendar</span>
+            <span className="rounded-full border border-line px-2.5 py-1 text-[10px]">Rebook</span>
+          </div>
         </div>
-        <div className="mt-1 text-[12px] font-semibold">Your appointment is confirmed</div>
-        <div className="mt-0.5 text-[11px] text-muted">Thu 10:30 · Check-up & clean · Add to calendar</div>
-      </motion.div>
-      <motion.div
-        initial={{ opacity: 0, y: -16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, ease: EASE_OUT, delay: 0.5 }}
-        className="mt-2 flex items-center gap-2 rounded-sm bg-surface/80 px-3 py-2 text-[11px] text-muted shadow-xs"
-      >
-        <span className="h-1.5 w-1.5 rounded-full bg-accent-bright" />
-        Reminder scheduled · 24h before
-      </motion.div>
+        <ol className={`flex shrink-0 gap-x-3 gap-y-1.5 ${compact ? 'flex-wrap' : 'w-[38%] flex-col justify-center'}`}>
+          {CLIENT_STEPS.map((st) => {
+            const done = live >= st.at;
+            return (
+              <li key={st.label} className={`flex items-center gap-2 text-[11px] transition-colors duration-500 ${done ? 'text-fg' : 'text-subtle'}`}>
+                <span
+                  className={`flex h-4 w-4 items-center justify-center rounded-full transition-colors duration-500 ${
+                    done ? 'bg-accent-bright text-white' : 'border border-line'
+                  }`}
+                >
+                  {done && (
+                    <svg viewBox="0 0 16 16" className="h-2.5 w-2.5" aria-hidden="true">
+                      <path d="M3 8.5l3 3 7-7" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  )}
+                </span>
+                {st.label}
+              </li>
+            );
+          })}
+        </ol>
+      </div>
     </div>
   );
 }

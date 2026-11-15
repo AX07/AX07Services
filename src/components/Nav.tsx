@@ -7,7 +7,7 @@ import { SPRING } from '../lib/tokens';
 import { ThemeToggle } from './ThemeToggle';
 
 const links = [
-  { id: 'showcase', label: 'Showcase' },
+  { id: 'showcase', label: 'See it work' },
   { id: 'work', label: 'Work' },
   { id: 'process', label: 'Free preview' },
   { id: 'features', label: 'Features' },
@@ -15,7 +15,9 @@ const links = [
 ];
 
 // Separate pages, shown after the section links
-const pages = [{ path: '/about', label: 'About' }];
+const pages = [
+  { path: '/about', label: 'About' },
+];
 
 export function Nav() {
   const path = usePath();
@@ -60,7 +62,7 @@ export function Nav() {
           <span className="font-display text-[20px] font-semibold tracking-tight">ax07<span className="text-muted">.dev</span></span>
         </button>
 
-        <ul className="hidden items-center gap-1 md:flex">
+        <ul className="hidden items-center gap-1 lg:flex">
           {links.map((l) => (
             <li key={l.id} className="relative">
               {active === l.id && (

@@ -58,7 +58,7 @@ export function Work() {
     >
       <GlassOrbs layout="pair" />
       <div className="mx-auto mb-10 w-full max-w-6xl px-6 sm:mb-14">
-        <Eyebrow index="03" className="mb-5">
+        <Eyebrow index="02" className="mb-5">
           Selected work
         </Eyebrow>
         <div className="flex items-end justify-between gap-8">

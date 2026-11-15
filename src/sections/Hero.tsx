@@ -47,8 +47,8 @@ export function Hero() {
           />
 
           <p className="mt-5 max-w-[36rem] animate-[hero-in_0.9s_var(--ease-out)_0.35s_both] text-pretty text-lead text-muted">
-            More enquiries and bookings for local businesses. Custom websites that open instantly on a phone and send customers
-            straight to your WhatsApp, not to a competitor.
+            Websites with a booking system built in. One tap opens WhatsApp with the service already chosen, a real person answers,
+            and every booking lands in your own dashboard.
           </p>
 
           <div className="mt-8 flex w-full animate-[hero-in_0.9s_var(--ease-out)_0.5s_both] flex-col items-center gap-3 sm:w-auto sm:flex-row">
@@ -60,8 +60,8 @@ export function Hero() {
             >
               Get your free 48h preview
             </a>
-            <button type="button" onClick={() => scrollToId('work')} className="btn btn-quiet hidden sm:inline-flex">
-              See the work
+            <button type="button" onClick={() => scrollToId('showcase')} className="btn btn-quiet w-full sm:w-auto">
+              See a booking happen
             </button>
           </div>
         </motion.div>
@@ -70,10 +70,10 @@ export function Hero() {
         <div className="pointer-events-none absolute inset-0 z-10 mx-auto grid max-w-6xl grid-rows-[auto_1fr] gutter pt-[12svh] lg:grid-cols-2 lg:grid-rows-1 lg:items-center lg:gap-12 lg:pt-0">
           <div id="hero-beat-slot" aria-hidden="true" className="h-[30svh] lg:h-[56svh]" />
           <motion.div style={{ opacity: lineOpacity, y: lineY }} className="mt-6 text-center lg:mt-0 lg:text-left">
-            <h2 className="display text-balance text-display-2">A standard site is invisible.</h2>
+            <h2 className="display text-balance text-display-2">A contact form loses clients.</h2>
             <p className="mx-auto mt-5 max-w-[34rem] text-pretty text-lead text-muted lg:mx-0">
-              Most local businesses rely on generic templates, slow loads, and confusing forms. When high-value clients search on
-              their phones, every extra second of loading sends them to a competitor.
+              Most local businesses still rely on slow sites, long forms and phones that ring out. When someone is ready to book
+              on their phone, every extra step sends them to a competitor.
             </p>
           </motion.div>
         </div>

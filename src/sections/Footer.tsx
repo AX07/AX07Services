@@ -17,7 +17,7 @@ const socials = [
 ];
 
 const explore = [
-  { id: 'showcase', label: 'Showcase' },
+  { id: 'showcase', label: 'See it work' },
   { id: 'features', label: 'Features' },
   { id: 'proof', label: 'Speed test' },
   { id: 'work', label: 'Work' },

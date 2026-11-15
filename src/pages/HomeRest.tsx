@@ -1,4 +1,3 @@
-import { Showcase } from '../sections/Showcase';
 import { Features } from '../sections/Features';
 import { Proof } from '../sections/Proof';
 import { Process } from '../sections/Process';
@@ -11,7 +10,6 @@ import { FinalCta } from '../sections/FinalCta';
 export default function HomeRest() {
   return (
     <>
-      <Showcase />
       <Work />
       <Process />
       <Features />

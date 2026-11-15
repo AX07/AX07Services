@@ -29,14 +29,13 @@ export function scrollToY(y: number) {
 
 /**
  * Converts section positions into the 3D story:
- * hero → logo rises, turns and bursts into a field that drifts through the lag race, then travels
+ * hero → logo rises, turns and bursts into a field that then travels
  * the page, gathering around each chapter's target in turn; the logo reassembles for the final
  * call to action.
  */
 function updateScene() {
   const vh = window.innerHeight;
   const hero = document.getElementById('hero');
-  const lag = document.getElementById('lag');
   const cta = document.getElementById('final-cta');
   const layer = document.getElementById('scene-layer');
 
@@ -89,14 +88,8 @@ function updateScene() {
     scene.ctaY = (centreY - (r.top + r.height / 2)) * worldPerPx;
     scene.ctaScale = (r.height * worldPerPx * 0.92) / LOGO_WORLD_SIZE;
   }
-  // The burst keeps drifting outwards through the lag race (staying dense and on screen), then gathers into the showcase device
-  let lagProgress = 0;
-  if (lag) {
-    const r = lag.getBoundingClientRect();
-    lagProgress = clamp01((vh * 0.6 - r.top) / (r.height - vh * 0.4));
-  }
   // Holds together while beat 2 is read, then bursts as the copy leaves
-  const heroDisperse = clamp01((heroProgress - 0.78) / 0.22) + lagProgress * 0.3;
+  const heroDisperse = clamp01((heroProgress - 0.78) / 0.22);
   scene.disperse = ctaProgress > 0 ? 1 - ctaProgress : heroDisperse;
 
   // From the showcase on, the scattered field is the thread through the page: it gathers around

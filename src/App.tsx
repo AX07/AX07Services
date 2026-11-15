@@ -67,7 +67,9 @@ export default function App() {
             <NotFoundPage />
           </Suspense>
         ) : path === '/work' || path === '/about' ? (
-          <Suspense fallback={<div className="min-h-[100svh]" />}>{path === '/work' ? <WorkPage /> : <AboutPage />}</Suspense>
+          <Suspense fallback={<div className="min-h-[100svh]" />}>
+            {path === '/work' ? <WorkPage /> : <AboutPage />}
+          </Suspense>
         ) : (
           <HomePage />
         )}
