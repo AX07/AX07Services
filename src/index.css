@@ -181,7 +181,10 @@ html {
   -webkit-text-size-adjust: 100%;
 }
 
-/* Lenis owns smooth scrolling */
+/* Lenis owns smooth scrolling. Stopped (a held section, see addHold): the page cannot scroll, on touch screens too */
+.lenis.lenis-stopped {
+  overflow: clip;
+}
 html.lenis,
 html.lenis body {
   height: auto;
@@ -433,6 +436,17 @@ summary {
 }
 
 /* Hero intro copy: fade + rise from first paint (CSS, so busy scripts can't hold it back) */
+/* FitsTogether: a short bright stretch runs along a line (pathLength 1, dasharray 0.22 1.2) */
+@keyframes pulse-run {
+  from { stroke-dashoffset: 0.22; }
+  to { stroke-dashoffset: -1; }
+}
+
+/* FitsTogether tech strip: the list is doubled, so moving it by half loops without a seam */
+@keyframes tech-marquee {
+  to { transform: translateX(-50%); }
+}
+
 @keyframes hero-in {
   from { opacity: 0; transform: translateY(12px); }
   to { opacity: 1; transform: none; }

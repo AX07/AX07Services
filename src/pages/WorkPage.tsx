@@ -5,6 +5,7 @@ import { DEFAULT_WHATSAPP_MESSAGE, projects, rememberWorkReturn, whatsappLink, w
 import { goToSection, linkProps } from '../lib/router';
 import { SPRING } from '../lib/tokens';
 import { WaveBackdrop } from '../components/WaveBackdrop';
+import { ReelVideo } from '../components/ReelVideo';
 
 const FILTERS: { id: 'all' | ProjectCategory; label: string }[] = [
   { id: 'all', label: 'All work' },
@@ -54,9 +55,12 @@ export function WorkPage() {
           ))}
         </Reveal>
 
-        <motion.div layout className="mt-10 grid grid-cols-1 gap-5 md:grid-cols-2">
+        {/* Bento grid: wide tiles and narrow ones alternate (2+1, 1+2, …); "dense" fills any gap a filter leaves */}
+        <motion.div layout className="mt-10 grid grid-flow-dense grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
           <AnimatePresence mode="popLayout" initial={false}>
-            {shown.map((p, i) => (
+            {shown.map((p, i) => {
+              const wide = i % 4 === 0 || i % 4 === 3;
+              return (
               <motion.article
                 key={p.id}
                 onClickCapture={() => rememberWorkReturn('/work')}
@@ -65,12 +69,12 @@ export function WorkPage() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.97 }}
                 transition={{ duration: 0.5, ease: EASE_OUT, delay: i * 0.04 }}
-                className="card group flex flex-col overflow-hidden !p-0"
+                className={`card group flex flex-col overflow-hidden !p-0 ${wide ? 'lg:col-span-2 lg:flex-row' : ''}`}
               >
                 <a
                   {...linkProps(workPath(p.id))}
                   aria-label={`View the ${p.title} site`}
-                  className="block border-b border-line bg-raised"
+                  className={`block border-b border-line bg-raised ${wide ? 'lg:flex lg:w-[58%] lg:shrink-0 lg:flex-col lg:border-b-0 lg:border-r' : ''}`}
                 >
                   <div className="flex items-center gap-3 px-4 py-2.5">
                     <div className="flex gap-1.5">
@@ -83,16 +87,9 @@ export function WorkPage() {
                     </span>
                     <span className="w-[30px]" />
                   </div>
-                  <div className="relative aspect-[16/10] overflow-hidden">
-                    <img
-                      src={`${p.shot}-1280.webp`}
-                      srcSet={`${p.shot}-720.webp 720w, ${p.shot}-1280.webp 1280w`}
-                      sizes="(min-width: 768px) 560px, 92vw"
-                      alt={`${p.title} website`}
-                      loading={i < 2 ? 'eager' : 'lazy'}
-                      decoding="async"
-                      className="h-full w-full object-cover object-top transition-transform duration-700 ease-out group-hover:scale-[1.03]"
-                    />
+                  {/* Wide tiles: the video fills the full height beside the details */}
+                  <div className={`relative aspect-[16/10] overflow-hidden ${wide ? 'lg:aspect-auto lg:flex-1' : ''}`}>
+                    <ReelVideo id={p.id} shot={p.shot} title={p.title} className={wide ? 'lg:absolute lg:inset-0' : ''} />
                   </div>
                 </a>
 
@@ -133,7 +130,8 @@ export function WorkPage() {
                   </div>
                 </div>
               </motion.article>
-            ))}
+              );
+            })}
           </AnimatePresence>
         </motion.div>
 

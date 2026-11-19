@@ -2,6 +2,7 @@ import { GlassOrbs } from '../components/GlassOrbs';
 import { useLayoutEffect, useRef, useState } from 'react';
 import { useRange } from '../lib/motion';
 import { motion, useScroll } from 'motion/react';
+import { ReelVideo } from '../components/ReelVideo';
 import { Eyebrow, Headline } from '../components/Reveal';
 import { projects, rememberWorkReturn, workPath } from '../lib/content';
 import { linkProps } from '../lib/router';
@@ -62,16 +63,17 @@ export function Work() {
 
         <motion.div ref={trackRef} style={{ x }} className="flex w-max gap-4 pl-6 pr-6 sm:gap-6 lg:pl-[max(1.5rem,calc((100vw-72rem)/2+1.5rem))]">
           {projects.map((p) => (
+            // Each slide is a small bento box: the site playing in a browser window, then the name, the result and a word from the owner
             <article
               key={p.id}
-              className="card group flex w-[84vw] shrink-0 flex-col overflow-hidden !p-0 sm:w-[70vw] lg:h-[min(30rem,56svh)] lg:w-[64rem] lg:flex-row"
+              className="card group grid w-[84vw] shrink-0 grid-cols-2 gap-2 overflow-hidden !p-2 sm:w-[70vw] lg:h-[min(30rem,56svh)] lg:w-[64rem] lg:grid-cols-[62%_1fr] lg:grid-rows-[auto_auto_1fr] lg:gap-3 lg:!p-3"
             >
               {/* The real site, framed in a browser window */}
               <a
                 {...linkProps(workPath(p.id))}
                 onClickCapture={() => rememberWorkReturn('/#work')}
                 aria-label={`View the ${p.title} site`}
-                className="flex flex-col border-b border-line bg-raised/60 lg:w-[62%] lg:border-b-0 lg:border-r"
+                className="col-span-2 flex flex-col overflow-hidden rounded-[calc(var(--radius-lg)-6px)] border border-line bg-raised/60 lg:col-span-1 lg:row-span-3"
               >
                 <div className="flex items-center gap-3 px-4 py-2.5">
                   <div className="flex gap-1.5">
@@ -85,39 +87,27 @@ export function Work() {
                   <span className="w-[30px]" />
                 </div>
                 <div className="relative aspect-[16/10] overflow-hidden lg:aspect-auto lg:flex-1">
-                  <img
-                    src={`${p.shot}-1280.webp`}
-                    srcSet={`${p.shot}-720.webp 720w, ${p.shot}-1280.webp 1280w`}
-                    sizes="(min-width: 1024px) 40rem, 84vw"
-                    width={1280}
-                    height={800}
-                    alt={`${p.title} website homepage`}
-                    loading="lazy"
-                    decoding="async"
-                    className="absolute inset-0 h-full w-full object-cover object-top transition-transform duration-700 ease-out group-hover:scale-[1.03]"
-                  />
+                  <ReelVideo id={p.id} shot={p.shot} title={p.title} className="absolute inset-0" />
                 </div>
               </a>
 
-              {/* Result and proof */}
-              <div className="flex flex-1 flex-col justify-between gap-6 p-6 sm:p-8">
-                <div>
-                  <span className="text-[13px] text-muted">
-                    {p.kind} · {p.place}
-                  </span>
-                  <h3 className="display mt-2 text-title-lg">{p.title}</h3>
-                </div>
-                <div>
-                  <div className="display text-stat text-accent">{p.stat}</div>
-                  <div className="text-[14px] text-muted">{p.statLabel}</div>
-                </div>
-                {p.quote && (
-                  <figure className="hidden sm:block">
-                    <blockquote className="text-body-sm text-fg/90">“{p.quote}”</blockquote>
-                    <figcaption className="mt-2 text-[13px] text-subtle">{p.author}</figcaption>
-                  </figure>
-                )}
+              {/* Name */}
+              <div className="col-span-2 rounded-[calc(var(--radius-lg)-6px)] bg-raised/60 p-4 lg:col-span-1 lg:p-6">
+                <span className="text-[13px] text-muted">
+                  {p.kind} · {p.place}
+                </span>
+                <h3 className="display mt-1 text-title-lg">{p.title}</h3>
               </div>
+              {/* Result */}
+              <div className="rounded-[calc(var(--radius-lg)-6px)] bg-raised/60 p-4 lg:p-6">
+                <div className="display text-stat text-accent">{p.stat}</div>
+                <div className="text-[14px] text-muted">{p.statLabel}</div>
+              </div>
+              {/* A word from the owner, or what was built */}
+              <figure className="flex flex-col justify-end rounded-[calc(var(--radius-lg)-6px)] bg-raised/60 p-4 lg:p-6">
+                <blockquote className="line-clamp-4 text-body-sm text-fg/90">{p.quote ? `“${p.quote}”` : p.description}</blockquote>
+                {p.quote && <figcaption className="mt-2 text-[13px] text-subtle">{p.author}</figcaption>}
+              </figure>
             </article>
           ))}
         </motion.div>

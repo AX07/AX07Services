@@ -1,4 +1,4 @@
-import { Features } from '../sections/Features';
+import { FitsTogether } from '../sections/FitsTogether';
 import { Proof } from '../sections/Proof';
 import { Process } from '../sections/Process';
 import { Work } from '../sections/Work';
@@ -11,8 +11,8 @@ export default function HomeRest() {
   return (
     <>
       <Work />
+      <FitsTogether />
       <Process />
-      <Features />
       <Proof />
       <Pricing />
       <Faq />
