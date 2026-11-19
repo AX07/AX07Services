@@ -1,4 +1,3 @@
-import { GlassOrbs } from '../components/GlassOrbs';
 import { useRef, useState } from 'react';
 import { useRange } from '../lib/motion';
 import { motion, transform, useMotionValueEvent, useScroll } from 'motion/react';
@@ -12,12 +11,9 @@ import { railPulse } from '../lib/rail';
 export function Process() {
   const section = useRef<HTMLElement>(null);
   const ref = useRef<HTMLDivElement>(null);
-  // Phones: the steps scroll past and the line draws as they go.
-  // Desktop: the section pins until the line has reached the last step.
-  const { scrollYProgress } = useScroll({ target: ref, offset: ['start 85%', 'end 15%'] });
-  const { scrollYProgress: pinned } = useScroll({ target: section, offset: ['start start', 'end end'] });
+  // The steps scroll past (no pinning, so the page stays short) and the line draws as they go
+  const { scrollYProgress } = useScroll({ target: ref, offset: ['start 85%', 'end 35%'] });
   const line = useRange(scrollYProgress, [0, 1], [0, 1]);
-  const pinnedLine = useRange(pinned, [0.05, 0.85], [0, 1]);
   // Spotlight one step at a time as the line reaches it
   const [active, setActive] = useState(0);
   const cards = useRef<(HTMLDivElement | null)[]>([]);
@@ -37,14 +33,14 @@ export function Process() {
     railPulse({ tone: 'accent', size: step === processSteps.length - 1 ? 'lg' : 'sm', label: `${s.step} · ${s.title}` });
   };
 
-  useMotionValueEvent(pinned, 'change', (v) => {
-    if (window.innerWidth < 1024) return;
-    const next = Math.min(processSteps.length - 1, Math.floor(transform(v, [0.05, 0.85], [0, 1]) * processSteps.length));
-    pick(next);
-    echo(v > 0.05, next);
-  });
   useMotionValueEvent(scrollYProgress, 'change', (v) => {
-    if (window.innerWidth >= 1024) return;
+    if (window.innerWidth >= 1024) {
+      // Side by side: the line's progress picks the step
+      const next = Math.min(processSteps.length - 1, Math.floor(transform(v, [0, 1], [0, 1]) * processSteps.length));
+      pick(next);
+      echo(v > 0, next);
+      return;
+    }
     // Stacked: the card crossing the middle of the viewport is the active one
     const mid = window.innerHeight * 0.55;
     let next = 0;
@@ -56,9 +52,8 @@ export function Process() {
   });
 
   return (
-    <section ref={section} id="process" className="relative gutter section-y lg:h-[220vh] lg:py-0">
-      <div className="relative isolate mx-auto max-w-6xl lg:sticky lg:top-0 lg:flex lg:h-[100svh] lg:flex-col lg:justify-center lg:pt-12">
-        <GlassOrbs layout="spread" />
+    <section ref={section} id="process" className="relative gutter section-y">
+      <div className="relative isolate mx-auto max-w-6xl">
         <Eyebrow index="04" className="mb-5">
           Your free preview
         </Eyebrow>
@@ -81,7 +76,7 @@ export function Process() {
           {/* Track + drawn line: horizontal on desktop, vertical on mobile */}
           <div aria-hidden="true" className="absolute left-[11px] top-2 bottom-2 w-px bg-line lg:left-0 lg:right-0 lg:top-[11px] lg:bottom-auto lg:h-px lg:w-auto">
             <motion.div data-scene-target="process" data-scene-line="1" data-scene-pad="3" data-scene-share="0.35" style={{ scaleY: line }} className="h-full w-px origin-top bg-accent lg:hidden" />
-            <motion.div data-scene-target="process-wide" data-scene-pad="6" data-scene-share="0.35" style={{ scaleX: pinnedLine }} className="hidden h-px w-full origin-left bg-accent lg:block" />
+            <motion.div data-scene-target="process-wide" data-scene-pad="6" data-scene-share="0.35" style={{ scaleX: line }} className="hidden h-px w-full origin-left bg-accent lg:block" />
           </div>
 
           <RevealGroup stagger={0.08} className="grid grid-cols-1 gap-6 lg:grid-cols-3 lg:gap-6">

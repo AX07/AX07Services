@@ -296,8 +296,9 @@ function updateScene() {
     scene.frameR = ((parseFloat(getComputedStyle(el).borderTopLeftRadius) || 0) + pad) * worldPerPx;
   }
 
-  const showcaseTop = document.getElementById('showcase')?.getBoundingClientRect().top ?? vh;
-  scene.ambient = Math.max(1 - (1 - AMBIENT) * clamp01(-showcaseTop / (vh * 0.5)), ctaProgress);
+  // Faint as soon as the hero has gone: the first chapter after it (How it fits together) reads over a quiet field
+  const heroBottom = hero?.getBoundingClientRect().bottom ?? 0;
+  scene.ambient = Math.max(1 - (1 - AMBIENT) * clamp01((vh - heroBottom) / (vh * 0.5)), ctaProgress);
 
   // The full-bleed work gallery owns the screen: the field steps aside (as the rail does)
   const work = document.getElementById('work')?.getBoundingClientRect();

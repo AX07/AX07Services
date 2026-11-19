@@ -3,10 +3,9 @@ import { useRange } from '../lib/motion';
 import { motion, useScroll } from 'motion/react';
 import { Headline } from '../components/Reveal';
 import { DEFAULT_WHATSAPP_MESSAGE, whatsappLink } from '../lib/content';
-import { scrollToId } from '../lib/smooth-scroll';
 
 /**
- * Pinned hero. Beat 1: the promise. Beat 2: the logo turns on the left while the problem lands on the right.
+ * Pinned hero. Beat 1: the promise in one line, one button, and the particle logo large (the page's one big moment). Beat 2: the logo turns on the left while the problem lands on the right.
  * The particles then scatter into the field behind the next chapter.
  */
 export function Hero() {
@@ -20,7 +19,7 @@ export function Hero() {
   const cueOpacity = useRange(scrollYProgress, [0, 0.06], [1, 0]);
 
   return (
-    <section ref={ref} id="hero" className="relative h-[260vh]">
+    <section ref={ref} id="hero" className="relative h-[210vh]">
       <div className="sticky top-0 h-[100svh] overflow-hidden">
         {/* Soft scrim so type stays crisp over the particles */}
         <div
@@ -32,38 +31,26 @@ export function Hero() {
           style={{ opacity: introOpacity, y: introY }}
           className="relative z-10 mx-auto flex max-w-5xl flex-col items-center px-5 pt-[9svh] text-center sm:pt-[10svh]"
         >
-          {/* The particle logo assembles in this slot, above the headline */}
-          <div id="hero-logo-slot" aria-hidden="true" className="h-[26svh] w-full sm:h-[28svh] lg:h-[30svh]" />
+          {/* The one big moment: the particle logo assembles large in this slot, above a single line and a single button */}
+          <div id="hero-logo-slot" aria-hidden="true" className="h-[38svh] w-full sm:h-[44svh] lg:h-[50svh]" />
 
           {/* Intro copy rises in with CSS, so it plays from first paint even while scripts are still busy */}
-          <p className="eyebrow mb-4 animate-[hero-in_0.8s_var(--ease-out)_both] sm:mb-6">Independent web studio · Ireland & the Algarve</p>
-
           <Headline
             as="h1"
             trigger="mount"
             delay={0.1}
-            text={[{ text: 'We build custom web experiences' }, { text: 'that convert.', className: 'accent-serif text-accent' }]}
+            text={[{ text: 'Websites that turn visitors' }, { text: 'into booked clients.', className: 'accent-serif text-accent' }]}
             className="display text-balance text-display-1"
           />
 
-          <p className="mt-5 max-w-[36rem] animate-[hero-in_0.9s_var(--ease-out)_0.35s_both] text-pretty text-lead text-muted">
-            Websites with a booking system built in. One tap opens WhatsApp with the service already chosen, a real person answers,
-            and every booking lands in your own dashboard.
-          </p>
-
-          <div className="mt-8 flex w-full animate-[hero-in_0.9s_var(--ease-out)_0.5s_both] flex-col items-center gap-3 sm:w-auto sm:flex-row">
-            <a
-              href={whatsappLink(DEFAULT_WHATSAPP_MESSAGE)}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn btn-primary w-full sm:w-auto"
-            >
-              Get your free 48h preview
-            </a>
-            <button type="button" onClick={() => scrollToId('showcase')} className="btn btn-quiet w-full sm:w-auto">
-              See a booking happen
-            </button>
-          </div>
+          <a
+            href={whatsappLink(DEFAULT_WHATSAPP_MESSAGE)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn btn-primary mt-8 w-full animate-[hero-in_0.9s_var(--ease-out)_0.4s_both] sm:w-auto"
+          >
+            Get your free preview
+          </a>
         </motion.div>
 
         {/* Beat 2: the logo glides into the left half (above on phones) while the problem lands beside it */}
@@ -72,8 +59,8 @@ export function Hero() {
           <motion.div style={{ opacity: lineOpacity, y: lineY }} className="mt-6 text-center lg:mt-0 lg:text-left">
             <h2 className="display text-balance text-display-2">A contact form loses clients.</h2>
             <p className="mx-auto mt-5 max-w-[34rem] text-pretty text-lead text-muted lg:mx-0">
-              Most local businesses still rely on slow sites, long forms and phones that ring out. When someone is ready to book
-              on their phone, every extra step sends them to a competitor.
+              Long forms, phones that ring out, and requests lost in an inbox. We build the site and the system behind it: every
+              booking request lands in one place for your team, and each client gets their own page.
             </p>
           </motion.div>
         </div>

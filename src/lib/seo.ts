@@ -12,9 +12,9 @@ export interface PageMeta {
 
 export const PAGES: Record<string, PageMeta> = {
   '/': {
-    title: 'ax07.dev | Custom websites & WhatsApp booking in Ireland & the Algarve',
+    title: 'ax07.dev | Websites with a booking system, Ireland & the Algarve',
     description:
-      'Custom websites that win local businesses in Ireland and the Algarve more enquiries and bookings, sent straight to WhatsApp. See a working preview in 48 hours, before you pay.',
+      'Websites that turn visitors into booked clients, with the system behind them: every booking request in one inbox for your team, and a page for each client. See a working preview in 48 hours, before you pay.',
   },
   '/work': {
     title: 'Selected work | ax07.dev',
@@ -24,7 +24,7 @@ export const PAGES: Record<string, PageMeta> = {
   '/about': {
     title: 'About the studio | ax07.dev',
     description:
-      'ax07 is an independent web studio in Ireland and the Algarve. One small team designs and engineers fast, custom websites with direct WhatsApp booking.',
+      'ax07 is an independent web studio in Ireland and the Algarve. One small team designs and engineers fast, custom websites with a booking inbox and a page for every client.',
   },
 };
 

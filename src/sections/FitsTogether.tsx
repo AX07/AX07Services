@@ -46,7 +46,7 @@ export function FitsTogether() {
   return (
     <section ref={ref} id="features" className="relative gutter section-y">
       <div className="mx-auto max-w-6xl">
-        <Eyebrow index="03" className="mb-5 lg:[@media(max-height:820px)]:mb-3">
+        <Eyebrow index="01" className="mb-5 lg:[@media(max-height:820px)]:mb-3">
           How it fits together
         </Eyebrow>
         <div className="grid grid-cols-1 gap-5 lg:grid-cols-[1.1fr_0.9fr] lg:items-end lg:gap-14">

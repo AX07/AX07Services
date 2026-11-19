@@ -1,4 +1,3 @@
-import { FitsTogether } from '../sections/FitsTogether';
 import { Proof } from '../sections/Proof';
 import { Process } from '../sections/Process';
 import { Work } from '../sections/Work';
@@ -11,7 +10,6 @@ export default function HomeRest() {
   return (
     <>
       <Work />
-      <FitsTogether />
       <Process />
       <Proof />
       <Pricing />

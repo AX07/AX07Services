@@ -1,4 +1,3 @@
-import { GlassOrbs } from '../components/GlassOrbs';
 import { useLayoutEffect, useRef, useState } from 'react';
 import { useRange } from '../lib/motion';
 import { motion, useScroll } from 'motion/react';
@@ -11,6 +10,11 @@ import { linkProps } from '../lib/router';
  * Pinned horizontal gallery: vertical scroll drives the track sideways, so the work is
  * presented one project at a time like a keynote, on every screen size.
  */
+// Home page: the four strongest builds (All work has every one), and the track moves faster than the scroll, so the
+// pinned stretch is shorter
+const FEATURED = ['digital-dentistry', 'flyfoil', 'altura', 'albania'].map((id) => projects.find((p) => p.id === id)!).filter(Boolean);
+const TRAVEL = 0.45; // page scroll per pixel the track moves sideways
+
 export function Work() {
   const sectionRef = useRef<HTMLElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
@@ -37,12 +41,11 @@ export function Work() {
       id="work"
       className="relative"
       // Pinned height = one screen + however far the track travels sideways
-      style={{ height: `calc(100svh + ${distance}px)` }}
+      style={{ height: `calc(100svh + ${Math.round(distance * TRAVEL)}px)` }}
     >
       <div className="sticky top-0 isolate flex h-[100svh] flex-col justify-center overflow-hidden">
-        <GlassOrbs layout="pair" />
         <div className="mx-auto mb-10 w-full max-w-6xl px-6 sm:mb-14">
-          <Eyebrow index="02" className="mb-5">
+          <Eyebrow index="03" className="mb-5">
             Selected work
           </Eyebrow>
           <div className="flex items-end justify-between gap-8">
@@ -62,7 +65,7 @@ export function Work() {
         </div>
 
         <motion.div ref={trackRef} style={{ x }} className="flex w-max gap-4 pl-6 pr-6 sm:gap-6 lg:pl-[max(1.5rem,calc((100vw-72rem)/2+1.5rem))]">
-          {projects.map((p) => (
+          {FEATURED.map((p) => (
             // Each slide is a small bento box: the site playing in a browser window, then the name, the result and a word from the owner
             <article
               key={p.id}

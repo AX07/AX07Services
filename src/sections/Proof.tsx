@@ -1,4 +1,3 @@
-import { GlassOrbs } from '../components/GlassOrbs';
 import { motion, useInView, useReducedMotion } from 'motion/react';
 import { useEffect, useRef, useState } from 'react';
 import { EASE_OUT, Eyebrow, Headline, Reveal, RevealGroup, RevealItem } from '../components/Reveal';
@@ -50,7 +49,6 @@ export function Proof() {
 
   return (
     <section ref={ref} id="proof" className="relative isolate gutter section-y">
-      <GlassOrbs layout="spread" />
       <div className="mx-auto max-w-6xl">
         <Eyebrow index="05" className={`mb-5 lg:[@media(max-height:820px)]:mb-3`}>
           Proof, not promises

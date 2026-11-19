@@ -2,6 +2,7 @@ import { WaveBackdrop } from '../components/WaveBackdrop';
 import { lazy, startTransition, Suspense, useEffect, useState } from 'react';
 import { Hero } from '../sections/Hero';
 import { BookingDemo } from '../sections/BookingDemo';
+import { FitsTogether } from '../sections/FitsTogether';
 import { initSmoothScroll, scrollToId } from '../lib/smooth-scroll';
 
 // three.js downloads straight away, in parallel with first paint, but only mounts once the page
@@ -91,6 +92,8 @@ export function HomePage() {
 
       <main className="relative z-10">
         <Hero />
+        {/* The offer first: the patient system, then a booking played out on a phone */}
+        <FitsTogether />
         <BookingDemo />
         {showRest && (
           <Suspense fallback={null}>
