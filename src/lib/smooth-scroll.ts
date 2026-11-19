@@ -62,8 +62,10 @@ export function addHold(steps: number, positions: () => number[], onStep: (i: nu
 
 const STEP_MS = 650; // one step's own animation; gestures during it are ignored
 const NEW_GESTURE_MS = 140; // events closer together than this are one gesture (trackpad momentum, a fast spin)
+const KEEP_GOING_MS = 900; // scrolling without a pause still moves one step this often, so a held section never freezes
 let busyUntil = 0;
 let lastGestureAt = 0;
+let lastStepAt = 0;
 let lastY = 0;
 
 function setIndex(h: Hold, i: number) {
@@ -88,7 +90,7 @@ function grab(h: Hold, from: 'above' | 'below') {
   lenis?.stop();
   lastY = y;
   busyUntil = performance.now() + 300;
-  lastGestureAt = performance.now(); // the rest of the flick that brought us here is not a new gesture
+  lastGestureAt = lastStepAt = performance.now(); // the rest of the flick that brought us here is not a new gesture
 }
 
 function letGo() {
@@ -104,15 +106,19 @@ function gesture(dir: number) {
   if (next < -1 || next > h.steps - 1) return letGo();
   setIndex(h, next);
   busyUntil = performance.now() + STEP_MS;
+  lastStepAt = performance.now();
   // Phones can stand somewhere different for each step (one card at a time); wide screens stay put
   const y = h.positions()[next + 1];
   if (Math.abs(y - window.scrollY) > 2) lenis?.scrollTo(y, { duration: STEP_MS / 1000, force: true });
 }
 
-/** True for the first event of a new gesture once the last step has finished */
+/**
+ * True for the first event of a new gesture once the last step has finished, or, while the scrolling never pauses
+ * (trackpad momentum, a wheel kept turning), once KEEP_GOING_MS has passed since the last step
+ */
 function freshGesture() {
   const now = performance.now();
-  const fresh = now - lastGestureAt > NEW_GESTURE_MS && now > busyUntil;
+  const fresh = now > busyUntil && (now - lastGestureAt > NEW_GESTURE_MS || now - lastStepAt > KEEP_GOING_MS);
   lastGestureAt = now;
   return fresh;
 }
@@ -132,7 +138,7 @@ function onHoldTouchEnd(e: TouchEvent) {
   if (!held || touchY === null) return;
   const dy = touchY - (e.changedTouches[0]?.clientY ?? touchY);
   touchY = null;
-  if (Math.abs(dy) > 30 && performance.now() > busyUntil) gesture(Math.sign(dy));
+  if (Math.abs(dy) > 20 && performance.now() > busyUntil) gesture(Math.sign(dy));
 }
 
 const HOLD_KEYS: Record<string, number> = { ArrowDown: 1, PageDown: 1, ' ': 1, ArrowUp: -1, PageUp: -1 };
