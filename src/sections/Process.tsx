@@ -99,7 +99,7 @@ export function Process() {
                     </div>
                     <h3 className="display mt-3 text-title-lg lg:[@media(max-height:900px)]:mt-2 lg:[@media(max-height:900px)]:text-title">{s.title}</h3>
                     <p className="mt-3 max-w-sm text-body text-muted lg:[@media(max-height:900px)]:mt-2 lg:[@media(max-height:900px)]:text-body-sm">{s.body}</p>
-                    <ul className="mt-4 space-y-1.5 lg:[@media(max-height:900px)]:mt-3">
+                    <ul className="mt-4 space-y-1.5 lg:[@media(max-height:900px)]:mt-3 lg:[@media(max-height:820px)]:hidden">
                       {s.points.map((pt) => (
                         <li key={pt} className="flex gap-2 text-body-sm text-fg/85">
                           <svg viewBox="0 0 16 16" className="mt-[5px] h-3 w-3 shrink-0 text-accent" aria-hidden="true">
