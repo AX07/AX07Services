@@ -55,11 +55,11 @@ export function WorkPage() {
           ))}
         </Reveal>
 
-        {/* Bento grid: wide tiles and narrow ones alternate (2+1, 1+2, …); "dense" fills any gap a filter leaves */}
-        <motion.div layout className="mt-10 grid grid-flow-dense grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
+        {/* Bento grid: four columns on desktop, wide tiles (2 columns) and narrow ones in a 2+1+1 / 1+1+2 rhythm; "dense" fills any gap a filter leaves */}
+        <motion.div layout className="mt-10 grid grid-flow-dense grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
           <AnimatePresence mode="popLayout" initial={false}>
             {shown.map((p, i) => {
-              const wide = i % 4 === 0 || i % 4 === 3;
+              const wide = i % 3 === 0;
               return (
               <motion.article
                 key={p.id}
@@ -69,12 +69,12 @@ export function WorkPage() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.97 }}
                 transition={{ duration: 0.5, ease: EASE_OUT, delay: i * 0.04 }}
-                className={`card group flex flex-col overflow-hidden !p-0 ${wide ? 'lg:col-span-2 lg:flex-row' : ''}`}
+                className={`card group flex flex-col overflow-hidden !p-0 ${wide ? 'lg:col-span-2' : ''}`}
               >
                 <a
                   {...linkProps(workPath(p.id))}
                   aria-label={`View the ${p.title} site`}
-                  className={`block border-b border-line bg-raised ${wide ? 'lg:flex lg:w-[58%] lg:shrink-0 lg:flex-col lg:border-b-0 lg:border-r' : ''}`}
+                  className="block border-b border-line bg-raised"
                 >
                   <div className="flex items-center gap-3 px-4 py-2.5">
                     <div className="flex gap-1.5">
@@ -87,43 +87,42 @@ export function WorkPage() {
                     </span>
                     <span className="w-[30px]" />
                   </div>
-                  {/* Wide tiles: the video fills the full height beside the details */}
-                  <div className={`relative aspect-[16/10] overflow-hidden ${wide ? 'lg:aspect-auto lg:flex-1' : ''}`}>
-                    <ReelVideo id={p.id} shot={p.shot} title={p.title} className={wide ? 'lg:absolute lg:inset-0' : ''} />
+                  <div className={`relative overflow-hidden ${wide ? 'aspect-[16/10] lg:aspect-[16/8]' : 'aspect-[16/10]'}`}>
+                    <ReelVideo id={p.id} shot={p.shot} title={p.title} className="absolute inset-0" />
                   </div>
                 </a>
 
-                <div className="flex flex-1 flex-col p-6 sm:p-7">
+                <div className="flex flex-1 flex-col p-5">
                   <div className="text-[13px] text-subtle">
                     {p.kind} · {p.place}
                   </div>
-                  <h2 className="display mt-1.5 text-title-lg">{p.title}</h2>
-                  <p className="mt-3 text-body-sm text-muted">{p.description}</p>
+                  <h2 className="display mt-1 text-title">{p.title}</h2>
+                  <p className="mt-2 line-clamp-3 text-body-sm text-muted">{p.description}</p>
 
-                  <div className="mt-5 flex items-baseline gap-3 rounded-md bg-raised px-4 py-3">
-                    <span className="display text-title-lg text-accent">{p.stat}</span>
-                    <span className="text-[14px] text-muted">{p.statLabel}</span>
+                  <div className="mt-4 flex items-baseline gap-3 rounded-md bg-raised px-3.5 py-2.5">
+                    <span className="display text-title text-accent">{p.stat}</span>
+                    <span className="text-[13px] text-muted">{p.statLabel}</span>
                   </div>
 
                   {p.quote && (
-                    <blockquote className="mt-5 text-body-sm">
-                      <p className="font-serif text-lead italic">“{p.quote}”</p>
+                    <blockquote className="mt-4 text-body-sm">
+                      <p className="line-clamp-2 font-serif text-[17px] italic leading-snug">“{p.quote}”</p>
                       <footer className="mt-1.5 text-[13px] text-subtle">{p.author}</footer>
                     </blockquote>
                   )}
 
-                  <div className="mt-auto flex flex-wrap gap-2 pt-6">
-                    <a {...linkProps(workPath(p.id))} className="btn btn-primary !min-h-[42px] !px-5 text-[14px]">
+                  <div className="mt-auto flex flex-wrap gap-2 pt-5">
+                    <a {...linkProps(workPath(p.id))} className="btn btn-primary !min-h-[38px] !px-4 text-[13px]">
                       View the site
                     </a>
-                    <a href={p.url} target="_blank" rel="noopener noreferrer" className="btn btn-quiet !min-h-[42px] !px-5 text-[14px]">
+                    <a href={p.url} target="_blank" rel="noopener noreferrer" className="btn btn-quiet !min-h-[38px] !px-4 text-[13px]">
                       Live site ↗
                     </a>
                     <a
                       href={whatsappLink(`Hi ax07, I saw the ${p.title} site in your portfolio and would like something like it for my business.`)}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="btn btn-quiet !min-h-[42px] !px-5 text-[14px]"
+                      className="btn btn-quiet !min-h-[38px] !px-4 text-[13px]"
                     >
                       One like this
                     </a>

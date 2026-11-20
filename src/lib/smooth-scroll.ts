@@ -101,7 +101,13 @@ function grab(h: Hold, from: 'above' | 'below') {
   lastGestureAt = lastStepAt = performance.now(); // the rest of the flick that brought us here is not a new gesture
 }
 
+// The hold that just let go, and where: it can't grab again until the page has moved well away (its content can
+// change height as it plays, which moves its stand-still point and would otherwise grab the page straight back)
+let released: { h: Hold; y: number } | null = null;
+let restand: ResizeObserver | null = null;
+
 function letGo() {
+  if (held) released = { h: held, y: window.scrollY };
   held = null;
   lenis?.start();
 }
@@ -160,7 +166,9 @@ function onHoldKey(e: KeyboardEvent) {
 /** On every scroll: grab the page as it reaches a hold's first position (going down) or last one (going up) */
 function catchHolds(y: number) {
   if (!held && !jumping) {
+    if (released && Math.abs(y - released.y) > window.innerHeight * 0.6) released = null;
     for (const h of holds) {
+      if (released?.h === h) continue;
       const ps = h.positions();
       if (lastY < ps[0] && y >= ps[0]) return grab(h, 'above');
       if (lastY > ps[ps.length - 1] && y <= ps[ps.length - 1]) return grab(h, 'below');
@@ -353,6 +361,16 @@ export function initSmoothScroll() {
     window.addEventListener('touchmove', onHoldTouchMove, { passive: false });
     window.addEventListener('touchend', onHoldTouchEnd, { passive: true });
     window.addEventListener('keydown', onHoldKey);
+    // Content above a held section can still grow (a carousel measuring itself, late images): stay on the section
+    restand = new ResizeObserver(() => {
+      if (!held) return;
+      const y = held.positions()[held.index + 1];
+      if (Math.abs(window.scrollY - y) < 2) return;
+      lenis?.scrollTo(y, { immediate: true, force: true });
+      window.scrollTo(0, y);
+      lastY = y;
+    });
+    restand.observe(document.body);
     const raf = (time: number) => {
       lenis?.raf(time);
       rafId = requestAnimationFrame(raf);
@@ -411,6 +429,7 @@ export function initSmoothScroll() {
     window.removeEventListener('touchend', onHoldTouchEnd);
     held = null;
     window.removeEventListener('keydown', onHoldKey);
+    restand?.disconnect();
     lenis?.destroy();
     lenis = null;
     window.removeEventListener('scroll', onNativeScroll);

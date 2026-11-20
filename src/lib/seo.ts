@@ -14,7 +14,7 @@ export const PAGES: Record<string, PageMeta> = {
   '/': {
     title: 'ax07.dev | Websites with a booking system, Ireland & the Algarve',
     description:
-      'Websites that turn visitors into booked clients, with the system behind them: every booking request in one inbox for your team, and a page for each client. See a working preview in 48 hours, before you pay.',
+      'Websites that turn visitors into booked clients: every booking request in one inbox, and a page for each client. A free working preview in 48 hours.',
   },
   '/work': {
     title: 'Selected work | ax07.dev',

@@ -1,55 +1,51 @@
-import { useRef, useState } from 'react';
-import { useRange } from '../lib/motion';
-import { motion, transform, useMotionValueEvent, useScroll } from 'motion/react';
+import { useEffect, useRef, useState } from 'react';
+import { motion, useReducedMotion } from 'motion/react';
 import { Eyebrow, Headline, Reveal, RevealGroup, RevealItem } from '../components/Reveal';
+import { standAt } from '../lib/motion';
+import { addHold } from '../lib/smooth-scroll';
 
 /** A preview we built from public information only, before the first conversation */
 const EXAMPLE = { name: 'Miguel Reis Digital Dentistry', url: 'https://digital-dentistry-ten.vercel.app/' };
 import { DEFAULT_WHATSAPP_MESSAGE, processSteps, whatsappLink } from '../lib/content';
 import { railPulse } from '../lib/rail';
 
+const NAV = 100; // the floating menu bar and some air
+
+/**
+ * "Your free preview": the page stops once the section (or at least its steps) is fully in view below the menu bar, and
+ * each scroll then lights the next step and draws the line on to it, with a step bar showing how far along it is.
+ * After the last step the page scrolls on. Where the stacked steps don't fit on screen (phones), the page glides to
+ * each one in turn. With reduced motion nothing stops and every step shows as done.
+ */
 export function Process() {
   const section = useRef<HTMLElement>(null);
   const ref = useRef<HTMLDivElement>(null);
-  // The steps scroll past (no pinning, so the page stays short) and the line draws as they go
-  const { scrollYProgress } = useScroll({ target: ref, offset: ['start 85%', 'end 35%'] });
-  const line = useRange(scrollYProgress, [0, 1], [0, 1]);
-  // Spotlight one step at a time as the line reaches it
-  const [active, setActive] = useState(0);
+  const reduce = useReducedMotion();
+  const n = processSteps.length;
+  // -1 before the first step, then the lit step
+  const [active, setActive] = useState(-1);
   const cards = useRef<(HTMLDivElement | null)[]>([]);
-  const pick = (next: number) => setActive((prev) => (prev === next ? prev : next));
 
-  // Story beats: each step the timeline reaches ripples the field gathered along it.
-  // Rewinds when the visitor scrolls back above the section, so it replays on the way down.
-  const lastStep = useRef(-1);
-  const echo = (started: boolean, step: number) => {
-    if (!started) {
-      lastStep.current = -1;
-      return;
-    }
-    if (step <= lastStep.current) return;
-    lastStep.current = step;
-    const s = processSteps[step];
-    railPulse({ tone: 'accent', size: step === processSteps.length - 1 ? 'lg' : 'sm', label: `${s.step} · ${s.title}` });
-  };
-
-  useMotionValueEvent(scrollYProgress, 'change', (v) => {
-    if (window.innerWidth >= 1024) {
-      // Side by side: the line's progress picks the step
-      const next = Math.min(processSteps.length - 1, Math.floor(transform(v, [0, 1], [0, 1]) * processSteps.length));
-      pick(next);
-      echo(v > 0, next);
-      return;
-    }
-    // Stacked: the card crossing the middle of the viewport is the active one
-    const mid = window.innerHeight * 0.55;
-    let next = 0;
-    cards.current.forEach((el, i) => {
-      if (el && el.getBoundingClientRect().top < mid) next = i;
+  useEffect(() => {
+    const content = section.current?.firstElementChild as HTMLElement | null;
+    const steps = ref.current;
+    if (reduce) return setActive(n - 1);
+    if (!content || !steps) return;
+    const positions = () => {
+      const room = window.innerHeight - NAV;
+      if (content.offsetHeight <= room) return Array(n + 1).fill(standAt(content));
+      if (steps.offsetHeight <= room) return Array(n + 1).fill(standAt(steps));
+      const each = cards.current.filter((c): c is HTMLDivElement => !!c).map(standAt);
+      return [each[0], ...each];
+    };
+    return addHold(n, positions, (i) => {
+      setActive(i);
+      // Story beat: each step reached ripples the field gathered along the line
+      if (i >= 0) railPulse({ tone: 'accent', size: i === n - 1 ? 'lg' : 'sm', label: `${processSteps[i].step} · ${processSteps[i].title}` });
     });
-    pick(next);
-    echo(v > 0, next);
-  });
+  }, [reduce, n]);
+
+  const line = (active + 1) / n;
 
   return (
     <section ref={section} id="process" className="relative gutter section-y">
@@ -75,8 +71,8 @@ export function Process() {
         <div ref={ref} className="relative mt-16 lg:mt-12 lg:[@media(max-height:780px)]:mt-8">
           {/* Track + drawn line: horizontal on desktop, vertical on mobile */}
           <div aria-hidden="true" className="absolute left-[11px] top-2 bottom-2 w-px bg-line lg:left-0 lg:right-0 lg:top-[11px] lg:bottom-auto lg:h-px lg:w-auto">
-            <motion.div data-scene-target="process" data-scene-line="1" data-scene-pad="3" data-scene-share="0.35" style={{ scaleY: line }} className="h-full w-px origin-top bg-accent lg:hidden" />
-            <motion.div data-scene-target="process-wide" data-scene-pad="6" data-scene-share="0.35" style={{ scaleX: line }} className="hidden h-px w-full origin-left bg-accent lg:block" />
+            <motion.div data-scene-target="process" data-scene-line="1" data-scene-pad="3" data-scene-share="0.35" initial={false} animate={{ scaleY: line }} transition={{ duration: 0.6 }} className="h-full w-px origin-top bg-accent lg:hidden" />
+            <motion.div data-scene-target="process-wide" data-scene-pad="6" data-scene-share="0.35" initial={false} animate={{ scaleX: line }} transition={{ duration: 0.6 }} className="hidden h-px w-full origin-left bg-accent lg:block" />
           </div>
 
           <RevealGroup stagger={0.08} className="grid grid-cols-1 gap-6 lg:grid-cols-3 lg:gap-6">
@@ -124,6 +120,20 @@ export function Process() {
             })}
           </RevealGroup>
         </div>
+
+        {/* Where the stopped section is: one segment per step, filled as the scroll plays them */}
+        {!reduce && (
+          <div className="mt-6 flex items-center justify-center gap-3" aria-label={`Step ${active + 1} of ${n}`}>
+            <div className="flex gap-1.5">
+              {processSteps.map((s, i) => (
+                <span key={s.step} className="h-1 w-10 overflow-hidden rounded-full bg-line-strong">
+                  <span className={`block h-full origin-left rounded-full bg-accent-bright transition-transform duration-500 ease-out ${i <= active ? 'scale-x-100' : 'scale-x-0'}`} />
+                </span>
+              ))}
+            </div>
+            <span className="text-[12px] tabular-nums text-subtle">{active >= n - 1 ? 'Scroll to continue' : `${active + 1}/${n} · scroll`}</span>
+          </div>
+        )}
 
         <Reveal delay={0.1} className="lg:hidden">
           <PreviewActions className="mt-10 flex" />

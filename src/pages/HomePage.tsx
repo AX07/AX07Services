@@ -2,6 +2,7 @@ import { WaveBackdrop } from '../components/WaveBackdrop';
 import { lazy, startTransition, Suspense, useEffect, useState } from 'react';
 import { Hero } from '../sections/Hero';
 import { BookingDemo } from '../sections/BookingDemo';
+import { ParticleFallback } from '../components/ParticleFallback';
 import { FitsTogether } from '../sections/FitsTogether';
 import { initSmoothScroll, scrollToId } from '../lib/smooth-scroll';
 
@@ -15,7 +16,7 @@ const Scene = lazy(() => sceneChunk);
 const restChunk = import('./HomeRest');
 const HomeRest = lazy(() => restChunk);
 
-/** True once the page has loaded: the 3D scene waits for this. */
+/** True once the page has loaded, or 1.2 s after first paint at the latest (late images and videos don't hold it up): the 3D scene waits for this. */
 function useAfterLoad() {
   const [ready, setReady] = useState(false);
   useEffect(() => {
@@ -26,9 +27,11 @@ function useAfterLoad() {
     };
     if (document.readyState === 'complete') go();
     else window.addEventListener('load', go, { once: true });
+    const latest = window.setTimeout(go, 1200);
     return () => {
       window.removeEventListener('load', go);
       window.clearTimeout(t);
+      window.clearTimeout(latest);
     };
   }, []);
   return ready;
@@ -83,6 +86,8 @@ export function HomePage() {
 
       {/* The scroll driver sets this layer's opacity as chapters change */}
       <div id="scene-layer" className="fixed inset-0 z-0 pointer-events-none">
+        {/* Scattered particles from the first paint, until the 3D field is ready to form the logo */}
+        <ParticleFallback />
         {show3d && (
           <Suspense fallback={null}>
             <Scene />

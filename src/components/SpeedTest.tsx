@@ -33,10 +33,10 @@ const DEMO_SITE = 'ax07.dev';
 
 /**
  * Live Google PageSpeed test: the visitor's own site against an ax07 build.
- * `demo` plays a scripted run while the Proof section is held: 'type' types ax07.dev into the box, 'run' presses the
- * button and shows ax07's score. The moment the visitor types or taps here themselves, the script stops for good.
+ * `demo` plays a scripted run when the Proof section comes into view: 'type' types ax07.dev into the box, 'run' presses
+ * the button and shows ax07's score, 'ready' keeps the score and empties the box (yourbusiness.com) for the visitor. The moment the visitor types or taps here themselves, the script stops for good.
  */
-export function SpeedTest({ demo = 'off' }: { demo?: 'off' | 'type' | 'run' }) {
+export function SpeedTest({ demo = 'off' }: { demo?: 'off' | 'type' | 'run' | 'ready' }) {
   const [url, setUrl] = useState('');
   const [state, setState] = useState<State>({ kind: 'idle' });
   const abortRef = useRef<AbortController | null>(null);
@@ -58,6 +58,11 @@ export function SpeedTest({ demo = 'off' }: { demo?: 'off' | 'type' | 'run' }) {
         if (n >= DEMO_SITE.length) window.clearInterval(id);
       }, 75);
       return () => window.clearInterval(id);
+    }
+    if (demo === 'ready') {
+      setUrl('');
+      setState({ kind: 'shown' });
+      return;
     }
     setUrl(DEMO_SITE);
     setState({ kind: 'running', step: 0 });

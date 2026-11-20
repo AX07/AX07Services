@@ -3,97 +3,101 @@ import { useEffect, useRef, useState } from 'react';
 import { EASE_OUT, Eyebrow, Headline, Reveal, RevealGroup, RevealItem } from '../components/Reveal';
 import { CountTo } from '../components/Gauge';
 import { SpeedTest } from '../components/SpeedTest';
-import { standAt } from '../lib/motion';
-import { addHold } from '../lib/smooth-scroll';
+import { reaimParticles } from '../lib/smooth-scroll';
 import { LogoStrip } from '../components/LogoStrip';
 import { FOUND_ON } from '../data/tech';
 
-// While held: type ax07.dev into the speed test, run it, then the first-paint card, then 48h + €0
-const STEPS = 4;
-const STEP_NAMES = ['Type a site', 'Run the test', 'First paint', 'Preview'];
-const cardOf = (step: number) => (step < 0 ? -1 : step <= 1 ? 0 : step - 1); // which card a step lights
-const NAV = 100; // the floating menu bar and some air
 const SPOT = 'transition-[opacity,transform,box-shadow] duration-500 ease-out';
 
-/**
- * The page stops once the section (or at least the cards) is fully in view below the menu bar. Each scroll then plays
- * one step (the speed test types ax07.dev, then runs it, then the other two cards light up in turn: lifted and outlined,
- * the particle field around them, the others dimmed), and a step bar shows how far along it is; after the last step
- * the page scrolls on. Where the cards don't all
- * fit on screen (phones), the page glides to each card in turn instead of standing still.
- * The reveal animates each outer box; the spotlight styles the card inside it (the reveal's inline styles would win).
- */
+// Plays once each time the section comes into view (the page never stops here): the speed test types ax07.dev, runs it
+// and shows the score, then empties the box for the visitor; the spotlight and particles then move to first paint,
+// then to 48h + €0, and finally let go of every card. [step, ms after coming into view]
+const TIMELINE = [
+  [0, 500], // type ax07.dev
+  [1, 1700], // run it (the score shows 1.5 s later)
+  [2, 5200], // box back to yourbusiness.com
+  [3, 6400], // first paint
+  [4, 9000], // 48h + €0
+  [5, 11800], // all cards back to normal
+] as const;
+const DEMO = ['type', 'run'] as const;
+const cardOf = (step: number) => (step < 0 || step > 4 ? -1 : step <= 2 ? 0 : step - 2); // which card a step lights
+
+/** The reveal animates each outer box; the spotlight styles the card inside it (the reveal's inline styles would win). */
 export function Proof() {
   const ref = useRef<HTMLElement>(null);
-  const grid = useRef<HTMLDivElement>(null);
   const paintRef = useRef<HTMLDivElement>(null);
   const reduce = useReducedMotion();
   const [step, setStep] = useState(-1);
   const paintSeen = useInView(paintRef, { amount: 0.6 });
 
   useEffect(() => {
-    const section = ref.current?.querySelector<HTMLElement>(':scope > .mx-auto');
-    const cards = grid.current;
-    if (reduce || !section || !cards) return;
-    const positions = () => {
-      const room = window.innerHeight - NAV;
-      // Everything fits: stand still with the whole section in view; the cards fit: stand on them; else card by card
-      if (section.offsetHeight <= room) return Array(STEPS + 1).fill(standAt(section));
-      if (cards.offsetHeight <= room) return Array(STEPS + 1).fill(standAt(cards));
-      const each = [...cards.querySelectorAll<HTMLElement>('[data-proof-card]')].map(standAt);
-      return [each[0], each[0], each[0], each[1], each[2]];
+    const el = ref.current;
+    if (reduce || !el) return;
+    let timers: number[] = [];
+    const io = new IntersectionObserver(
+      ([e]) => {
+        timers.forEach(window.clearTimeout);
+        timers = [];
+        if (!e.isIntersecting) return setStep(-1);
+        timers = TIMELINE.map(([s, ms]) => window.setTimeout(() => setStep(s), ms));
+      },
+      { threshold: 0.45 },
+    );
+    io.observe(el);
+    return () => {
+      io.disconnect();
+      timers.forEach(window.clearTimeout);
     };
-    return addHold(STEPS, positions, setStep);
   }, [reduce]);
 
-  // Before the first step every card shows as normal; then the lit one stands out
+  // The spotlight moves without the page scrolling, so tell the particles to follow it
+  useEffect(() => reaimParticles(900), [step]);
+
   const lit = cardOf(step);
   const look = (i: number) =>
     lit < 0 ? '' : lit === i ? '-translate-y-1 shadow-[0_0_0_1px_var(--color-accent-bright),0_24px_60px_-28px_var(--color-accent-bright)]' : 'opacity-50';
-  // Before the first step every card can draw the particle field (the scene picks the one in view); then only the lit one
+  // No card lit: every card can draw the particle field (the scene picks the one in view); otherwise only the lit one
   const target = (i: number, name: string) => (lit < 0 || lit === i ? name : undefined);
-  const paintOn = reduce ? paintSeen : lit >= 1;
+  const paintOn = reduce ? paintSeen : step >= 3;
+  const demo = step < 0 ? 'off' : step < DEMO.length ? DEMO[step] : 'ready';
 
   return (
     <section ref={ref} id="proof" className="relative isolate gutter section-y">
       <div className="mx-auto max-w-6xl">
-        <Eyebrow index="05" className={`mb-5 lg:[@media(max-height:950px)]:mb-3`}>
+        <Eyebrow index="05" className="mb-5">
           Proof, not promises
         </Eyebrow>
-        <div className={`grid grid-cols-1 gap-5 lg:grid-cols-[1.1fr_0.9fr] lg:items-end lg:gap-14 lg:[@media(max-height:950px)]:grid-cols-[1.6fr_1fr]`}>
+        <div className="grid grid-cols-1 gap-5 lg:grid-cols-[1.1fr_0.9fr] lg:items-end lg:gap-14">
           <Headline
             text={[{ text: 'Fast is a feature.' }, { text: 'Test it yourself.', className: 'text-muted' }]}
-            className="display max-w-3xl text-display-2 lg:[@media(max-height:950px)]:text-display-3 lg:[@media(max-height:700px)]:text-[40px]!"
+            className="display max-w-3xl text-display-2"
           />
-          <Reveal delay={0.1} className={`max-w-xl text-body text-muted lg:[@media(max-height:950px)]:text-body-sm lg:[@media(max-height:700px)]:hidden`}>
+          <Reveal delay={0.1} className="max-w-xl text-body text-muted">
             Customers searching on their phone don’t wait for a slow page. They go back to Google and ring the next result. Run
             your own site against ours.
           </Reveal>
         </div>
 
-        <div ref={grid}>
-        <RevealGroup className={`mt-14 grid grid-cols-1 gap-4 lg:mt-10 lg:[@media(max-height:950px)]:gap-3 lg:grid-cols-3 lg:grid-rows-[auto_auto] lg:[@media(max-height:950px)]:mt-5`}>
+        <RevealGroup className="mt-14 grid grid-cols-1 gap-4 lg:mt-10 lg:grid-cols-3 lg:grid-rows-[auto_auto]">
           {/* Live speed test: the visitor's own site vs ours */}
           <RevealItem className="lg:col-span-2 lg:row-span-2">
-            <div data-proof-card data-scene-target={target(0, 'proof')} className={`card h-full p-6 ${SPOT} sm:p-8 lg:[@media(max-height:950px)]:p-4 ${look(0)}`}>
-              <SpeedTest demo={step < 0 ? 'off' : step === 0 ? 'type' : 'run'} />
+            <div data-scene-target={target(0, 'proof')} className={`card h-full p-6 ${SPOT} sm:p-8 ${look(0)}`}>
+              <SpeedTest demo={demo} />
             </div>
           </RevealItem>
 
           {/* First paint timeline */}
           <RevealItem>
-            <div
-              data-proof-card data-scene-target={target(1, 'proof-paint')}
-              className={`card flex h-full flex-col justify-between gap-6 p-6 ${SPOT} sm:p-7 lg:[@media(max-height:950px)]:gap-3 lg:[@media(max-height:950px)]:p-4 ${look(1)}`}
-            >
+            <div data-scene-target={target(1, 'proof-paint')} className={`card flex h-full flex-col justify-between gap-6 p-6 ${SPOT} sm:p-7 ${look(1)}`}>
               <span className="eyebrow">First paint on 4G</span>
-              <div className={`display text-stat lg:[@media(max-height:950px)]:text-stat-sm`}>
+              <div className="display text-stat">
                 <CountTo to={0.4} decimals={1} />
                 <span className="text-muted">s</span>
               </div>
               <div ref={paintRef}>
                 <div className="relative h-2 rounded-full bg-raised">
-                  {/* The race runs when its card is spotlit (wide) or comes into view (phones) */}
+                  {/* The race runs when its card is spotlit */}
                   <motion.div
                     initial={{ scaleX: 0 }}
                     animate={{ scaleX: paintOn ? 0.1 : 0 }}
@@ -117,7 +121,7 @@ export function Proof() {
 
           {/* 48h + €0 */}
           <RevealItem>
-            <div data-proof-card data-scene-target={target(2, 'proof-preview')} className={`card grid h-full grid-cols-2 gap-4 p-6 ${SPOT} sm:p-7 lg:[@media(max-height:950px)]:p-4 ${look(2)}`}>
+            <div data-scene-target={target(2, 'proof-preview')} className={`card grid h-full grid-cols-2 gap-4 p-6 ${SPOT} sm:p-7 ${look(2)}`}>
               <div className="flex flex-col justify-between gap-4">
                 <span className="eyebrow">To your preview</span>
                 <div className="display text-stat-sm">
@@ -132,26 +136,9 @@ export function Proof() {
             </div>
           </RevealItem>
         </RevealGroup>
-        </div>
-
-        {/* Where the held section is: one segment per step, filled as the scroll plays them */}
-        {!reduce && (
-          <div className="mt-5 flex items-center justify-center gap-3 [@media(max-height:950px)]:mt-3" aria-label={`Step ${Math.max(0, step + 1)} of ${STEPS}`}>
-            <div className="flex gap-1.5">
-              {STEP_NAMES.map((name, i) => (
-                <span key={name} title={name} className="h-1 w-10 overflow-hidden rounded-full bg-line-strong">
-                  <span className={`block h-full origin-left rounded-full bg-accent-bright transition-transform duration-500 ease-out ${i <= step ? 'scale-x-100' : 'scale-x-0'}`} />
-                </span>
-              ))}
-            </div>
-            <span className="text-[12px] tabular-nums text-subtle">
-              {step >= STEPS - 1 ? 'Scroll to continue' : `${Math.max(0, step + 1)}/${STEPS} · scroll`}
-            </span>
-          </div>
-        )}
 
         {/* Where that speed and structure pays off: the search and AI answer engines the site is built to be read by */}
-        <LogoStrip label="SEO-optimised and fast, ready to be found on" items={FOUND_ON} className="mt-8 [@media(max-height:950px)]:mt-4" />
+        <LogoStrip label="SEO-optimised and fast, ready to be found on" items={FOUND_ON} className="mt-12" />
       </div>
     </section>
   );
