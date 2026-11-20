@@ -65,7 +65,7 @@ export function Process() {
 
         <div ref={ref} className="relative mt-6 lg:mt-12 lg:[@media(max-height:900px)]:mt-8">
           {/* Track + drawn line: horizontal on desktop, vertical on mobile */}
-          <div aria-hidden="true" className="absolute max-lg:hidden left-[11px] top-2 bottom-2 w-px bg-line lg:left-0 lg:right-0 lg:top-[11px] lg:bottom-auto lg:h-px lg:w-auto">
+          <div aria-hidden="true" className="absolute left-[11px] top-2 bottom-2 w-px bg-line lg:left-0 lg:right-0 lg:top-[11px] lg:bottom-auto lg:h-px lg:w-auto">
             <motion.div data-scene-target="process" data-scene-line="1" data-scene-pad="3" data-scene-share="0.35" initial={false} animate={{ scaleY: line }} transition={{ duration: 0.6 }} className="h-full w-px origin-top bg-accent lg:hidden" />
             <motion.div data-scene-target="process-wide" data-scene-pad="6" data-scene-share="0.35" initial={false} animate={{ scaleX: line }} transition={{ duration: 0.6 }} className="hidden h-px w-full origin-left bg-accent lg:block" />
           </div>
@@ -81,7 +81,7 @@ export function Process() {
                   ? 'max-lg:border-line max-lg:bg-surface max-lg:opacity-100 max-lg:shadow-raised'
                   : `max-lg:border-line max-lg:bg-surface max-lg:scale-[0.9] ${d < 0 ? 'max-lg:-translate-y-[24%]' : 'max-lg:translate-y-[24%]'} ${Math.abs(d) > 1 ? 'max-lg:opacity-0' : 'max-lg:opacity-50'}`;
               return (
-                <RevealItem key={s.step} className={`relative max-lg:[grid-area:1/1] lg:pl-0 lg:pt-14 ${d === 0 ? 'max-lg:z-20' : 'max-lg:z-10'}`}>
+                <RevealItem key={s.step} className={`relative pl-12 max-lg:[grid-area:1/1] lg:pl-0 lg:pt-14 ${d === 0 ? 'max-lg:z-20' : 'max-lg:z-10'}`}>
                   <span
                     className={`absolute left-0 top-0 flex h-[23px] w-[23px] items-center justify-center rounded-full border transition-colors duration-500 max-lg:hidden lg:top-0 ${
                       isActive || done ? 'border-accent-bright bg-accent-bright' : 'border-line-strong bg-ink'
