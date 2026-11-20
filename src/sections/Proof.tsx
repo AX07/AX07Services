@@ -57,8 +57,8 @@ export function Proof() {
   const lit = cardOf(step);
   const look = (i: number) =>
     lit < 0 ? '' : lit === i ? '-translate-y-1 shadow-[0_0_0_1px_var(--color-accent-bright),0_24px_60px_-28px_var(--color-accent-bright)]' : 'opacity-50';
-  // No card lit: every card can draw the particle field (the scene picks the one in view); otherwise only the lit one
-  const target = (i: number, name: string) => (lit < 0 || lit === i ? name : undefined);
+  // The particle field outlines the lit card; with none lit (before and after the sequence) it stays on the speed test
+  const target = (i: number, name: string) => ((lit < 0 ? 0 : lit) === i ? name : undefined);
   const paintOn = reduce ? paintSeen : step >= 3;
   const demo = step < 0 ? 'off' : step < DEMO.length ? DEMO[step] : 'ready';
 

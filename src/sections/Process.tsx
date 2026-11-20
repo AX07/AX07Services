@@ -6,6 +6,7 @@ import { Eyebrow, Headline, Reveal, RevealGroup, RevealItem } from '../component
 const EXAMPLE = { name: 'Miguel Reis Digital Dentistry', url: 'https://digital-dentistry-ten.vercel.app/' };
 import { DEFAULT_WHATSAPP_MESSAGE, processSteps, whatsappLink } from '../lib/content';
 import { railPulse } from '../lib/rail';
+import { StepBar } from '../components/StepBar';
 
 // Share of the pinned stretch before the first step lights (the whole section is seen first) and after the last
 const HOLD = 0.12;
@@ -41,7 +42,7 @@ export function Process() {
   const ref = useRef<HTMLDivElement>(null);
 
   return (
-    <section ref={section} id="process" className="relative h-[300vh]">
+    <section ref={section} id="process" className="relative h-[340vh]">
       <div className="sticky top-0 flex h-[100svh] flex-col justify-center gutter pb-4 pt-20">
       <div className="relative isolate mx-auto w-full max-w-6xl">
         <Eyebrow index="04" className="mb-5">
@@ -115,19 +116,8 @@ export function Process() {
           </RevealGroup>
         </div>
 
-        {/* Where the stopped section is: one segment per step, filled as the scroll plays them */}
-        {!reduce && (
-          <div className="mt-6 flex items-center justify-center gap-3" aria-label={`Step ${active + 1} of ${n}`}>
-            <div className="flex gap-1.5">
-              {processSteps.map((s, i) => (
-                <span key={s.step} className="h-1 w-10 overflow-hidden rounded-full bg-line-strong">
-                  <span className={`block h-full origin-left rounded-full bg-accent-bright transition-transform duration-500 ease-out ${i <= active ? 'scale-x-100' : 'scale-x-0'}`} />
-                </span>
-              ))}
-            </div>
-            <span className="text-[12px] tabular-nums text-subtle">{active >= n - 1 ? 'Scroll to continue' : `${active + 1}/${n} · scroll`}</span>
-          </div>
-        )}
+        {/* Where the pinned section is */}
+        {!reduce && <StepBar steps={n} active={active} className="mt-6" />}
 
         <Reveal delay={0.1} className="lg:hidden">
           <PreviewActions className="mt-5 flex" />
