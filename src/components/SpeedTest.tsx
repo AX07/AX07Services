@@ -22,13 +22,48 @@ const VERDICT = {
 } as const;
 const STEPS = ['Contacting Google PageSpeed…', 'Loading your site on a simulated 4G phone…', 'Measuring first paint and layout…', 'Scoring performance…'];
 
-type State = { kind: 'idle' } | { kind: 'running'; step: number } | { kind: 'done'; result: SpeedResult } | { kind: 'error'; message: string };
+type State =
+  | { kind: 'idle' }
+  | { kind: 'running'; step: number }
+  | { kind: 'done'; result: SpeedResult }
+  | { kind: 'error'; message: string }
+  | { kind: 'shown' }; // the scripted run on ax07.dev (see demo)
 
-/** Live Google PageSpeed test: the visitor's own site against an ax07 build. */
-export function SpeedTest() {
+const DEMO_SITE = 'ax07.dev';
+
+/**
+ * Live Google PageSpeed test: the visitor's own site against an ax07 build.
+ * `demo` plays a scripted run while the Proof section is held: 'type' types ax07.dev into the box, 'run' presses the
+ * button and shows ax07's score. The moment the visitor types or taps here themselves, the script stops for good.
+ */
+export function SpeedTest({ demo = 'off' }: { demo?: 'off' | 'type' | 'run' }) {
   const [url, setUrl] = useState('');
   const [state, setState] = useState<State>({ kind: 'idle' });
   const abortRef = useRef<AbortController | null>(null);
+  const [touched, setTouched] = useState(false);
+
+  useEffect(() => {
+    if (touched) return;
+    if (demo === 'off') {
+      setUrl('');
+      setState({ kind: 'idle' });
+      return;
+    }
+    if (demo === 'type') {
+      setState({ kind: 'idle' });
+      let n = 0;
+      const id = window.setInterval(() => {
+        n += 1;
+        setUrl(DEMO_SITE.slice(0, n));
+        if (n >= DEMO_SITE.length) window.clearInterval(id);
+      }, 75);
+      return () => window.clearInterval(id);
+    }
+    setUrl(DEMO_SITE);
+    setState({ kind: 'running', step: 0 });
+    const id = window.setTimeout(() => setState({ kind: 'shown' }), 1500);
+    return () => window.clearTimeout(id);
+  }, [demo, touched]);
 
   // Step the loading copy while Google works (a real test takes 10–30s)
   useEffect(() => {
@@ -43,11 +78,13 @@ export function SpeedTest() {
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
+    setTouched(true);
     run(url);
   };
 
   // A suggested site fills the box and runs straight away
   const trySite = (site: string) => {
+    setTouched(true);
     setUrl(site);
     run(site);
   };
@@ -100,7 +137,10 @@ export function SpeedTest() {
           inputMode="url"
           autoComplete="url"
           value={url}
-          onChange={(e) => setUrl(e.target.value)}
+          onChange={(e) => {
+            setTouched(true);
+            setUrl(e.target.value);
+          }}
           placeholder="yourbusiness.com"
           className="min-h-[48px] flex-1 rounded-full border border-line-strong bg-raised px-5 text-[15px] placeholder:text-subtle focus:outline-none sm:border-0 sm:bg-transparent"
         />
@@ -164,6 +204,23 @@ export function SpeedTest() {
             >
               {state.message}
             </motion.p>
+          )}
+
+          {state.kind === 'shown' && (
+            <motion.div
+              key="shown"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, ease: EASE_OUT }}
+              className="flex w-full items-center justify-center gap-6 sm:gap-10"
+            >
+              <Gauge score={OUR_SCORE} size={128} label={DEMO_SITE} />
+              <p className="max-w-[12rem] text-[15px] leading-relaxed text-muted">
+                {DEMO_SITE} is{' '}
+                <span className={`rounded-full px-2.5 py-0.5 text-[13px] font-semibold ${VERDICT.good.className}`}>{VERDICT.good.word}</span> on
+                a phone. Now try yours.
+              </p>
+            </motion.div>
           )}
 
           {state.kind === 'idle' && (

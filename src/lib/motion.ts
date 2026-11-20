@@ -24,7 +24,7 @@ export function useMinWidth(px: number) {
   return on;
 }
 
-const NAV_CLEARANCE = 84; // the floating menu bar, plus a little air
+const NAV_CLEARANCE = 100; // the floating menu bar, plus a little air
 
 /**
  * The scroll position at which `el` sits fully on screen: centred in the space below the menu bar, or, when it's

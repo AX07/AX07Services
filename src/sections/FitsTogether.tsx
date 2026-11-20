@@ -1,15 +1,14 @@
 import { useEffect, useRef, useState } from 'react';
 import { useReducedMotion } from 'motion/react';
-import { standAt } from '../lib/motion';
-import { addHold } from '../lib/smooth-scroll';
+import { reaimParticles } from '../lib/smooth-scroll';
 import { Eyebrow, Headline, Reveal } from '../components/Reveal';
 import { TECH } from '../data/tech';
 import { LogoStrip } from '../components/LogoStrip';
 
 /**
- * What we build, as one system, played by the scroll: the page stops once the section (or, on small screens, the
- * diagram) is fully in view, and each scroll then lights the next piece: the particle field outlines it and a pulse
- * runs down its line into "Your business". After the last, the page scrolls on. The tech we build with runs along the bottom.
+ * What we build, as one system, as a loop that plays while the section is on screen (the page never stops here):
+ * each piece lights up in turn, the particle field outlines it and a pulse runs down its line into "Your business",
+ * then everything is connected for a beat and it starts again. The tech we build with runs along the bottom.
  */
 
 const PARTS = [
@@ -23,6 +22,7 @@ const PARTS = [
 const X = [125, 375, 625, 875];
 const path = (x: number) => `M${x} 0 V70 L${x + (x < 500 ? 40 : -40)} 110 H500`;
 const STEPS = PARTS.length + 1; // each piece, then everything connected
+const STEP_MS = 1500; // one piece's turn; "everything connected" holds for two turns before the loop starts again
 
 export function FitsTogether() {
   const ref = useRef<HTMLElement>(null);
@@ -31,15 +31,30 @@ export function FitsTogether() {
   // -1 before the first piece; 0–3: that piece is lit; 4: everything is connected (shown straight away with reduced motion)
   const [step, setStep] = useState(-1);
 
+  // The loop runs only while the section is on screen; it starts from the first piece each time it comes into view
   useEffect(() => {
-    const section = ref.current?.firstElementChild as HTMLElement | null;
-    const pieces = diagram.current;
+    const el = ref.current;
     if (reduce) return setStep(STEPS - 1);
-    if (!section || !pieces) return;
-    // Stand where the whole section fits on screen, or just the diagram when the screen is too short for all of it
-    const at = () => standAt(section.offsetHeight <= window.innerHeight - 84 ? section : pieces);
-    return addHold(STEPS, () => Array(STEPS + 1).fill(at()), setStep);
+    if (!el) return;
+    let timer = 0;
+    const io = new IntersectionObserver(([e]) => {
+      window.clearInterval(timer);
+      if (!e.isIntersecting) return setStep(-1);
+      let s = -1;
+      timer = window.setInterval(() => {
+        s = (s + 1) % (STEPS + 1); // one extra beat with everything connected
+        setStep(Math.min(s, STEPS - 1));
+      }, STEP_MS);
+    }, { threshold: 0.4 });
+    io.observe(el);
+    return () => {
+      io.disconnect();
+      window.clearInterval(timer);
+    };
   }, [reduce]);
+
+  // The lit piece changes without the page scrolling, so tell the particles to follow it
+  useEffect(() => reaimParticles(900), [step]);
   const done = (i: number) => step > i || step === STEPS - 1;
   const allOn = step === STEPS - 1;
 

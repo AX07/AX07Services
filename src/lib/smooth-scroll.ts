@@ -71,8 +71,16 @@ let lastY = 0;
 function setIndex(h: Hold, i: number) {
   h.index = i;
   h.onStep(i);
-  // The page doesn't move while held, so no scroll event tells the particles: re-aim them for the step's length
-  const until = performance.now() + STEP_MS + 200;
+  // The page doesn't move while held, so no scroll event tells the particles
+  reaimParticles(STEP_MS + 200);
+}
+
+/**
+ * Re-aims the particle field for `ms`: for anything that changes which element is the field's target
+ * (data-scene-target) without the page scrolling, such as a held section's step or a looping animation.
+ */
+export function reaimParticles(ms = 800) {
+  const until = performance.now() + ms;
   const aim = () => {
     updateScene();
     if (performance.now() < until) requestAnimationFrame(aim);

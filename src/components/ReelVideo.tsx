@@ -12,7 +12,7 @@ export function ReelVideo({ id, shot, title, className = '' }: { id: string; sho
   useEffect(() => {
     const v = ref.current;
     if (!v || reduce) return;
-    const io = new IntersectionObserver(([e]) => (e.isIntersecting ? v.play().catch(() => {}) : v.pause()), { threshold: 0.3 });
+    const io = new IntersectionObserver(([e]) => (e.isIntersecting ? v.play().catch(() => {}) : v.pause()), { threshold: 0.01, rootMargin: "0px 300px" });
     io.observe(v);
     return () => io.disconnect();
   }, [reduce]);
@@ -25,7 +25,7 @@ export function ReelVideo({ id, shot, title, className = '' }: { id: string; sho
       muted
       loop
       playsInline
-      preload="none"
+      preload="metadata"
       aria-label={`${title} website, scrolling`}
       className={`h-full w-full object-cover object-top transition-transform duration-700 ease-out group-hover:scale-[1.03] ${className}`}
     />

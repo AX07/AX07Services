@@ -6,10 +6,10 @@ import { crossedForward, railPulse } from '../lib/rail';
 import { SHOWCASE_EXIT } from '../lib/smooth-scroll';
 
 /**
- * "See it work": a demo clinic site (Lumen Dental, made up for the demo) on a phone, or a browser window on larger
- * screens. The visitor's scroll plays a patient booking from start to finish: the page scrolls to the treatments, a
- * finger taps Check-up & clean, WhatsApp opens with the request already written, it's sent, and the clinic replies.
- * Every button on the screen is live: it opens a WhatsApp chat with ax07 about getting the same for your business.
+ * "See it work": our own site on a phone (a browser window on larger screens). The visitor's
+ * scroll plays a booking from start to finish: the page scrolls to the plans, a finger taps
+ * Subscription, WhatsApp opens with the message already written, it's sent, and a real person
+ * replies. Every button on the screen is live, so anyone can stop scrolling and try it for real.
  *
  * Keeps the showcase's id and device: the particle field bursts out of the hero, gathers into
  * this device and bursts out of it again on the way out (see updateScene).
@@ -17,9 +17,9 @@ import { SHOWCASE_EXIT } from '../lib/smooth-scroll';
 
 // Scroll beats, as a share of the section's pinned scroll
 const AT = {
-  scroll: [0.05, 0.33] as const, // the page scrolls down to the treatments
+  scroll: [0.05, 0.33] as const, // the page scrolls down to the plans
   pointer: 0.33, // the finger comes in
-  tap: 0.44, // Check-up & clean is tapped
+  tap: 0.44, // Subscription is tapped
   open: [0.47, 0.55] as const, // WhatsApp opens over the site
   send: 0.63, // send is tapped
   typing: 0.69,
@@ -27,38 +27,37 @@ const AT = {
   reply2: 0.86,
 };
 
-// A made-up clinic's treatments and prices: only an example of the booking flow, not anyone's real price list
 const OPTIONS = [
   {
     id: 'full',
-    name: 'Emergency visit',
-    price: '€90',
-    cadence: 'same day',
-    extra: 'Toothache, a broken tooth or a lost filling',
-    pitch: 'Seen today when you book before 2 pm.',
+    name: 'Full build',
+    price: '€1,270',
+    cadence: 'one-time',
+    extra: '+ €47/month hosting and care',
+    pitch: 'Your site and booking system, yours from day one.',
     cta: 'Book on WhatsApp',
-    message: 'Hi Lumen Dental, I have a toothache. Can I be seen today?',
+    message: "Hi ax07, I'm interested in the full build (€1,270 + €47/month). Can we talk?",
   },
   {
     id: 'sub',
-    name: 'Check-up & clean',
-    price: '€75',
-    cadence: '30 minutes',
-    extra: 'Exam, scale and polish',
-    pitch: 'With your dentist and hygienist, and a plan if you need one.',
+    name: 'Subscription',
+    price: '€0',
+    cadence: 'upfront',
+    extra: '€174/month for 12 months',
+    pitch: 'Everything included, and the code is yours after 12 months.',
     cta: 'Book on WhatsApp',
-    message: "Hi Lumen Dental, I'd like a check-up & clean. Is Thursday morning free?",
+    message: "Hi ax07, I'd like the subscription: €0 upfront and €174/month. Can we talk?",
     featured: true,
   },
   {
     id: 'custom',
-    name: 'Implant consultation',
-    price: 'Free',
-    cadence: 'first visit',
-    extra: 'With a 3D scan and a written quote',
-    pitch: 'See your options and the cost after Med 2 tax relief.',
-    cta: 'Book on WhatsApp',
-    message: "Hi Lumen Dental, I'd like a free implant consultation.",
+    name: 'Custom build',
+    price: 'Quoted',
+    cadence: 'for you',
+    extra: 'Dashboards, calculators, client portals',
+    pitch: 'A bigger system, built around how you already work.',
+    cta: 'Get a quote',
+    message: "Hi ax07, I'd like a quote for a custom build. Here's what I have in mind:",
   },
   {
     id: 'ask',
@@ -66,21 +65,21 @@ const OPTIONS = [
     price: '',
     cadence: '',
     extra: '',
-    pitch: 'Not sure what you need? Ask and the team replies.',
+    pitch: 'Not sure which fits? Ask us anything and a real person replies.',
     cta: 'Ask on WhatsApp',
-    message: 'Hi Lumen Dental, I have a question:',
+    message: 'Hi ax07, I have a question:',
   },
 ] as const;
 
 const SUB_MESSAGE = OPTIONS[1].message;
 
 const STEPS = [
-  { title: 'They pick a treatment', body: 'Clear treatments and prices, on a site that opens instantly on any phone.' },
-  { title: 'One tap sends the request', body: 'WhatsApp opens with the treatment already chosen. All that’s left is pressing send.' },
-  { title: 'It lands in your booking inbox', body: 'Your team books them in, and the patient gets their own page with forms and the appointment.' },
+  { title: 'They see what you offer', body: 'Clear options and prices, on a site that opens instantly on any phone.' },
+  { title: 'One tap opens WhatsApp', body: 'The message is already written for them. All that’s left is pressing send.' },
+  { title: 'A real person replies', body: 'You answer from your own phone, book them in, and it lands in your dashboard.' },
 ];
 
-const CTA_MESSAGE = "Hi ax07, I'd like a booking system like the clinic demo on your site. Can we talk?";
+const CTA_MESSAGE = "Hi ax07, I'd like a WhatsApp booking system like the one on your site. Can we talk?";
 
 const clamp01 = (v: number) => Math.min(1, Math.max(0, v));
 const seg = (v: number, a: number, b: number) => clamp01((v - a) / (b - a));
@@ -153,7 +152,7 @@ export function BookingDemo() {
   return (
     <section ref={ref} id="showcase" className="relative h-[270vh] sm:h-[240vh]">
       <div className="sticky top-0 flex h-[100svh] items-center overflow-hidden">
-        <div className="mx-auto grid w-full max-w-6xl grid-cols-1 items-center gap-4 px-5 pt-14 sm:gap-5 sm:px-6 sm:pt-16 lg:grid-cols-[0.82fr_1.3fr] lg:gap-10 lg:pt-14">
+        <div className="mx-auto grid w-full max-w-6xl grid-cols-1 items-center gap-4 px-5 pt-14 sm:gap-5 sm:px-6 sm:pt-16 lg:grid-cols-[0.82fr_1.3fr] lg:gap-10 lg:pt-24">
           {/* Copy */}
           <div className="order-2 lg:order-1">
             <div className="hidden lg:block">
@@ -161,15 +160,15 @@ export function BookingDemo() {
                 See it work
               </Eyebrow>
               <Headline
-                text={[{ text: 'From your site' }, { text: 'to a booked patient.', className: 'accent-serif text-accent' }]}
+                text={[{ text: 'One tap from your site' }, { text: 'to a booking in WhatsApp.', className: 'accent-serif text-accent' }]}
                 className="display text-display-3"
               />
-              <p className="mt-4 text-pretty text-body text-muted">
-                A demo clinic, built the way we build yours. Scroll to watch a patient book a check-up, or tap any button on the
+              <p className="mt-4 text-pretty text-body text-muted [@media(max-height:950px)]:hidden">
+                This is our own site, built the way we build yours. Scroll to watch someone choose a plan, or tap any button on the
                 screen and try it for real.
               </p>
 
-              <ol className="mt-7 space-y-1">
+              <ol className="mt-7 space-y-1 [@media(max-height:950px)]:mt-4">
                 {STEPS.map((s, i) => (
                   <li
                     key={s.title}
@@ -187,11 +186,11 @@ export function BookingDemo() {
                         {s.title}
                       </h3>
                     </div>
-                    <p className="mt-1 pl-9 text-[15px] leading-relaxed text-muted">{s.body}</p>
+                    <p className="mt-1 pl-9 text-[15px] leading-relaxed text-muted [@media(max-height:950px)]:hidden">{s.body}</p>
                   </li>
                 ))}
               </ol>
-              <div className="mt-7">{cta}</div>
+              <div className="mt-7 [@media(max-height:950px)]:mt-4">{cta}</div>
             </div>
 
             {/* Phones and tablets: the current step under the device */}
@@ -262,7 +261,7 @@ export function BookingDemo() {
                     <svg viewBox="0 0 16 16" className="h-3 w-3" aria-hidden="true">
                       <path d="M4.5 7V5.5a3.5 3.5 0 017 0V7M3.5 7h9v6.5h-9z" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" />
                     </svg>
-                    {waOpen ? 'web.whatsapp.com' : 'lumendental.ie'}
+                    {waOpen ? 'web.whatsapp.com' : 'ax07.dev'}
                   </div>
                   <span className="w-[42px]" />
                 </div>
@@ -360,7 +359,7 @@ function DemoScreen({ phone, p, stage }: { phone: boolean; p: MotionValue<number
   );
 }
 
-/* ---------------------------------------------------------------- the demo clinic's site, in miniature */
+/* ---------------------------------------------------------------- ax07.dev, in miniature */
 
 function Ax07Site({ m, p, cardRef }: { m: boolean; p: MotionValue<number>; cardRef: Ref<HTMLDivElement> }) {
   const pressScale = useTransform(p, (v) => 1 - 0.06 * Math.sin(Math.PI * seg(v, AT.tap - 0.012, AT.tap + 0.02)));
@@ -370,9 +369,9 @@ function Ax07Site({ m, p, cardRef }: { m: boolean; p: MotionValue<number>; cardR
       {/* Nav */}
       <div aria-hidden="true" className={`flex items-center justify-between ${m ? 'px-5 py-4' : 'px-12 py-5'}`}>
         <div className="flex items-center gap-2.5">
-          <ClinicMark size={m ? 28 : 36} />
+          <img src="/logo-mark.png" alt="" className={`${m ? 'h-7 w-7' : 'h-9 w-9'} dark:invert`} />
           <span className={`font-display font-semibold tracking-tight ${m ? 'text-[20px]' : 'text-[24px]'}`}>
-            Lumen <span className="text-muted">Dental</span>
+            ax07<span className="text-muted">.dev</span>
           </span>
         </div>
         {m ? (
@@ -382,39 +381,40 @@ function Ax07Site({ m, p, cardRef }: { m: boolean; p: MotionValue<number>; cardR
           </span>
         ) : (
           <div className="flex items-center gap-7 text-[16px] text-muted">
-            <span>Treatments</span>
-            <span>Team</span>
-            <span>Find us</span>
-            <span className="rounded-full bg-fg px-5 py-2.5 font-medium text-on-fg">Book a visit</span>
+            <span>See it work</span>
+            <span>Pricing</span>
+            <span>About</span>
+            <span className="rounded-full bg-fg px-5 py-2.5 font-medium text-on-fg">Free preview</span>
           </div>
         )}
       </div>
 
       {/* Hero, as on the real page */}
       <div aria-hidden="true" className={`text-center ${m ? 'px-6 pb-14 pt-6' : 'px-12 pb-16 pt-4'}`}>
-        <span className="mx-auto block w-fit"><ClinicMark size={m ? 88 : 116} /></span>
+        <img src="/logo-mark.png" alt="" className={`mx-auto dark:invert ${m ? 'h-24 w-24' : 'h-32 w-32'}`} />
         <p className={`mt-6 font-medium uppercase tracking-[0.16em] text-subtle ${m ? 'text-[11px]' : 'text-[13px]'}`}>
-          Family & cosmetic dentistry · Demo clinic
+          Independent web studio · Ireland & the Algarve
         </p>
         <h3 className={`display mx-auto mt-4 max-w-[60rem] text-balance ${m ? 'text-[38px] leading-[1.05]' : 'text-[54px] leading-[1.03]'}`}>
-          Healthy smiles, <span className="accent-serif text-accent">booked in a tap.</span>
+          We build custom web experiences <span className="accent-serif text-accent">that convert.</span>
         </h3>
         <p className={`mx-auto mt-5 max-w-[36rem] text-pretty text-muted ${m ? 'text-[16px]' : 'text-[19px]'}`}>
-          Pick a treatment, send the request on WhatsApp, and get your own page with your forms and appointment.
+          Websites with a booking system built in. One tap opens WhatsApp, a real person answers, and every booking lands in your
+          dashboard.
         </p>
         <div className={`mt-8 flex justify-center gap-3 ${m ? 'flex-col' : ''}`}>
-          <span className="btn btn-primary">Book a visit</span>
-          <span className="btn btn-quiet">See treatments</span>
+          <span className="btn btn-primary">Get your free 48h preview</span>
+          <span className="btn btn-quiet">See plans</span>
         </div>
       </div>
 
       {/* Plans */}
       <div className={m ? 'px-5 pb-12' : 'px-12 pb-16'}>
         <p aria-hidden="true" className={`font-medium uppercase tracking-[0.16em] text-subtle ${m ? 'text-[11px]' : 'text-[13px]'}`}>
-          Treatments
+          Pricing
         </p>
         <h4 aria-hidden="true" className={`display mt-3 ${m ? 'text-[30px]' : 'text-[44px]'}`}>
-          Book a visit.
+          Choose how to start.
         </h4>
         <div className={`mt-7 grid gap-4 ${m ? 'grid-cols-1' : 'grid-cols-2'}`}>
           {OPTIONS.map((o) => {
@@ -427,7 +427,7 @@ function Ax07Site({ m, p, cardRef }: { m: boolean; p: MotionValue<number>; cardR
               >
                 <div className="flex items-center justify-between gap-2">
                   <span className="font-display text-[20px] font-semibold">{o.name}</span>
-                  {featured && <span className="rounded-full bg-accent/15 px-2.5 py-1 text-[12px] font-medium text-accent">Most booked</span>}
+                  {featured && <span className="rounded-full bg-accent/15 px-2.5 py-1 text-[12px] font-medium text-accent">Most chosen</span>}
                 </div>
                 {o.price ? (
                   <div className="mt-4 flex items-baseline gap-1.5">
@@ -441,7 +441,7 @@ function Ax07Site({ m, p, cardRef }: { m: boolean; p: MotionValue<number>; cardR
                 <p className={`mt-3 flex-1 text-[15px] leading-snug text-muted ${m ? '' : 'min-h-[2.6em]'}`}>{o.pitch}</p>
                 <motion.div style={featured ? { scale: pressScale } : undefined} className="relative mt-5">
                   <a
-                    href={whatsappLink(`Hi ax07, I tapped "${o.cta}" in the clinic demo on your site. I'd like a booking system like this.`)}
+                    href={whatsappLink(o.message)}
                     target="_blank"
                     rel="noopener noreferrer"
                     className={`btn w-full !min-h-[48px] text-[15px] ${featured ? 'btn-primary' : 'btn-quiet'}`}
@@ -484,11 +484,11 @@ function WhatsAppScreen({ m, p, stage }: { m: boolean; p: MotionValue<number>; s
           <Avatar size={48} />
           <div className="min-w-0 flex-1">
             <div className="flex justify-between text-[16px]">
-              <span>Lumen Dental</span>
+              <span>ax07.dev</span>
               <span className="text-[12px] text-black/45">10:24</span>
             </div>
             <div className="truncate text-[14px] text-black/55">
-              {stage >= 5 ? 'Hi! Thursday at 10:30 is free 👋' : stage >= 4 ? 'typing…' : stage >= 3 ? SUB_MESSAGE : 'Business account'}
+              {stage >= 5 ? 'Hi! Thanks for getting in touch 👋' : stage >= 4 ? 'typing…' : stage >= 3 ? SUB_MESSAGE : 'Business account'}
             </div>
           </div>
         </div>
@@ -508,8 +508,8 @@ function WhatsAppScreen({ m, p, stage }: { m: boolean; p: MotionValue<number>; s
 }
 
 const REPLIES = [
-  'Hi! Thursday at 10:30 is free with Dr Byrne 👋 Shall I book you in?',
-  'Here’s your patient page with the forms to fill in before you come: lumendental.ie/p/your-visit',
+  'Hi! Thanks for getting in touch 👋 Great choice: the subscription has nothing to pay upfront.',
+  'What’s your business called, and do you have a website already? We’ll send you a free preview within 48 hours.',
 ];
 
 function Chat({ m, p, stage }: { m: boolean; p: MotionValue<number>; stage: number }) {
@@ -527,7 +527,7 @@ function Chat({ m, p, stage }: { m: boolean; p: MotionValue<number>; stage: numb
         )}
         <Avatar size={m ? 38 : 40} />
         <div className="leading-tight">
-          <div className={`font-medium ${m ? 'text-[16px]' : 'text-[16px]'}`}>Lumen Dental</div>
+          <div className={`font-medium ${m ? 'text-[16px]' : 'text-[16px]'}`}>ax07.dev</div>
           <div className={`text-[13px] ${m ? 'opacity-80' : 'text-black/55'}`}>{stage === 4 ? 'typing…' : 'online'}</div>
         </div>
       </div>
@@ -616,18 +616,9 @@ function Ticks({ read }: { read: boolean }) {
 }
 
 function Avatar({ size }: { size: number }) {
-  return <ClinicMark size={size} />;
-}
-
-/** The demo clinic's mark: a round "LD" monogram in the accent colour */
-function ClinicMark({ size }: { size: number }) {
   return (
-    <span
-      aria-hidden="true"
-      className="flex shrink-0 items-center justify-center rounded-full bg-accent font-display font-semibold text-on-accent"
-      style={{ width: size, height: size, fontSize: size * 0.38 }}
-    >
-      LD
+    <span className="flex shrink-0 items-center justify-center rounded-full bg-[#0c0d10]" style={{ width: size, height: size }}>
+      <img src="/logo-mark.png" alt="" className="invert" style={{ width: size * 0.6, height: size * 0.6 }} />
     </span>
   );
 }
