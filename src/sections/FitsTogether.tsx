@@ -1,15 +1,15 @@
-import { useEffect, useRef, useState } from 'react';
-import { useReducedMotion } from 'motion/react';
-import { standAt } from '../lib/motion';
-import { addHold } from '../lib/smooth-scroll';
+import { useRef, useState } from 'react';
+import { useMotionValueEvent, useReducedMotion, useScroll } from 'motion/react';
 import { Eyebrow, Headline, Reveal } from '../components/Reveal';
 import { TECH } from '../data/tech';
 import { LogoStrip } from '../components/LogoStrip';
+import { StepBar } from '../components/StepBar';
 
 /**
- * What we build, as one system, played by the scroll: the page stops once the section (or, on small screens, the
- * diagram) is fully in view, and each scroll then lights the next piece: the particle field outlines it and a pulse
- * runs down its line into "Your business". After the last, the page scrolls on. The tech we build with runs along the bottom.
+ * What we build, as one system, pinned like "See it work": the section is taller than the screen and its content stays
+ * put (sticky) while the visitor scrolls through it, so the normal scroll plays it: each piece lights up, the particle
+ * field outlines it and a pulse runs down its line into "Your business", and a step bar shows how far along it is.
+ * Nothing takes over the scroll wheel, so it can't get stuck. The tech we build with runs along the bottom.
  */
 
 const PARTS = [
@@ -23,46 +23,46 @@ const PARTS = [
 const X = [125, 375, 625, 875];
 const path = (x: number) => `M${x} 0 V70 L${x + (x < 500 ? 40 : -40)} 110 H500`;
 const STEPS = PARTS.length + 1; // each piece, then everything connected
+// Share of the pinned stretch before the first piece lights (the whole section is seen first) and after the last
+const HOLD = 0.1;
+const TAIL = 0.1;
 
 export function FitsTogether() {
   const ref = useRef<HTMLElement>(null);
   const diagram = useRef<HTMLDivElement>(null);
   const reduce = useReducedMotion();
   // -1 before the first piece; 0–3: that piece is lit; 4: everything is connected (shown straight away with reduced motion)
-  const [step, setStep] = useState(-1);
+  const [step, setStep] = useState(reduce ? STEPS - 1 : -1);
 
-  useEffect(() => {
-    const section = ref.current?.firstElementChild as HTMLElement | null;
-    const pieces = diagram.current;
-    if (reduce) return setStep(STEPS - 1);
-    if (!section || !pieces) return;
-    // Stand where the whole section fits on screen, or just the diagram when the screen is too short for all of it
-    const at = () => standAt(section.offsetHeight <= window.innerHeight - 84 ? section : pieces);
-    return addHold(STEPS, () => Array(STEPS + 1).fill(at()), setStep);
-  }, [reduce]);
+  const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end end'] });
+  useMotionValueEvent(scrollYProgress, 'change', (p) => {
+    if (reduce) return;
+    setStep(p < HOLD ? -1 : Math.min(STEPS - 1, Math.floor(((p - HOLD) / (1 - HOLD - TAIL)) * STEPS)));
+  });
   const done = (i: number) => step > i || step === STEPS - 1;
   const allOn = step === STEPS - 1;
 
   return (
-    <section ref={ref} id="features" className="relative gutter section-y">
-      <div className="mx-auto max-w-6xl">
-        <Eyebrow index="03" className="mb-5 lg:[@media(max-height:820px)]:mb-3">
+    <section ref={ref} id="features" className="relative h-[500vh]">
+      <div className="sticky top-0 flex h-[100svh] flex-col justify-center gutter pb-3 pt-20">
+      <div className="mx-auto w-full max-w-6xl">
+        <Eyebrow index="01" className="mb-5 lg:[@media(max-height:900px)]:mb-3">
           How it fits together
         </Eyebrow>
         <div className="grid grid-cols-1 gap-5 lg:grid-cols-[1.1fr_0.9fr] lg:items-end lg:gap-14">
           <Headline
             text={[{ text: 'One system,' }, { text: 'built around you.', className: 'accent-serif text-accent' }]}
-            className="display text-balance text-display-2 lg:[@media(max-height:820px)]:text-display-3"
+            className="display text-balance text-display-2 lg:[@media(max-height:900px)]:text-display-3"
           />
           <Reveal delay={0.1}>
-            <p className="max-w-md text-body text-muted lg:[@media(max-height:820px)]:text-body-sm">
+            <p className="max-w-md text-body text-muted max-sm:hidden lg:[@media(max-height:900px)]:text-body-sm">
               Not a website with tools bolted on. Your site, your bookings, your inbox and each client’s own page work as one, so
               nobody falls through the gaps.
             </p>
           </Reveal>
         </div>
 
-        <div ref={diagram} className="relative mx-auto mt-12 w-full max-w-5xl sm:mt-16 lg:mt-10 lg:[@media(max-height:820px)]:mt-5">
+        <div ref={diagram} className="relative mx-auto mt-6 w-full max-w-5xl sm:mt-10 lg:mt-10 lg:[@media(max-height:900px)]:mt-5">
         <Reveal delay={0.15}>
           {/* The four pieces */}
           <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4 lg:gap-8">
@@ -74,7 +74,7 @@ export function FitsTogether() {
                   // The particle field outlines the lit piece (see updateScene in lib/smooth-scroll.ts)
                   data-scene-target={active ? `fit-${i}` : undefined}
                   data-scene-tint={active ? '1' : undefined}
-                  className={`card relative flex min-h-[9.5rem] lg:[@media(max-height:820px)]:min-h-[7rem] flex-col justify-between overflow-hidden p-4 transition-[transform,box-shadow] duration-500 ease-out sm:p-5 ${
+                  className={`card relative flex min-h-[9.5rem] max-sm:min-h-[7.5rem] lg:[@media(max-height:900px)]:min-h-[7rem] flex-col justify-between overflow-hidden p-4 transition-[transform,box-shadow] duration-500 ease-out sm:p-5 ${
                     active ? '-translate-y-1 shadow-[0_0_0_1px_var(--color-accent-bright),0_18px_40px_-18px_var(--color-accent-bright)]' : ''
                   }`}
                 >
@@ -100,7 +100,7 @@ export function FitsTogether() {
                       </svg>
                     </span>
                   </div>
-                  <div className="mt-6 lg:[@media(max-height:820px)]:mt-3">
+                  <div className="mt-6 lg:[@media(max-height:900px)]:mt-3">
                     <h3 className="display text-[17px] leading-tight sm:text-[19px]">{p.title}</h3>
                     <p className="mt-1 text-[13px] leading-snug text-muted">{p.body}</p>
                   </div>
@@ -110,7 +110,7 @@ export function FitsTogether() {
           </div>
 
           {/* The lines into the business: drawn on wide screens; phones get one straight line */}
-          <svg viewBox="0 0 1000 160" aria-hidden="true" className="hidden h-auto w-full overflow-visible lg:block lg:[@media(max-height:820px)]:h-[84px]" preserveAspectRatio="none" fill="none">
+          <svg viewBox="0 0 1000 160" aria-hidden="true" className="hidden h-auto w-full overflow-visible lg:block lg:[@media(max-height:900px)]:h-[84px]" preserveAspectRatio="none" fill="none">
             {X.map((x) => (
               <path key={x} d={path(x)} stroke="var(--color-line-strong)" strokeWidth={1.5} />
             ))}
@@ -152,8 +152,12 @@ export function FitsTogether() {
         </Reveal>
         </div>
 
+        {/* Where the pinned section is */}
+        {!reduce && <StepBar steps={STEPS} active={step} className="mt-4 sm:mt-6" />}
+
         {/* What we build with */}
-        <LogoStrip label="Built with" items={TECH} className="mt-12" />
+        <LogoStrip label="Built with" items={TECH} className="mt-5 sm:mt-8" />
+      </div>
       </div>
     </section>
   );

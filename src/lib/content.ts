@@ -169,7 +169,7 @@ export const plans = [
     features: [
       'Custom design and build, from a blank page',
       'Sub-second mobile performance guarantee',
-      'One-tap WhatsApp booking and enquiry routing',
+      'Booking inbox for your team and a page for every client',
       'Cookie-free, GDPR-compliant analytics',
       'Full code handover: host it anywhere you like',
     ],
@@ -234,7 +234,7 @@ export const faqs: readonly Faq[] = [
   },
   {
     q: 'How do bookings and enquiries work?',
-    a: 'Every call to action routes straight to your WhatsApp or booking system with the customer’s details pre-filled. No forms that disappear into an inbox.',
+    a: 'A tap on your site opens WhatsApp (or a short form) with the service already chosen. Every request lands in one booking inbox for your team, and each client gets their own page with their forms and appointment details.',
   },
   {
     q: 'Can I change things after launch?',

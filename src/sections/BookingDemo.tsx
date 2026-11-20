@@ -150,25 +150,25 @@ export function BookingDemo() {
   );
 
   return (
-    <section ref={ref} id="showcase" className="relative h-[440vh] sm:h-[380vh]">
+    <section ref={ref} id="showcase" className="relative h-[270vh] sm:h-[240vh]">
       <div className="sticky top-0 flex h-[100svh] items-center overflow-hidden">
-        <div className="mx-auto grid w-full max-w-6xl grid-cols-1 items-center gap-4 px-5 pt-14 sm:gap-5 sm:px-6 sm:pt-16 lg:grid-cols-[0.82fr_1.3fr] lg:gap-10 lg:pt-14">
+        <div className="mx-auto grid w-full max-w-6xl grid-cols-1 items-center gap-4 px-5 pt-14 sm:gap-5 sm:px-6 sm:pt-16 lg:grid-cols-[0.82fr_1.3fr] lg:gap-10 lg:pt-24">
           {/* Copy */}
           <div className="order-2 lg:order-1">
             <div className="hidden lg:block">
-              <Eyebrow index="01" className="mb-4">
+              <Eyebrow index="02" className="mb-4">
                 See it work
               </Eyebrow>
               <Headline
                 text={[{ text: 'One tap from your site' }, { text: 'to a booking in WhatsApp.', className: 'accent-serif text-accent' }]}
                 className="display text-display-3"
               />
-              <p className="mt-4 text-pretty text-body text-muted">
+              <p className="mt-4 text-pretty text-body text-muted [@media(max-height:950px)]:hidden">
                 This is our own site, built the way we build yours. Scroll to watch someone choose a plan, or tap any button on the
                 screen and try it for real.
               </p>
 
-              <ol className="mt-7 space-y-1">
+              <ol className="mt-7 space-y-1 [@media(max-height:950px)]:mt-4">
                 {STEPS.map((s, i) => (
                   <li
                     key={s.title}
@@ -186,11 +186,11 @@ export function BookingDemo() {
                         {s.title}
                       </h3>
                     </div>
-                    <p className="mt-1 pl-9 text-[15px] leading-relaxed text-muted">{s.body}</p>
+                    <p className="mt-1 pl-9 text-[15px] leading-relaxed text-muted [@media(max-height:950px)]:hidden">{s.body}</p>
                   </li>
                 ))}
               </ol>
-              <div className="mt-7">{cta}</div>
+              <div className="mt-7 [@media(max-height:950px)]:mt-4">{cta}</div>
             </div>
 
             {/* Phones and tablets: the current step under the device */}
@@ -217,7 +217,7 @@ export function BookingDemo() {
           {/* Device */}
           <div className="order-1 lg:order-2">
             <div className="mb-3 text-center lg:hidden">
-              <Eyebrow index="01" className="mb-2 justify-center max-sm:hidden">
+              <Eyebrow index="02" className="mb-2 justify-center max-sm:hidden">
                 See it work
               </Eyebrow>
               <h2 className="display text-balance text-display-3">{headline}</h2>

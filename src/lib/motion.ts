@@ -23,16 +23,3 @@ export function useMinWidth(px: number) {
   }, [px]);
   return on;
 }
-
-const NAV_CLEARANCE = 84; // the floating menu bar, plus a little air
-
-/**
- * The scroll position at which `el` sits fully on screen: centred in the space below the menu bar, or, when it's
- * taller than that, with its top just under the bar. Where a held section (addHold in smooth-scroll) stops the page.
- */
-export function standAt(el: HTMLElement) {
-  const r = el.getBoundingClientRect();
-  const top = r.top + window.scrollY;
-  const room = window.innerHeight - NAV_CLEARANCE;
-  return Math.max(0, Math.round(r.height <= room ? top - NAV_CLEARANCE - (room - r.height) / 2 : top - NAV_CLEARANCE));
-}

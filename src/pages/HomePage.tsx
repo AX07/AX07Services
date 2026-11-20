@@ -2,6 +2,7 @@ import { WaveBackdrop } from '../components/WaveBackdrop';
 import { lazy, startTransition, Suspense, useEffect, useState } from 'react';
 import { Hero } from '../sections/Hero';
 import { BookingDemo } from '../sections/BookingDemo';
+import { FitsTogether } from '../sections/FitsTogether';
 import { initSmoothScroll, scrollToId } from '../lib/smooth-scroll';
 
 // three.js downloads straight away, in parallel with first paint, but only mounts once the page
@@ -14,7 +15,7 @@ const Scene = lazy(() => sceneChunk);
 const restChunk = import('./HomeRest');
 const HomeRest = lazy(() => restChunk);
 
-/** True once the page has loaded: the 3D scene waits for this. */
+/** True once the page has loaded, or 0.6 s after first paint at the latest (late images and videos don't hold it up): the 3D scene waits for this. */
 function useAfterLoad() {
   const [ready, setReady] = useState(false);
   useEffect(() => {
@@ -25,9 +26,11 @@ function useAfterLoad() {
     };
     if (document.readyState === 'complete') go();
     else window.addEventListener('load', go, { once: true });
+    const latest = window.setTimeout(go, 600);
     return () => {
       window.removeEventListener('load', go);
       window.clearTimeout(t);
+      window.clearTimeout(latest);
     };
   }, []);
   return ready;
@@ -91,6 +94,8 @@ export function HomePage() {
 
       <main className="relative z-10">
         <Hero />
+        {/* The offer first: the patient system, then a booking played out on a phone */}
+        <FitsTogether />
         <BookingDemo />
         {showRest && (
           <Suspense fallback={null}>

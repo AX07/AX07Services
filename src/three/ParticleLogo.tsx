@@ -224,6 +224,7 @@ export function ParticleLogo({ count }: Props) {
   const glide = useRef({ target: '', from: [0, 0, 1, 1, 0.1], t: 1 });
   const kick = useRef(0);
   const lastTap = useRef(0);
+  const announced = useRef(false);
   const raycaster = useMemo(() => new THREE.Raycaster(), []);
   const reduceMotion = useMemo(
     () => typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches,
@@ -328,6 +329,11 @@ export function ParticleLogo({ count }: Props) {
   const flat = useMemo(() => new THREE.Vector2(), []);
 
   useFrame((state, delta) => {
+    // First real frame: the 2D stand-in field (components/ParticleFallback) can fade out now
+    if (!announced.current) {
+      announced.current = true;
+      window.dispatchEvent(new Event('ax07:scene-ready'));
+    }
     const group = groupRef.current;
     const points = pointsRef.current;
     if (!group || !points) return;

@@ -3,10 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <title>ax07.dev | Custom websites & WhatsApp booking in Ireland & the Algarve</title>
+    <title>ax07.dev | Websites with a booking system, Ireland & the Algarve</title>
     <meta
       name="description"
-      content="Custom websites that win local businesses in Ireland and the Algarve more enquiries and bookings, sent straight to WhatsApp. See a working preview in 48 hours, before you pay."
+      content="Websites that turn visitors into booked clients: every booking request in one inbox, and a page for each client. A free working preview in 48 hours."
     />
     <link rel="canonical" href="https://www.ax07.dev/" />
     <meta name="theme-color" content="#f3f4f6" />
@@ -26,10 +26,10 @@
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="ax07.dev" />
     <meta property="og:locale" content="en_IE" />
-    <meta property="og:title" content="ax07.dev | Custom websites & WhatsApp booking in Ireland & the Algarve" />
+    <meta property="og:title" content="ax07.dev | Websites with a booking system, Ireland & the Algarve" />
     <meta
       property="og:description"
-      content="Custom websites that win local businesses in Ireland and the Algarve more enquiries and bookings, sent straight to WhatsApp. See a working preview in 48 hours, before you pay."
+      content="Websites that turn visitors into booked clients: every booking request in one inbox, and a page for each client. A free working preview in 48 hours."
     />
     <meta property="og:url" content="https://www.ax07.dev/" />
     <meta property="og:image" content="https://www.ax07.dev/og-image.jpg" />
@@ -55,7 +55,7 @@
         "url": "https://www.ax07.dev/",
         "logo": "https://www.ax07.dev/logo-mark.png",
         "image": "https://www.ax07.dev/og-image.jpg",
-        "description": "Independent web studio building custom, fast websites with interactive 3D visuals and 1-click WhatsApp booking for businesses in Ireland and the Algarve.",
+        "description": "Independent web studio building custom, fast websites with a booking inbox and a page for every client, for businesses in Ireland and the Algarve.",
         "telephone": "+353894419127",
         "email": "info@ax07.dev",
         "priceRange": "€€",
@@ -70,14 +70,50 @@
           "sameAs": "https://www.linkedin.com/in/alexpintosmollahan/"
         },
         "sameAs": ["https://www.instagram.com/ax07.dev/", "https://www.linkedin.com/company/ax07dev/"],
-        "knowsAbout": ["Web design", "Web development", "WhatsApp booking", "Three.js", "Technical SEO"]
+        "knowsAbout": ["Web design", "Web development", "Booking systems", "Three.js", "Technical SEO"]
       }
     </script>
   </head>
   <body>
+    <!-- The particle field, scattered, drawn from the very first paint (before any app code loads) on the home page.
+         It fades out when the 3D field has drawn its first frame ("ax07:scene-ready", three/ParticleLogo.tsx),
+         which then gathers the same scattered field into the logo. -->
+    <canvas id="particle-fallback" aria-hidden="true" style="position:fixed;inset:0;width:100%;height:100%;z-index:1;pointer-events:none;transition:opacity 1s ease"></canvas>
+    <script>
+      (function () {
+        var c = document.getElementById('particle-fallback');
+        if (['/', '/ie', '/pt', '/ie/', '/pt/'].indexOf(location.pathname) < 0) return c.remove();
+        var x = c.getContext('2d'), reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+        var dpr = Math.min(devicePixelRatio || 1, 2), n = innerWidth < 768 ? 2200 : 4200, dots = [], raf = 0, done = false;
+        for (var i = 0; i < n; i++) {
+          var th = Math.random() * 6.2832, ph = Math.acos(2 * Math.random() - 1), r = 0.2 + Math.pow(Math.random(), 0.7) * 0.8;
+          dots.push([r * Math.sin(ph) * Math.cos(th), r * Math.sin(ph) * Math.sin(th), Math.cos(ph), Math.random()]);
+        }
+        function draw(t) {
+          var w = innerWidth, hh = innerHeight;
+          if (c.width !== Math.round(w * dpr)) { c.width = Math.round(w * dpr); c.height = Math.round(hh * dpr); }
+          var s = document.getElementById('hero-logo-slot'), b = s && s.getBoundingClientRect();
+          var cx = b && b.width ? b.left + b.width / 2 : w / 2, cy = b && b.height ? b.top + b.height / 2 : hh * 0.36;
+          var R = Math.max(w, hh) * 0.5, a = reduce ? 0 : t / 7000;
+          x.setTransform(dpr, 0, 0, dpr, 0, 0);
+          x.clearRect(0, 0, w, hh);
+          x.fillStyle = document.documentElement.dataset.theme === 'dark' ? 'rgba(232,232,237,.7)' : 'rgba(12,13,16,.62)';
+          for (var i = 0; i < n; i++) {
+            var d = dots[i], k = a * (0.5 + d[3]), z = 1 + d[2] * 0.25, size = (1 + d[3] * 1.4) * z;
+            x.fillRect(cx + (d[0] * Math.cos(k) - d[2] * Math.sin(k) * 0.35) * R, cy + d[1] * R * 0.85 + Math.sin(k * 3 + d[3] * 6) * 4, size, size);
+          }
+          if (!done && !reduce) raf = requestAnimationFrame(draw);
+        }
+        raf = requestAnimationFrame(draw);
+        addEventListener('ax07:scene-ready', function () {
+          c.style.opacity = '0';
+          setTimeout(function () { done = true; cancelAnimationFrame(raf); c.remove(); }, 1100);
+        }, { once: true });
+      })();
+    </script>
     <div id="root"></div>
     <noscript>
-      ax07 is an independent web studio building custom websites with WhatsApp booking for businesses in Ireland and the Algarve. Message us on
+      ax07 is an independent web studio building custom websites with a booking system for businesses in Ireland and the Algarve. Message us on
       WhatsApp: <a href="https://wa.me/353894419127">+353 89 441 9127</a>.
     </noscript>
     <script type="module" src="/src/main.tsx"></script>

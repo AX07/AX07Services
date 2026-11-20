@@ -9,13 +9,6 @@ const VISIBLE_WORLD_HEIGHT = 2 * 9 * Math.tan((35 / 2) * (Math.PI / 180));
 // The particle logo is normalised to 3 world units across
 const LOGO_WORLD_SIZE = 3;
 
-// Menu and button jumps let go of a held section and pass straight through the others (holds, below)
-let jumping = false;
-const jumpDone = () => {
-  jumping = false;
-  lastY = window.scrollY;
-};
-
 /** Scroll to a section id through Lenis when it's running (keeps the eased feel), natively otherwise. */
 export function scrollToId(id: string, immediate = false) {
   const el = document.getElementById(id);
@@ -23,142 +16,28 @@ export function scrollToId(id: string, immediate = false) {
   if (lenis) {
     // Sections below the fold mount after first paint; make sure Lenis knows the page's full height
     lenis.resize();
-    if (held) letGo();
-    jumping = !immediate;
-    lenis.scrollTo(el, { offset: id === 'top' ? 0 : -24, duration: 1.4, immediate, onComplete: jumpDone });
+    lenis.scrollTo(el, { offset: id === 'top' ? 0 : -24, duration: 1.4, immediate });
   }
   else el.scrollIntoView({ behavior: immediate ? 'instant' : 'smooth' });
 }
 
 /** Scroll to an absolute page offset, eased through Lenis when it's running. */
 export function scrollToY(y: number) {
-  if (lenis) {
-    if (held) letGo();
-    jumping = true;
-    lenis.scrollTo(y, { duration: 1.2, onComplete: jumpDone });
-  } else window.scrollTo({ top: y, behavior: 'smooth' });
+  if (lenis) lenis.scrollTo(y, { duration: 1.2 });
+  else window.scrollTo({ top: y, behavior: 'smooth' });
 }
 
 /**
- * Holds: a section that plays in steps (How it fits together, Proof) registers where the page should stand for each
- * of its states (-1 = nothing lit yet, then 0..steps-1). Scrolling down, the moment the page reaches the first of
- * those (the cards fully on screen) it stops dead, however fast it was going. While it's held, each scroll gesture
- * (wheel notch or spin, trackpad swipe, touch swipe, arrow / page / space key) plays one step instead of scrolling;
- * one step past the last, the page lets go and scrolls on. Coming back up, it's caught at the last step and plays
- * them backwards. Without smooth scrolling (reduced motion) nothing is held: the section shows its finished state.
+ * Re-aims the particle field for ms milliseconds: for anything that changes which element is the field's target
+ * (data-scene-target) without the page scrolling, such as a timed spotlight.
  */
-type Hold = { steps: number; positions: () => number[]; onStep: (i: number) => void; index: number };
-const holds = new Set<Hold>();
-let held: Hold | null = null;
-
-export function addHold(steps: number, positions: () => number[], onStep: (i: number) => void) {
-  const h: Hold = { steps, positions, onStep, index: -1 };
-  holds.add(h);
-  return () => {
-    holds.delete(h);
-    if (held === h) letGo();
-  };
-}
-
-const STEP_MS = 650; // one step's own animation; gestures during it are ignored
-const NEW_GESTURE_MS = 140; // events closer together than this are one gesture (trackpad momentum, a fast spin)
-const KEEP_GOING_MS = 900; // scrolling without a pause still moves one step this often, so a held section never freezes
-let busyUntil = 0;
-let lastGestureAt = 0;
-let lastStepAt = 0;
-let lastY = 0;
-
-function setIndex(h: Hold, i: number) {
-  h.index = i;
-  h.onStep(i);
-  // The page doesn't move while held, so no scroll event tells the particles: re-aim them for the step's length
-  const until = performance.now() + STEP_MS + 200;
+export function reaimParticles(ms = 800) {
+  const until = performance.now() + ms;
   const aim = () => {
     updateScene();
     if (performance.now() < until) requestAnimationFrame(aim);
   };
   requestAnimationFrame(aim);
-}
-
-function grab(h: Hold, from: 'above' | 'below') {
-  const ps = h.positions();
-  held = h;
-  setIndex(h, from === 'above' ? -1 : h.steps - 1);
-  const y = from === 'above' ? ps[0] : ps[ps.length - 1];
-  lenis?.scrollTo(y, { immediate: true, force: true });
-  if (Math.abs(window.scrollY - y) > 2) window.scrollTo(0, y); // moved natively (scrollbar drag): Lenis may not apply it
-  lenis?.stop();
-  lastY = y;
-  busyUntil = performance.now() + 300;
-  lastGestureAt = lastStepAt = performance.now(); // the rest of the flick that brought us here is not a new gesture
-}
-
-function letGo() {
-  held = null;
-  lenis?.start();
-}
-
-/** A gesture while held: the next or previous step, or let go past either end */
-function gesture(dir: number) {
-  const h = held;
-  if (!h || !dir) return;
-  const next = h.index + dir;
-  if (next < -1 || next > h.steps - 1) return letGo();
-  setIndex(h, next);
-  busyUntil = performance.now() + STEP_MS;
-  lastStepAt = performance.now();
-  // Phones can stand somewhere different for each step (one card at a time); wide screens stay put
-  const y = h.positions()[next + 1];
-  if (Math.abs(y - window.scrollY) > 2) lenis?.scrollTo(y, { duration: STEP_MS / 1000, force: true });
-}
-
-/**
- * True for the first event of a new gesture once the last step has finished, or, while the scrolling never pauses
- * (trackpad momentum, a wheel kept turning), once KEEP_GOING_MS has passed since the last step
- */
-function freshGesture() {
-  const now = performance.now();
-  const fresh = now > busyUntil && (now - lastGestureAt > NEW_GESTURE_MS || now - lastStepAt > KEEP_GOING_MS);
-  lastGestureAt = now;
-  return fresh;
-}
-
-function onHoldWheel(e: WheelEvent) {
-  if (!held || e.ctrlKey) return;
-  e.preventDefault();
-  if (freshGesture()) gesture(Math.sign(e.deltaY));
-}
-
-let touchY: number | null = null;
-const onHoldTouchStart = (e: TouchEvent) => (touchY = e.touches[0]?.clientY ?? null);
-function onHoldTouchMove(e: TouchEvent) {
-  if (held && e.cancelable) e.preventDefault();
-}
-function onHoldTouchEnd(e: TouchEvent) {
-  if (!held || touchY === null) return;
-  const dy = touchY - (e.changedTouches[0]?.clientY ?? touchY);
-  touchY = null;
-  if (Math.abs(dy) > 20 && performance.now() > busyUntil) gesture(Math.sign(dy));
-}
-
-const HOLD_KEYS: Record<string, number> = { ArrowDown: 1, PageDown: 1, ' ': 1, ArrowUp: -1, PageUp: -1 };
-function onHoldKey(e: KeyboardEvent) {
-  const dir = HOLD_KEYS[e.key];
-  if (!held || !dir || (e.target as HTMLElement)?.closest?.('input, textarea, select, [contenteditable]')) return;
-  e.preventDefault();
-  if (performance.now() > busyUntil) gesture(e.shiftKey && e.key === ' ' ? -1 : dir);
-}
-
-/** On every scroll: grab the page as it reaches a hold's first position (going down) or last one (going up) */
-function catchHolds(y: number) {
-  if (!held && !jumping) {
-    for (const h of holds) {
-      const ps = h.positions();
-      if (lastY < ps[0] && y >= ps[0]) return grab(h, 'above');
-      if (lastY > ps[ps.length - 1] && y <= ps[ps.length - 1]) return grab(h, 'below');
-    }
-  }
-  lastY = y;
 }
 
 /**
@@ -302,8 +181,9 @@ function updateScene() {
     scene.frameR = ((parseFloat(getComputedStyle(el).borderTopLeftRadius) || 0) + pad) * worldPerPx;
   }
 
-  const showcaseTop = document.getElementById('showcase')?.getBoundingClientRect().top ?? vh;
-  scene.ambient = Math.max(1 - (1 - AMBIENT) * clamp01(-showcaseTop / (vh * 0.5)), ctaProgress);
+  // Faint as soon as the hero has gone: the first chapter after it (How it fits together) reads over a quiet field
+  const heroBottom = hero?.getBoundingClientRect().bottom ?? 0;
+  scene.ambient = Math.max(1 - (1 - AMBIENT) * clamp01((vh - heroBottom) / (vh * 0.5)), ctaProgress);
 
   // The full-bleed work gallery owns the screen: the field steps aside (as the rail does)
   const work = document.getElementById('work')?.getBoundingClientRect();
@@ -334,16 +214,8 @@ export function initSmoothScroll() {
     lenis = new Lenis({ duration: 1.15, easing: (t) => 1 - Math.pow(1 - t, 4), smoothWheel: true });
     lenis.on('scroll', (e: Lenis) => {
       scene.velocity = e.velocity;
-      catchHolds(window.scrollY);
       updateScene();
     });
-    lastY = window.scrollY;
-    // Capture phase on window: runs before Lenis's own wheel listener
-    window.addEventListener('wheel', onHoldWheel, { passive: false, capture: true });
-    window.addEventListener('touchstart', onHoldTouchStart, { passive: true });
-    window.addEventListener('touchmove', onHoldTouchMove, { passive: false });
-    window.addEventListener('touchend', onHoldTouchEnd, { passive: true });
-    window.addEventListener('keydown', onHoldKey);
     const raf = (time: number) => {
       lenis?.raf(time);
       rafId = requestAnimationFrame(raf);
@@ -396,12 +268,6 @@ export function initSmoothScroll() {
     window.clearTimeout(touchTimer);
     window.removeEventListener('pointerdown', onPointerDown);
     cancelAnimationFrame(rafId);
-    window.removeEventListener('wheel', onHoldWheel, { capture: true });
-    window.removeEventListener('touchstart', onHoldTouchStart);
-    window.removeEventListener('touchmove', onHoldTouchMove);
-    window.removeEventListener('touchend', onHoldTouchEnd);
-    held = null;
-    window.removeEventListener('keydown', onHoldKey);
     lenis?.destroy();
     lenis = null;
     window.removeEventListener('scroll', onNativeScroll);
