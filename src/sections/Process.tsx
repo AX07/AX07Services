@@ -32,7 +32,7 @@ export function Process() {
     const next = p < HOLD ? -1 : Math.min(n - 1, Math.floor(((p - HOLD) / (1 - HOLD - TAIL)) * n));
     setActive((prev) => {
       // Story beat: each step reached on the way down ripples the field gathered along the line
-      if (next > prev && next >= 0)
+      if (next > prev && next >= 0 && window.innerWidth >= 1024)
         railPulse({ tone: 'accent', size: next === n - 1 ? 'lg' : 'sm', label: `${processSteps[next].step} · ${processSteps[next].title}` });
       return next;
     });
@@ -43,9 +43,9 @@ export function Process() {
 
   return (
     <section ref={section} id="process" className="relative h-[340vh]">
-      <div className="sticky top-0 flex h-[100svh] flex-col justify-center gutter pb-4 pt-20">
+      <div className="sticky top-0 flex h-[100svh] flex-col justify-center-safe overflow-hidden gutter pb-4 pt-20">
       <div className="relative isolate mx-auto w-full max-w-6xl">
-        <Eyebrow index="04" className="mb-5">
+        <Eyebrow index="04" className="mb-3 sm:mb-5">
           Your free preview
         </Eyebrow>
         <div className="grid grid-cols-1 gap-5 lg:grid-cols-[1.1fr_0.9fr] lg:items-end lg:gap-14">
@@ -54,7 +54,7 @@ export function Process() {
             className="display max-w-3xl text-balance text-display-2 lg:[@media(max-height:900px)]:text-display-3"
           />
           <Reveal delay={0.1}>
-            <p className="max-w-md text-body text-muted">
+            <p className="max-w-md text-body text-muted max-lg:hidden">
               Send us your business name. Within 48 hours you get a link to your own site, built and working. You decide after
               you’ve used it.
             </p>
@@ -65,19 +65,25 @@ export function Process() {
 
         <div ref={ref} className="relative mt-6 lg:mt-12 lg:[@media(max-height:900px)]:mt-8">
           {/* Track + drawn line: horizontal on desktop, vertical on mobile */}
-          <div aria-hidden="true" className="absolute left-[11px] top-2 bottom-2 w-px bg-line lg:left-0 lg:right-0 lg:top-[11px] lg:bottom-auto lg:h-px lg:w-auto">
+          <div aria-hidden="true" className="absolute max-lg:hidden left-[11px] top-2 bottom-2 w-px bg-line lg:left-0 lg:right-0 lg:top-[11px] lg:bottom-auto lg:h-px lg:w-auto">
             <motion.div data-scene-target="process" data-scene-line="1" data-scene-pad="3" data-scene-share="0.35" initial={false} animate={{ scaleY: line }} transition={{ duration: 0.6 }} className="h-full w-px origin-top bg-accent lg:hidden" />
             <motion.div data-scene-target="process-wide" data-scene-pad="6" data-scene-share="0.35" initial={false} animate={{ scaleX: line }} transition={{ duration: 0.6 }} className="hidden h-px w-full origin-left bg-accent lg:block" />
           </div>
 
-          <RevealGroup stagger={0.08} className="grid grid-cols-1 gap-6 lg:grid-cols-3 lg:gap-6">
+          <RevealGroup stagger={0.08} className="grid grid-cols-1 gap-6 max-lg:py-8 lg:grid-cols-3 lg:gap-6">
             {processSteps.map((s, i) => {
               const isActive = i === active;
               const done = i < active;
+              // Phones: the cards sit in one stack; the current one in front, the one before peeks out above, the next below
+              const d = i - Math.max(0, active);
+              const stack =
+                d === 0
+                  ? 'max-lg:border-line max-lg:bg-surface max-lg:opacity-100 max-lg:shadow-raised'
+                  : `max-lg:border-line max-lg:bg-surface max-lg:scale-[0.9] ${d < 0 ? 'max-lg:-translate-y-[24%]' : 'max-lg:translate-y-[24%]'} ${Math.abs(d) > 1 ? 'max-lg:opacity-0' : 'max-lg:opacity-50'}`;
               return (
-                <RevealItem key={s.step} className={`relative pl-12 lg:block lg:pl-0 lg:pt-14 ${i === Math.max(0, active) ? "" : "max-lg:hidden"}`}>
+                <RevealItem key={s.step} className={`relative max-lg:[grid-area:1/1] lg:pl-0 lg:pt-14 ${d === 0 ? 'max-lg:z-20' : 'max-lg:z-10'}`}>
                   <span
-                    className={`absolute left-0 top-0 flex h-[23px] w-[23px] items-center justify-center rounded-full border transition-colors duration-500 lg:top-0 ${
+                    className={`absolute left-0 top-0 flex h-[23px] w-[23px] items-center justify-center rounded-full border transition-colors duration-500 max-lg:hidden lg:top-0 ${
                       isActive || done ? 'border-accent-bright bg-accent-bright' : 'border-line-strong bg-ink'
                     }`}
                   >
@@ -91,7 +97,7 @@ export function Process() {
                       isActive
                         ? 'border-line bg-surface opacity-100 shadow-raised lg:-translate-y-1'
                         : 'border-transparent opacity-75'
-                    }`}
+                    } ${stack}`}
                   >
                     <div className="flex items-baseline gap-3">
                       <span className="font-display text-[15px] font-semibold text-accent tabular-nums">{s.step}</span>
@@ -99,7 +105,7 @@ export function Process() {
                     </div>
                     <h3 className="display mt-3 text-title-lg lg:[@media(max-height:900px)]:mt-2 lg:[@media(max-height:900px)]:text-title">{s.title}</h3>
                     <p className="mt-3 max-w-sm text-body text-muted lg:[@media(max-height:900px)]:mt-2 lg:[@media(max-height:900px)]:text-body-sm">{s.body}</p>
-                    <ul className="mt-4 space-y-1.5 lg:[@media(max-height:900px)]:mt-3 lg:[@media(max-height:820px)]:hidden">
+                    <ul className="mt-4 space-y-1.5 max-lg:hidden lg:[@media(max-height:900px)]:mt-3 lg:[@media(max-height:820px)]:hidden">
                       {s.points.map((pt) => (
                         <li key={pt} className="flex gap-2 text-body-sm text-fg/85">
                           <svg viewBox="0 0 16 16" className="mt-[5px] h-3 w-3 shrink-0 text-accent" aria-hidden="true">
@@ -120,7 +126,7 @@ export function Process() {
         {!reduce && <StepBar steps={n} active={active} className="mt-6" />}
 
         <Reveal delay={0.1} className="lg:hidden">
-          <PreviewActions className="mt-5 flex" />
+          <PreviewActions className="mt-4 flex" />
         </Reveal>
       </div>
       </div>

@@ -19,6 +19,15 @@ const pages = [
   { path: '/about', label: 'About' },
 ];
 
+// Phone menu: the main places, then the call to action
+const menu = [
+  { id: 'features', label: 'How it works' },
+  { id: 'showcase', label: 'See it work' },
+  { path: '/work', label: 'Work' },
+  { path: '/about', label: 'About' },
+  { id: 'pricing', label: 'Pricing' },
+];
+
 export function Nav() {
   const path = usePath();
   const [scrolled, setScrolled] = useState(false);
@@ -26,6 +35,16 @@ export function Nav() {
   // At the very top of the home page the hero has the stage to itself; the bar slides in on scroll
   const hidden = path === '/' && atTop;
   const [active, setActive] = useState<string | null>(null);
+  const [open, setOpen] = useState(false);
+
+  // The phone menu closes on a new page and on Escape
+  useEffect(() => setOpen(false), [path]);
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setOpen(false);
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [open]);
 
   useEffect(() => {
     const onScroll = () => {
@@ -48,12 +67,12 @@ export function Nav() {
   return (
     <header
       className={`fixed inset-x-0 top-0 z-50 flex justify-center px-4 pt-3 transition-[transform,opacity] duration-500 ease-[var(--ease-out)] has-[:focus-visible]:translate-y-0 has-[:focus-visible]:opacity-100 sm:pt-4 ${
-        hidden ? 'pointer-events-none -translate-y-[130%] opacity-0' : ''
+        hidden && !open ? 'pointer-events-none -translate-y-[130%] opacity-0' : ''
       }`}
     >
       <nav
         className={`flex w-full max-w-5xl items-center justify-between gap-4 rounded-full border px-2 py-2 pl-4 transition-[background-color,border-color,box-shadow] duration-500 ${
-          scrolled ? 'glass' : 'border-transparent bg-transparent'
+          scrolled || open ? 'glass' : 'border-transparent bg-transparent'
         }`}
         aria-label="Main"
       >
@@ -98,11 +117,71 @@ export function Nav() {
 
         <div className="flex items-center gap-2">
           <ThemeToggle />
-          <a href={whatsappLink(DEFAULT_WHATSAPP_MESSAGE)} target="_blank" rel="noopener noreferrer" className="btn btn-primary !min-h-[40px] !px-5 text-sm">
+          <a href={whatsappLink(DEFAULT_WHATSAPP_MESSAGE)} target="_blank" rel="noopener noreferrer" className="btn btn-primary !min-h-[40px] !px-5 text-sm max-lg:hidden">
             Free preview
           </a>
+          <button
+            type="button"
+            onClick={() => setOpen((o) => !o)}
+            aria-expanded={open}
+            aria-controls="phone-menu"
+            aria-label={open ? 'Close menu' : 'Open menu'}
+            className="flex h-10 w-10 cursor-pointer flex-col items-center justify-center gap-1.5 rounded-full bg-fg text-on-fg lg:hidden"
+          >
+            <span className={`h-[2px] w-4 rounded-full bg-current transition-transform duration-300 ${open ? 'translate-y-[4px] rotate-45' : ''}`} />
+            <span className={`h-[2px] w-4 rounded-full bg-current transition-transform duration-300 ${open ? '-translate-y-[4px] -rotate-45' : ''}`} />
+          </button>
         </div>
       </nav>
+
+      {open && (
+        <motion.div
+          id="phone-menu"
+          initial={{ opacity: 0, y: -8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.25 }}
+          className="glass absolute inset-x-4 top-full mt-2 rounded-[28px] border p-3 lg:hidden"
+        >
+          <ul>
+            {menu.map((m) => (
+              <li key={m.label}>
+                {m.path ? (
+                  <a
+                    href={m.path}
+                    onClick={(e) => {
+                      setOpen(false);
+                      linkProps(m.path!).onClick(e);
+                    }}
+                    className="block rounded-2xl px-4 py-3 font-display text-[19px] font-semibold"
+                  >
+                    {m.label}
+                  </a>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setOpen(false);
+                      goToSection(m.id!);
+                    }}
+                    className="block w-full cursor-pointer rounded-2xl px-4 py-3 text-left font-display text-[19px] font-semibold"
+                  >
+                    {m.label}
+                  </button>
+                )}
+              </li>
+            ))}
+          </ul>
+          <a
+            href={whatsappLink(DEFAULT_WHATSAPP_MESSAGE)}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => setOpen(false)}
+            className="btn btn-primary mt-2 w-full"
+          >
+            Get your free preview
+          </a>
+        </motion.div>
+      )}
     </header>
   );
 }

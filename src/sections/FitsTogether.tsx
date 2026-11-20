@@ -44,7 +44,7 @@ export function FitsTogether() {
 
   return (
     <section ref={ref} id="features" className="relative h-[500vh]">
-      <div className="sticky top-0 flex h-[100svh] flex-col justify-center gutter pb-3 pt-20">
+      <div className="sticky top-0 flex h-[100svh] flex-col justify-center-safe overflow-hidden gutter pb-3 pt-20">
       <div className="mx-auto w-full max-w-6xl">
         <Eyebrow index="01" className="mb-5 lg:[@media(max-height:900px)]:mb-3">
           How it fits together

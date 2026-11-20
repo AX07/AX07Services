@@ -6,6 +6,7 @@ import { SpeedTest } from '../components/SpeedTest';
 import { reaimParticles } from '../lib/smooth-scroll';
 import { LogoStrip } from '../components/LogoStrip';
 import { FOUND_ON } from '../data/tech';
+import { useMinWidth } from '../lib/motion';
 
 const SPOT = 'transition-[opacity,transform,box-shadow] duration-500 ease-out';
 
@@ -30,6 +31,7 @@ export function Proof() {
   const reduce = useReducedMotion();
   const [step, setStep] = useState(-1);
   const paintSeen = useInView(paintRef, { amount: 0.6 });
+  const wide = useMinWidth(1024);
 
   useEffect(() => {
     const el = ref.current;
@@ -42,7 +44,8 @@ export function Proof() {
         if (!e.isIntersecting) return setStep(-1);
         timers = TIMELINE.map(([s, ms]) => window.setTimeout(() => setStep(s), ms));
       },
-      { threshold: 0.45 },
+      // A band across the middle of the screen: a share of the section would never be reached on phones, where it is over two screens tall
+      { rootMargin: '-40% 0px -40% 0px' },
     );
     io.observe(el);
     return () => {
@@ -51,15 +54,41 @@ export function Proof() {
     };
   }, [reduce]);
 
-  // The spotlight moves without the page scrolling, so tell the particles to follow it
-  useEffect(() => reaimParticles(900), [step]);
+  // Phones stack the cards, so the spotlight follows the scroll instead: the card nearest the middle of the screen
+  const [near, setNear] = useState(0);
+  useEffect(() => {
+    const el = ref.current;
+    if (wide || reduce || !el) return;
+    const onScroll = () => {
+      const mid = window.innerHeight / 2;
+      let best = 0;
+      let dist = Infinity;
+      el.querySelectorAll('[data-proof-card]').forEach((c, i) => {
+        const r = c.getBoundingClientRect();
+        const d = Math.abs((r.top + r.bottom) / 2 - mid);
+        if (d < dist) [best, dist] = [i, d];
+      });
+      setNear(best);
+    };
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, [wide, reduce]);
 
-  const lit = cardOf(step);
+  // The spotlight moves without the page scrolling, so tell the particles to follow it
+  useEffect(() => {
+    if (wide) return reaimParticles(900);
+    // Phones: re-measuring every frame while the card lifts is too heavy, so the field is re-aimed once it has settled
+    const t = window.setTimeout(() => reaimParticles(0), 520);
+    return () => window.clearTimeout(t);
+  }, [step, near, wide]);
+
+  const lit = wide ? cardOf(step) : step < 0 ? -1 : near;
   const look = (i: number) =>
     lit < 0 ? '' : lit === i ? '-translate-y-1 shadow-[0_0_0_1px_var(--color-accent-bright),0_24px_60px_-28px_var(--color-accent-bright)]' : 'opacity-50';
   // The particle field outlines the lit card; with none lit (before and after the sequence) it stays on the speed test
   const target = (i: number, name: string) => ((lit < 0 ? 0 : lit) === i ? name : undefined);
-  const paintOn = reduce ? paintSeen : step >= 3;
+  const paintOn = reduce ? paintSeen : wide ? step >= 3 : lit === 1;
   const demo = step < 0 ? 'off' : step < DEMO.length ? DEMO[step] : 'ready';
 
   return (
@@ -82,14 +111,14 @@ export function Proof() {
         <RevealGroup className="mt-14 grid grid-cols-1 gap-4 lg:mt-10 lg:grid-cols-3 lg:grid-rows-[auto_auto]">
           {/* Live speed test: the visitor's own site vs ours */}
           <RevealItem className="lg:col-span-2 lg:row-span-2">
-            <div data-scene-target={target(0, 'proof')} className={`card h-full p-6 ${SPOT} sm:p-8 ${look(0)}`}>
+            <div data-proof-card data-scene-target={target(0, 'proof')} className={`card h-full p-6 ${SPOT} sm:p-8 ${look(0)}`}>
               <SpeedTest demo={demo} />
             </div>
           </RevealItem>
 
           {/* First paint timeline */}
           <RevealItem>
-            <div data-scene-target={target(1, 'proof-paint')} className={`card flex h-full flex-col justify-between gap-6 p-6 ${SPOT} sm:p-7 ${look(1)}`}>
+            <div data-proof-card data-scene-target={target(1, 'proof-paint')} className={`card flex h-full flex-col justify-between gap-6 p-6 ${SPOT} sm:p-7 ${look(1)}`}>
               <span className="eyebrow">First paint on 4G</span>
               <div className="display text-stat">
                 <CountTo to={0.4} decimals={1} />
@@ -121,7 +150,7 @@ export function Proof() {
 
           {/* 48h + €0 */}
           <RevealItem>
-            <div data-scene-target={target(2, 'proof-preview')} className={`card grid h-full grid-cols-2 gap-4 p-6 ${SPOT} sm:p-7 ${look(2)}`}>
+            <div data-proof-card data-scene-target={target(2, 'proof-preview')} className={`card grid h-full grid-cols-2 gap-4 p-6 ${SPOT} sm:p-7 ${look(2)}`}>
               <div className="flex flex-col justify-between gap-4">
                 <span className="eyebrow">To your preview</span>
                 <div className="display text-stat-sm">

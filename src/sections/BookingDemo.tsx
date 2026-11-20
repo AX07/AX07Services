@@ -17,14 +17,16 @@ import { SHOWCASE_EXIT } from '../lib/smooth-scroll';
 
 // Scroll beats, as a share of the section's pinned scroll
 const AT = {
-  scroll: [0.05, 0.33] as const, // the page scrolls down to the plans
-  pointer: 0.33, // the finger comes in
-  tap: 0.44, // Subscription is tapped
-  open: [0.47, 0.55] as const, // WhatsApp opens over the site
-  send: 0.63, // send is tapped
-  typing: 0.69,
-  reply1: 0.76,
-  reply2: 0.86,
+  scroll: [0.04, 0.26] as const, // the page scrolls down to the plans
+  pointer: 0.26, // the finger comes in
+  tap: 0.34, // Subscription is tapped
+  open: [0.37, 0.43] as const, // WhatsApp opens over the site
+  send: 0.49, // send is tapped
+  typing: 0.54,
+  reply1: 0.59,
+  reply2: 0.65, // the reply with the link to their client page
+  link: [0.69, 0.75] as const, // the finger comes in and taps the link
+  page: [0.77, 0.83] as const, // their client page opens with the booking in it
 };
 
 const OPTIONS = [
@@ -76,8 +78,12 @@ const SUB_MESSAGE = OPTIONS[1].message;
 const STEPS = [
   { title: 'They see what you offer', body: 'Clear options and prices, on a site that opens instantly on any phone.' },
   { title: 'One tap opens WhatsApp', body: 'The message is already written for them. All that’s left is pressing send.' },
-  { title: 'A real person replies', body: 'You answer from your own phone, book them in, and it lands in your dashboard.' },
+  { title: 'A real person replies', body: 'You answer from your own phone and book them in. It lands in your booking inbox.' },
+  { title: 'They see it in their client page', body: 'Each client gets their own page with the booking, forms and what happens next.' },
 ];
+
+// What every build comes with
+const INCLUDED = ['Website', 'Booking inbox (CRM)', 'Client dashboard', 'Preview in 48h'];
 
 const CTA_MESSAGE = "Hi ax07, I'd like a WhatsApp booking system like the one on your site. Can we talk?";
 
@@ -92,7 +98,9 @@ function stageAt(p: number) {
   if (p < AT.typing) return 3; // sent
   if (p < AT.reply1) return 4; // typing
   if (p < AT.reply2) return 5; // first reply
-  return 6;
+  if (p < AT.link[1]) return 6; // reply with the link
+  if (p < AT.page[0]) return 7; // link tapped
+  return 8; // client page open
 }
 
 function useIsPhone() {
@@ -120,7 +128,8 @@ export function BookingDemo() {
     const prev = lastP.current;
     if (crossedForward(prev, v, AT.tap)) railPulse({ tone: 'accent', size: 'sm', label: 'Subscription chosen' });
     if (crossedForward(prev, v, AT.send)) railPulse({ tone: 'accent', size: 'sm', label: 'Message sent' });
-    if (crossedForward(prev, v, AT.reply1)) railPulse({ tone: 'accent', size: 'lg', label: 'A real reply' });
+    if (crossedForward(prev, v, AT.reply1)) railPulse({ tone: 'accent', size: 'sm', label: 'A real reply' });
+    if (crossedForward(prev, v, AT.page[0])) railPulse({ tone: 'accent', size: 'lg', label: 'Booked, in their client page' });
     lastP.current = v;
   });
 
@@ -134,8 +143,20 @@ export function BookingDemo() {
     return arrived * (1 - gone);
   });
 
-  const step = stage < 1 ? 0 : stage < 3 ? 1 : 2;
-  const waOpen = stage >= 2;
+  const step = stage < 1 ? 0 : stage < 3 ? 1 : stage < 7 ? 2 : 3;
+  const waOpen = stage >= 2 && stage < 8;
+  const pageOpen = stage >= 8;
+
+  const included = (
+    <ul className="flex flex-wrap gap-1.5 max-lg:justify-center">
+      {INCLUDED.map((x) => (
+        <li key={x} className="flex items-center gap-1.5 rounded-full border border-line bg-surface/70 px-3 py-1 text-[12px] text-muted">
+          <Check className="h-3 w-3 text-accent" />
+          {x}
+        </li>
+      ))}
+    </ul>
+  );
 
   const cta = (
     <a href={whatsappLink(CTA_MESSAGE)} target="_blank" rel="noopener noreferrer" className="btn btn-primary w-full sm:w-auto">
@@ -150,9 +171,9 @@ export function BookingDemo() {
   );
 
   return (
-    <section ref={ref} id="showcase" className="relative h-[270vh] sm:h-[240vh]">
-      <div className="sticky top-0 flex h-[100svh] items-center overflow-hidden">
-        <div className="mx-auto grid w-full max-w-6xl grid-cols-1 items-center gap-4 px-5 pt-14 sm:gap-5 sm:px-6 sm:pt-16 lg:grid-cols-[0.82fr_1.3fr] lg:gap-10 lg:pt-24">
+    <section ref={ref} id="showcase" className="relative h-[330vh] sm:h-[300vh]">
+      <div className="sticky top-0 flex h-[100svh] items-center-safe overflow-hidden">
+        <div className="mx-auto grid w-full max-w-6xl grid-cols-1 items-center gap-3 px-5 pb-3 pt-[5.5rem] sm:gap-5 sm:px-6 sm:pt-24 lg:grid-cols-[0.82fr_1.3fr] lg:gap-10 lg:pt-24">
           {/* Copy */}
           <div className="order-2 lg:order-1">
             <div className="hidden lg:block">
@@ -167,6 +188,7 @@ export function BookingDemo() {
                 This is our own site, built the way we build yours. Scroll to watch someone choose a plan, or tap any button on the
                 screen and try it for real.
               </p>
+              <div className="mt-4">{included}</div>
 
               <ol className="mt-7 space-y-1 [@media(max-height:950px)]:mt-4">
                 {STEPS.map((s, i) => (
@@ -221,9 +243,7 @@ export function BookingDemo() {
                 See it work
               </Eyebrow>
               <h2 className="display text-balance text-display-3">{headline}</h2>
-              <p className="mx-auto mt-2 max-w-md text-pretty text-body-sm text-muted max-sm:hidden">
-                Our own site, built the way we build yours. Scroll to watch a booking, or tap and try it.
-              </p>
+              <div className="mt-2">{included}</div>
             </div>
 
             <motion.div
@@ -235,7 +255,7 @@ export function BookingDemo() {
               style={{ opacity: deviceOpacity }}
               className={`card relative mx-auto overflow-hidden p-0 ${
                 phone
-                  ? '!rounded-[30px] border-[5px] !border-fg w-[min(72vw,calc((100svh-268px)*0.5625))]'
+                  ? '!rounded-[30px] border-[5px] !border-fg w-[min(72vw,calc((100svh-385px)*0.5625))]'
                   : '!rounded-[20px] w-full max-w-[min(100%,calc((100svh-320px)*1.6))] lg:max-w-none'
               }`}
             >
@@ -261,7 +281,7 @@ export function BookingDemo() {
                     <svg viewBox="0 0 16 16" className="h-3 w-3" aria-hidden="true">
                       <path d="M4.5 7V5.5a3.5 3.5 0 017 0V7M3.5 7h9v6.5h-9z" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" />
                     </svg>
-                    {waOpen ? 'web.whatsapp.com' : 'ax07.dev'}
+                    {pageOpen ? 'ax07.dev/client' : waOpen ? 'web.whatsapp.com' : 'ax07.dev'}
                   </div>
                   <span className="w-[42px]" />
                 </div>
@@ -321,6 +341,8 @@ function DemoScreen({ phone, p, stage }: { phone: boolean; p: MotionValue<number
   // WhatsApp opening: slides up like an app on a phone, fades in as a new tab on a computer
   const waY = useTransform(p, (v) => (phone ? `${(1 - easeInOut(seg(v, AT.open[0], AT.open[1]))) * 100}%` : '0%'));
   const waOpacity = useTransform(p, (v) => (phone ? (v >= AT.open[0] ? 1 : 0) : seg(v, AT.open[0], AT.open[0] + 0.04)));
+  const pageY = useTransform(p, (v) => (phone ? `${(1 - easeInOut(seg(v, AT.page[0], AT.page[1]))) * 100}%` : '0%'));
+  const pageOpacity = useTransform(p, (v) => (phone ? (v >= AT.page[0] ? 1 : 0) : seg(v, AT.page[0], AT.page[0] + 0.04)));
 
   const scaled = (children: ReactNode, height?: number) => (
     <div
@@ -354,6 +376,15 @@ function DemoScreen({ phone, p, stage }: { phone: boolean; p: MotionValue<number
         aria-hidden={stage < 2}
       >
         {scale > 0 && scaled(<WhatsAppScreen m={phone} p={p} stage={stage} />, frameH / scale)}
+      </motion.div>
+
+      {/* Their client page, opened from the link in the reply */}
+      <motion.div
+        style={{ y: pageY, opacity: pageOpacity }}
+        className={`absolute inset-0 overflow-hidden ${stage >= 8 ? '' : 'pointer-events-none'}`}
+        aria-hidden={stage < 8}
+      >
+        {scale > 0 && scaled(<ClientPage m={phone} />, frameH / scale)}
       </motion.div>
     </div>
   );
@@ -509,7 +540,7 @@ function WhatsAppScreen({ m, p, stage }: { m: boolean; p: MotionValue<number>; s
 
 const REPLIES = [
   'Hi! Thanks for getting in touch 👋 Great choice: the subscription has nothing to pay upfront.',
-  'What’s your business called, and do you have a website already? We’ll send you a free preview within 48 hours.',
+  'You’re booked in. We’ll have your free preview ready within 48 hours. Everything is on your client page:',
 ];
 
 function Chat({ m, p, stage }: { m: boolean; p: MotionValue<number>; stage: number }) {
@@ -562,6 +593,13 @@ function Chat({ m, p, stage }: { m: boolean; p: MotionValue<number>; stage: numb
           {stage >= 6 && (
             <Bubble key="r2" m={m}>
               {REPLIES[1]}
+              <span className="relative mt-2 flex items-center gap-2 rounded-lg bg-black/[0.05] px-3 py-2 text-[#027eb5]">
+                <svg viewBox="0 0 16 16" className="h-4 w-4 shrink-0" aria-hidden="true">
+                  <path d="M6.5 9.5l3-3M7 4.5l1-1a2.8 2.8 0 014 4l-1 1M9 11.5l-1 1a2.8 2.8 0 01-4-4l1-1" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                </svg>
+                <span className="underline">ax07.dev/client</span>
+                <Pointer p={p} from={AT.link[0]} at={AT.link[1]} touch={m} />
+              </span>
               <Time />
             </Bubble>
           )}
@@ -620,6 +658,67 @@ function Avatar({ size }: { size: number }) {
     <span className="flex shrink-0 items-center justify-center rounded-full bg-[#0c0d10]" style={{ width: size, height: size }}>
       <img src="/logo-mark.png" alt="" className="invert" style={{ width: size * 0.6, height: size * 0.6 }} />
     </span>
+  );
+}
+
+/* ---------------------------------------------------------------- Client page */
+
+const TRACK = [
+  { title: 'Booking received', meta: 'Today, 10:24', state: 'done' },
+  { title: 'Your preview is being built', meta: 'Ready within 48 hours', state: 'now' },
+  { title: 'Try it and decide', meta: 'Nothing to pay before you approve', state: 'next' },
+] as const;
+
+/** What the client sees after tapping the link: their booking, where it's at, and what comes with it */
+function ClientPage({ m }: { m: boolean }) {
+  return (
+    <div className={`h-full overflow-hidden bg-ink text-fg ${m ? 'px-5 py-5' : 'px-12 py-8'}`}>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2.5">
+          <img src="/logo-mark.png" alt="" className={`${m ? 'h-7 w-7' : 'h-8 w-8'} dark:invert`} />
+          <span className="font-display text-[18px] font-semibold">Your client page</span>
+        </div>
+        <span className="h-9 w-9 rounded-full bg-accent-soft" />
+      </div>
+
+      <div className={m ? 'mt-6' : 'mt-8 grid grid-cols-[1.2fr_1fr] gap-6'}>
+        <div className="rounded-[20px] border border-accent/40 bg-accent-soft/40 p-5">
+          <span className="text-[13px] font-medium uppercase tracking-[0.14em] text-subtle">Your booking</span>
+          <div className="mt-2 font-display text-[26px] font-semibold leading-tight">Subscription</div>
+          <div className="mt-1 text-[15px] text-muted">€0 upfront · €174/month</div>
+          <span className="mt-4 inline-flex items-center gap-2 rounded-full bg-accent-bright px-3 py-1 text-[13px] font-medium text-white">
+            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-white" />
+            Preview in 48h
+          </span>
+        </div>
+
+        <ol className={`rounded-[20px] border border-line bg-surface p-5 ${m ? 'mt-4' : ''}`}>
+          {TRACK.map((t) => (
+            <li key={t.title} className="flex gap-3 py-2">
+              <span
+                className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full ${
+                  t.state === 'done' ? 'bg-accent-bright text-white' : t.state === 'now' ? 'border-2 border-accent-bright' : 'border-2 border-line-strong'
+                }`}
+              >
+                {t.state === 'done' && <Check className="h-3 w-3" />}
+              </span>
+              <div>
+                <div className={`text-[15px] font-medium ${t.state === 'next' ? 'text-muted' : ''}`}>{t.title}</div>
+                <div className="text-[13px] text-subtle">{t.meta}</div>
+              </div>
+            </li>
+          ))}
+        </ol>
+      </div>
+
+      <div className={`grid gap-3 ${m ? 'mt-4 grid-cols-2' : 'mt-6 grid-cols-4'}`}>
+        {['Your website', 'Booking inbox', 'Client forms', 'Messages'].map((x) => (
+          <div key={x} className="rounded-2xl border border-line bg-surface px-4 py-3 text-[14px] font-medium">
+            {x}
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }
 
