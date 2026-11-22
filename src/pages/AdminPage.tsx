@@ -252,6 +252,10 @@ function Console({ onLock, toast }: { onLock: () => void; toast: (title: string,
         </div>
         <div className="flex items-center gap-2">
           <span className="rounded-full bg-accent-soft px-3 py-1.5 text-[13px] font-medium text-accent">{clients.length} live links</span>
+          {/* A plain link, not the SPA router: /c-app/admin is the client dashboards' admin, served by its own project */}
+          <a href="/c-app/admin" className="btn btn-primary !min-h-[36px] !px-4 text-[13px]">
+            Client dashboards
+          </a>
           <button type="button" onClick={onLock} className="btn btn-quiet !min-h-[36px] !px-4 text-[13px]">
             Lock
           </button>

@@ -9,6 +9,8 @@
     { "source": "/vice", "destination": "/demo/showcase-vice-city?url=https%3A%2F%2Fax07-vice-preview.vercel.app%2F", "permanent": false }
   ],
   "rewrites": [
+    { "source": "/c/:slug", "destination": "https://ax07-clients.vercel.app/c/:slug" },
+    { "source": "/c-app/:path*", "destination": "https://ax07-clients.vercel.app/c-app/:path*" },
     { "source": "/demo/:path*", "destination": "/" },
     { "source": "/admin", "destination": "/" },
     { "source": "/(ie|pt)", "destination": "/" },
