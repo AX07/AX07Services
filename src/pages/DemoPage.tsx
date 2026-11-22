@@ -77,7 +77,9 @@ export function DemoPage({ slug }: { slug: string }) {
     const override = new URLSearchParams(window.location.search).get('url');
     const found = getClientBySlug(slug);
     const name = found?.name ?? slug.replace(/-/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase());
-    const url = override ? ensureAbsoluteUrl(override) : ensureAbsoluteUrl(found?.stagingUrl || `https://${slug}.vercel.app`);
+    // /demo/<name>/admin#x mirrors <their site>/admin#x: the path after the name and the #token carry over to the site
+    const rest = window.location.pathname.replace(/^\/(?:ie|pt)?\/?demo\/[^/]+/, '').replace(/\/$/, '') + window.location.hash;
+    const url = override ? ensureAbsoluteUrl(override) : ensureAbsoluteUrl(found?.stagingUrl || `https://${slug}.vercel.app`).replace(/\/$/, '') + (rest || '/');
     const phone = (found?.whatsappNumber || '+353894419127').replace(/[^0-9]/g, '');
     return { name, url, phone };
   }, [slug, project]);
