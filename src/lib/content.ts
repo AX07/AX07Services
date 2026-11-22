@@ -156,6 +156,21 @@ export const projects: readonly {
     author: 'Kreshnik B., founder',
     url: 'https://albania-facil.vercel.app/',
   },
+  {
+    id: 'vice-city',
+    category: 'in-house',
+    description:
+      'A concept showcase for ax07.dev: a retro-neon scroll story with a night drive and a 3D model you can drag, which comes apart into the services we build.',
+    shot: '/work/vice-city',
+    title: 'Vice City showcase',
+    place: 'In-house concept',
+    kind: '3D scroll story',
+    stat: '3D',
+    statLabel: 'scroll story with a model you can drag',
+    quote: '',
+    author: '',
+    url: 'https://ax07-vice-preview.vercel.app/',
+  },
 ];
 
 export const plans = [
