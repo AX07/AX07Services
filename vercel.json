@@ -5,6 +5,9 @@
   "outputDirectory": "dist",
   "cleanUrls": true,
   "trailingSlash": false,
+  "redirects": [
+    { "source": "/vice", "destination": "/demo/showcase-vice-city?url=https%3A%2F%2Fax07-vice-preview.vercel.app%2F", "permanent": false }
+  ],
   "rewrites": [
     { "source": "/demo/:path*", "destination": "/" },
     { "source": "/admin", "destination": "/" },
