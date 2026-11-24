@@ -6,7 +6,8 @@
   "cleanUrls": true,
   "trailingSlash": false,
   "redirects": [
-    { "source": "/vice", "destination": "/demo/showcase-vice-city?url=https%3A%2F%2Fax07-vice-preview.vercel.app%2F", "permanent": false }
+    { "source": "/vice", "destination": "/demo/showcase-vice-city?url=https%3A%2F%2Fax07-vice-preview.vercel.app%2F", "permanent": false },
+    { "source": "/cipla", "destination": "/demo/cipla?url=https%3A%2F%2Fax07-cipla-preview.vercel.app%2F", "permanent": false }
   ],
   "rewrites": [
     { "source": "/c/:slug", "destination": "https://ax07-clients.vercel.app/c/:slug" },

@@ -171,6 +171,21 @@ export const projects: readonly {
     author: '',
     url: 'https://ax07-vice-preview.vercel.app/',
   },
+  {
+    id: 'cipla',
+    category: 'in-house',
+    description:
+      'A concept showcase: a company book told as a scroll. Archive photographs, a 1935 certificate that spells out the name, a gallery that slides sideways and a $1-a-day finale, built for entertainment rather than a sale.',
+    shot: '/work/cipla',
+    title: 'Cipla, the book',
+    place: 'In-house concept',
+    kind: 'Book scroll story',
+    stat: '14',
+    statLabel: 'chapters you read by scrolling',
+    quote: '',
+    author: '',
+    url: 'https://ax07-cipla-preview.vercel.app/',
+  },
 ];
 
 export const plans = [
