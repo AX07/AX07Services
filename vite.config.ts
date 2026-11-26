@@ -4,6 +4,7 @@ import { defineConfig, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
 import { PAGES, SITE_URL } from './src/lib/seo';
+import demoPreviews from './src/data/demo-previews.json';
 
 const escape = (s: string) => s.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
 
@@ -38,6 +39,29 @@ function pageHtml(): Plugin {
         const file = resolve(outDir, `.${path}/index.html`);
         mkdirSync(dirname(file), { recursive: true });
         writeFileSync(file, html);
+      }
+      // Client demo links: the link preview and tab icon are the client's own (from their site's /assets), not ax07's
+      for (const d of demoPreviews) {
+        for (const sub of ['', '/admin', '/user']) {
+          const url = `${SITE_URL}/demo/${d.slug}${sub}`;
+          const metas: Record<string, string> = {
+            'og:site_name': d.name, 'og:locale': d.locale, 'og:title': d.title, 'og:description': d.description, 'og:url': url,
+            'og:image': `${d.site}assets/og.jpg`, 'og:image:alt': d.name,
+          };
+          let html = base
+            .replace(/\s*<link rel="preload" href="\/logo-points\.bin"[^>]*>/, '')
+            .replace(/\s*<link\s+rel="canonical"[^>]*>/, '')
+            .replace(/\s*<link rel="(?:icon|apple-touch-icon)"[^>]*>/g, '')
+            .replace(/<title>[^<]*<\/title>/, `<title>${escape(d.title)}</title>
+    <meta name="robots" content="noindex" />
+    <link rel="icon" type="image/png" sizes="32x32" href="${d.site}assets/icons/favicon-32.png" />
+    <link rel="apple-touch-icon" href="${d.site}assets/icons/apple-touch-icon.png" />`)
+            .replace(/(<meta\s+name="description"\s+content=")[^"]*(")/, `$1${escape(d.description)}$2`);
+          for (const [key, value] of Object.entries(metas)) html = html.replace(new RegExp(`(<meta\\s+property="${key}"\\s+content=")[^"]*(")`), `$1${escape(value)}$2`);
+          const file = resolve(outDir, `./demo/${d.slug}${sub}/index.html`);
+          mkdirSync(dirname(file), { recursive: true });
+          writeFileSync(file, html);
+        }
       }
       // Vercel serves dist/404.html, with a 404 status, for any address that has no file and no
       // rewrite. The app sees the unknown path and renders the not-found page.
