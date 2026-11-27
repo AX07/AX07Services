@@ -56,7 +56,7 @@ export function WorkPage() {
         </Reveal>
 
         {/* Bento grid: four columns on desktop, wide tiles (2 columns) and narrow ones in a 2+1+1 / 1+1+2 rhythm; "dense" fills any gap a filter leaves */}
-        <motion.div layout className="mt-10 grid grid-flow-dense grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <motion.div layout className="mt-10 grid grid-flow-dense grid-cols-2 gap-3 md:gap-4 md:grid-cols-2 lg:grid-cols-4">
           <AnimatePresence mode="popLayout" initial={false}>
             {shown.map((p, i) => {
               const wide = i % 3 === 0;
@@ -69,14 +69,14 @@ export function WorkPage() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.97 }}
                 transition={{ duration: 0.5, ease: EASE_OUT, delay: i * 0.04 }}
-                className={`card group flex flex-col overflow-hidden !p-0 ${wide ? 'lg:col-span-2' : ''}`}
+                className={`card group flex flex-col overflow-hidden !p-0 ${wide ? 'col-span-2 md:col-span-1 lg:col-span-2' : ''}`}
               >
                 <a
                   {...linkProps(workPath(p.id))}
                   aria-label={`View the ${p.title} site`}
                   className="block border-b border-line bg-raised"
                 >
-                  <div className="flex items-center gap-3 px-4 py-2.5">
+                  <div className="hidden items-center gap-3 px-4 py-2.5 md:flex">
                     <div className="flex gap-1.5">
                       <span className="h-2 w-2 rounded-full bg-fg/15" />
                       <span className="h-2 w-2 rounded-full bg-fg/15" />
@@ -87,31 +87,31 @@ export function WorkPage() {
                     </span>
                     <span className="w-[30px]" />
                   </div>
-                  <div className={`relative overflow-hidden ${wide ? 'aspect-[16/10] lg:aspect-[16/8]' : 'aspect-[16/10]'}`}>
+                  <div className={`relative overflow-hidden ${wide ? 'aspect-[16/10] lg:aspect-[16/8]' : 'aspect-[3/4] md:aspect-[16/10]'}`}>
                     <ReelVideo id={p.id} shot={p.shot} title={p.title} className="absolute inset-0" />
                   </div>
                 </a>
 
-                <div className="flex flex-1 flex-col p-5">
-                  <div className="text-[13px] text-subtle">
+                <div className="flex flex-1 flex-col p-3.5 md:p-5">
+                  <div className="text-[11px] text-subtle md:text-[13px]">
                     {p.kind} · {p.place}
                   </div>
-                  <h2 className="display mt-1 text-title">{p.title}</h2>
-                  <p className="mt-2 line-clamp-3 text-body-sm text-muted">{p.description}</p>
+                  <h2 className="display mt-1 text-[16px] leading-tight md:text-title">{p.title}</h2>
+                  <p className={`mt-2 line-clamp-3 text-body-sm text-muted ${wide ? '' : 'hidden md:[display:-webkit-box]'}`}>{p.description}</p>
 
-                  <div className="mt-4 flex items-baseline gap-3 rounded-md bg-raised px-3.5 py-2.5">
+                  <div className={`mt-4 items-baseline gap-3 rounded-md bg-raised px-3.5 py-2.5 ${wide ? 'flex' : 'hidden md:flex'}`}>
                     <span className="display text-title text-accent">{p.stat}</span>
                     <span className="text-[13px] text-muted">{p.statLabel}</span>
                   </div>
 
                   {p.quote && (
-                    <blockquote className="mt-4 text-body-sm">
+                    <blockquote className="mt-4 hidden text-body-sm md:block">
                       <p className="line-clamp-2 font-serif text-[17px] italic leading-snug">“{p.quote}”</p>
                       <footer className="mt-1.5 text-[13px] text-subtle">{p.author}</footer>
                     </blockquote>
                   )}
 
-                  <div className="mt-auto flex flex-wrap gap-2 pt-5">
+                  <div className={`mt-auto flex-wrap gap-2 pt-5 ${wide ? 'flex' : 'hidden md:flex'}`}>
                     <a {...linkProps(workPath(p.id))} className="btn btn-primary !min-h-[38px] !px-4 text-[13px]">
                       View the site
                     </a>
