@@ -185,12 +185,8 @@ function updateScene() {
   const heroBottom = hero?.getBoundingClientRect().bottom ?? 0;
   scene.ambient = Math.max(1 - (1 - AMBIENT) * clamp01((vh - heroBottom) / (vh * 0.5)), ctaProgress);
 
-  // The full-bleed work gallery owns the screen: the field steps aside (as the rail does)
-  const work = document.getElementById('work')?.getBoundingClientRect();
-  const workCover = work ? Math.min(clamp01((vh * 0.75 - work.top) / (vh * 0.5)), clamp01((work.bottom - vh * 0.25) / (vh * 0.5))) : 0;
-  const visible = 1 - workCover;
-  setSceneVisibility(visible);
-  if (layer) layer.style.opacity = String(visible);
+  setSceneVisibility(1);
+  if (layer) layer.style.opacity = '1';
 }
 
 let locked = '';

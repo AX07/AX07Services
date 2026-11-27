@@ -6,6 +6,8 @@ import { goToSection, linkProps } from '../lib/router';
 import { SPRING } from '../lib/tokens';
 import { WaveBackdrop } from '../components/WaveBackdrop';
 import { ReelVideo } from '../components/ReelVideo';
+import { WorkTile } from '../components/WorkTile';
+import { LoopVideo } from '../components/LoopVideo';
 
 const FILTERS: { id: 'all' | ProjectCategory; label: string }[] = [
   { id: 'all', label: 'All work' },
@@ -15,7 +17,7 @@ const FILTERS: { id: 'all' | ProjectCategory; label: string }[] = [
   { id: 'in-house', label: 'In-house' },
 ];
 
-/** The full portfolio: every build with its result, a live preview and the real site. */
+/** The full portfolio: every build playing in a bento grid; a tile opens its demo page. */
 export function WorkPage() {
   const [filter, setFilter] = useState<(typeof FILTERS)[number]['id']>('all');
   const shown = filter === 'all' ? projects : projects.filter((p) => p.category === filter);
@@ -55,109 +57,52 @@ export function WorkPage() {
           ))}
         </Reveal>
 
-        {/* Bento grid: four columns on desktop, wide tiles (2 columns) and narrow ones in a 2+1+1 / 1+1+2 rhythm; "dense" fills any gap a filter leaves */}
-        <motion.div layout className="mt-10 grid grid-flow-dense grid-cols-2 gap-3 md:gap-4 md:grid-cols-2 lg:grid-cols-4">
+        {/* Bento of media tiles: the newest showcase across the top, then wide + narrow + narrow; the last tile stretches so a filter leaves no hole */}
+        <motion.div layout className="mt-10 grid grid-flow-dense auto-rows-[220px] grid-cols-2 gap-3 md:auto-rows-[clamp(200px,24vw,300px)] md:grid-cols-4 md:gap-4">
           <AnimatePresence mode="popLayout" initial={false}>
+            {(filter === 'all' || filter === 'in-house') && (
+              <motion.div key="realestate" layout initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.97 }} transition={{ duration: 0.5, ease: EASE_OUT }} className="col-span-full md:row-span-2">
+                {/* A static page in public/realestate, so a plain link, not the in-app router */}
+                <WorkTile
+                  href="/realestate"
+                  kind="Concept templates · Real estate"
+                  title="Real estate showcase portfolio"
+                  stat="Three openings and moving listing videos"
+                  art={<LoopVideo src="/realestate/media/hero-beach.mp4" poster="/realestate/media/hero-beach.jpg" />}
+                  className="h-full"
+                />
+              </motion.div>
+            )}
             {shown.map((p, i) => {
-              const wide = i % 3 === 0;
+              const last = i === shown.length - 1;
+              const span =
+                last && shown.length % 3 === 1 ? 'col-span-full' : i % 3 === 0 || (last && shown.length % 3 === 2) ? 'col-span-2' : 'col-span-1';
               return (
-              <motion.article
-                key={p.id}
-                onClickCapture={() => rememberWorkReturn('/work')}
-                layout
-                initial={{ opacity: 0, y: 24 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.97 }}
-                transition={{ duration: 0.5, ease: EASE_OUT, delay: i * 0.04 }}
-                className={`card group flex flex-col overflow-hidden !p-0 ${wide ? 'col-span-2 md:col-span-1 lg:col-span-2' : ''}`}
-              >
-                <a
-                  {...linkProps(workPath(p.id))}
-                  aria-label={`View the ${p.title} site`}
-                  className="block border-b border-line bg-raised"
+                <motion.div
+                  key={p.id}
+                  onClickCapture={() => rememberWorkReturn('/work')}
+                  layout
+                  initial={{ opacity: 0, y: 24 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.97 }}
+                  transition={{ duration: 0.5, ease: EASE_OUT, delay: i * 0.04 }}
+                  className={span}
                 >
-                  <div className="hidden items-center gap-3 px-4 py-2.5 md:flex">
-                    <div className="flex gap-1.5">
-                      <span className="h-2 w-2 rounded-full bg-fg/15" />
-                      <span className="h-2 w-2 rounded-full bg-fg/15" />
-                      <span className="h-2 w-2 rounded-full bg-fg/15" />
-                    </div>
-                    <span className="mx-auto truncate rounded-full bg-ink px-3 py-0.5 text-[11px] text-muted">
-                      {new URL(p.url).hostname.replace(/^www\./, '')}
-                    </span>
-                    <span className="w-[30px]" />
-                  </div>
-                  <div className={`relative overflow-hidden ${wide ? 'aspect-[16/10] lg:aspect-[16/8]' : 'aspect-[3/4] md:aspect-[16/10]'}`}>
-                    <ReelVideo id={p.id} shot={p.shot} title={p.title} className="absolute inset-0" />
-                  </div>
-                </a>
-
-                <div className="flex flex-1 flex-col p-3.5 md:p-5">
-                  <div className="text-[11px] text-subtle md:text-[13px]">
-                    {p.kind} · {p.place}
-                  </div>
-                  <h2 className="display mt-1 text-[16px] leading-tight md:text-title">{p.title}</h2>
-                  <p className={`mt-2 line-clamp-3 text-body-sm text-muted ${wide ? '' : 'hidden md:[display:-webkit-box]'}`}>{p.description}</p>
-
-                  <div className={`mt-4 items-baseline gap-3 rounded-md bg-raised px-3.5 py-2.5 ${wide ? 'flex' : 'hidden md:flex'}`}>
-                    <span className="display text-title text-accent">{p.stat}</span>
-                    <span className="text-[13px] text-muted">{p.statLabel}</span>
-                  </div>
-
-                  {p.quote && (
-                    <blockquote className="mt-4 hidden text-body-sm md:block">
-                      <p className="line-clamp-2 font-serif text-[17px] italic leading-snug">“{p.quote}”</p>
-                      <footer className="mt-1.5 text-[13px] text-subtle">{p.author}</footer>
-                    </blockquote>
-                  )}
-
-                  <div className={`mt-auto flex-wrap gap-2 pt-5 ${wide ? 'flex' : 'hidden md:flex'}`}>
-                    <a {...linkProps(workPath(p.id))} className="btn btn-primary !min-h-[38px] !px-4 text-[13px]">
-                      View the site
-                    </a>
-                    <a href={p.url} target="_blank" rel="noopener noreferrer" className="btn btn-quiet !min-h-[38px] !px-4 text-[13px]">
-                      Live site ↗
-                    </a>
-                    <a
-                      href={whatsappLink(`Hi ax07, I saw the ${p.title} site in your portfolio and would like something like it for my business.`)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="btn btn-quiet !min-h-[38px] !px-4 text-[13px]"
-                    >
-                      One like this
-                    </a>
-                  </div>
-                </div>
-              </motion.article>
+                  <WorkTile
+                    {...linkProps(workPath(p.id))}
+                    kind={`${p.kind} · ${p.place}`}
+                    title={p.title}
+                    stat={`${p.stat} ${p.statLabel}`}
+                    art={<ReelVideo id={p.id} shot={p.shot} title={p.title} className="absolute inset-0" />}
+                    className="h-full"
+                  />
+                </motion.div>
               );
             })}
           </AnimatePresence>
         </motion.div>
 
-        {/* A static page in public/realestate, so a plain link, not the in-app router */}
-        <Reveal className="card mt-4 overflow-hidden !p-0">
-          <a href="/realestate" className="group grid md:grid-cols-2">
-            <div className="aspect-video overflow-hidden bg-raised">
-              <img
-                src="/realestate/media/hero-beach.jpg"
-                alt="Beach template from the real estate showcase"
-                loading="lazy"
-                decoding="async"
-                className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.03]"
-              />
-            </div>
-            <div className="flex flex-col justify-center p-6 sm:p-8">
-              <div className="text-[13px] text-subtle">Concept templates · Real estate</div>
-              <h2 className="display mt-1.5 text-title-lg">Real estate showcase portfolio</h2>
-              <p className="mt-3 text-body-sm text-muted">
-                Three scroll-driven openings (drone, beach and a Georgian front door) and listing videos that move through the home.
-              </p>
-              <span className="btn btn-primary mt-6 !min-h-[42px] self-start !px-5 text-[14px]">See the showcase</span>
-            </div>
-          </a>
-        </Reveal>
-
-        <Reveal className="mt-20overflow-hidden rounded-lg bg-night p-8 text-white ring-1 ring-line sm:mt-28 sm:p-14">
+        <Reveal className="mt-20 overflow-hidden rounded-lg bg-night p-8 text-white ring-1 ring-line sm:mt-28 sm:p-14">
           <span className="text-[13px] font-medium uppercase tracking-[0.14em] text-accent-bright">Free 48-hour preview</span>
           <h2 className="display mt-3 max-w-2xl text-display-3">Your business could be the next one here.</h2>
           <p className="mt-4 max-w-xl text-body text-white/65">
