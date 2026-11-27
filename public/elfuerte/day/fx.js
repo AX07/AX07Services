@@ -55,7 +55,7 @@ window.FX = {
     const end = s.el('div', 'end', `<a class="btn solid" href="${BOOK}">Book your stay</a>
       <p><a href="tel:+34951562004">+34 951 562 004</a><a href="https://api.whatsapp.com/send?phone=34676409755">WhatsApp</a><a href="https://www.instagram.com/elfuertemarbella/">Instagram</a></p>
       <small>Showcase concept by AX07.DEV. Not the official website. Photography and film belong to El Fuerte Marbella, Soleo and Kena.</small>
-      <img class="maker" src="/demo/el-fuerte/shared/ax07-mark.png" alt="AX07.DEV" width="30" height="28">`);
+      <img class="maker" src="/elfuerte/shared/ax07-mark.png" alt="AX07.DEV" width="30" height="28">`);
     s.copy.append(end);
     return { rest: 1, play: draw.play, update(p) {
       draw.update(p);
@@ -231,7 +231,7 @@ window.FX = {
 
   plan(s, a, ui) {
     s.media.box.remove();
-    const photos = s.el('div', 'media scrubbed', a.setups.map(x => pic({ src: x.src, alt: `${a.rooms[x.r][0]}, ${x.c}` })).join(''));
+    const photos = s.el('div', 'media scrubbed', a.setups.map(x => pic({ src: x.src, alt: a.rooms[x.r].join(', ') })).join(''));
     const count = s.el('p', 'layout', '<b></b> <span></span>'), plan = s.el('div', 'plan'), side = s.el('div', 'floor');
     plan.setAttribute('aria-hidden', 'true'); plan.innerHTML = '<i></i>'.repeat(138);
     side.append(count, plan); s.visual.append(photos, side);

@@ -10,7 +10,7 @@ const pics = list => list.map(([f, alt]) => ({ src: u(f), alt }));
 const BOOK = 'https://booking.elfuertemarbella.com/en/';
 const room = '2023/07/el-fuerte-marbella-habitacion-';
 // the terrace with its palms, pool and sea moving (rendered from the hotel's photo)
-const suite = { video: '/demo/el-fuerte/shared/film/room.mp4', poster: '/demo/el-fuerte/shared/film/room-0.jpg' };
+const suite = { video: '/elfuerte/shared/film/room.mp4', poster: '/elfuerte/shared/film/room-0.jpg' };
 
 window.BOOK = BOOK;
 window.DAY = [
@@ -19,7 +19,7 @@ window.DAY = [
   view: { ...suite, alt: 'A blind opens in a junior suite, revealing the terrace, pool and sea' } },
 { id: 'move', time: '07:30', name: 'Mind and body', layout: 'bento', fx: 'bento', len: 130, kicker: 'Mind and Body', title: ['Move with the sea', 'in front of you'],
   text: 'A bright fitness studio equipped by Technogym, and an outdoor terrace facing the Mediterranean.',
-  film: { src: '/demo/el-fuerte/shared/film/sea.mp4', poster: '/demo/el-fuerte/shared/film/sea-0.jpg', alt: 'Calm water below the hotel' },
+  film: { src: '/elfuerte/shared/film/sea.mp4', poster: '/elfuerte/shared/film/sea-0.jpg', alt: 'Calm water below the hotel' },
   cards: pics([['2026/06/efm-mind-and-body-g5.jpg', 'A yoga pose in silhouette against the sea'], ['2026/06/efm-mind-and-body-g1.jpg', 'Yoga in the garden'], ['2026/06/efm-mind-and-body-g3.jpg', 'Running machines facing the sea'], ['2026/06/efm-mind-and-body-g4.jpg', 'Rowing with a view of the water'], ['2024/01/el-fuerte-marbella-gym-modelo-03.jpg', 'Training in the fitness studio'], ['2024/01/el-fuerte-marbella-gym-modelo-04.jpg', 'A guest in the gym']]) },
 { id: 'breakfast', time: '09:00', name: 'Breakfast', layout: 'orbit', tone: 'light', fx: 'orbit', len: 320, kicker: 'The Art of Breakfast', title: ['Breakfast,', 'in three acts'],
   text: 'A three course morning composed by the chef. Reserved 24 hours ahead, open to outside guests.',
@@ -58,14 +58,14 @@ window.DAY = [
   slides: pics([['2025/06/el-fuerte-marbella-habitacion-jacaranda-frontal-mar-03-1.jpg', 'A sitting area opening to the terrace'], [room + 'la-dama-selected-01-1.jpg', 'A suite bedroom in warm colours'], [room + 'cala-frontal-mar-selected-01-1.jpg', 'A room facing the sea'], ['2024/04/el-fuerte-marbella-habitacion-selected-junior-suite-vista-mar-frontal-terraza-04-web-1.jpg', 'A junior suite terrace'], [room + 'buganvilla-lateral-mar-01-1.jpg', 'A room with a side sea view'], ['2023/06/el-fuerte-marbella-header-rooms-page.jpg', 'A bed beside a terrace at golden hour']]) },
 { id: 'spa', time: '16:00', name: 'Spa by Clarins', layout: 'full', fx: 'steam', len: 260, kicker: 'Spa by Clarins', title: ['Water, under', 'its own stars'],
   text: 'Face and body treatments by Clarins experts, massages shaped to you, and a hydrotherapy circuit from €50.',
-  film: { src: '/demo/el-fuerte/shared/film/spa.mp4', poster: '/demo/el-fuerte/shared/film/spa-0.jpg', alt: 'The spa pool, water moving under a ceiling of small lights' },
+  film: { src: '/elfuerte/shared/film/spa.mp4', poster: '/elfuerte/shared/film/spa-0.jpg', alt: 'The spa pool, water moving under a ceiling of small lights' },
   popup: { label: 'Watch the spa film', youtube: 'MLcy3GCxlkg' } },
 { id: 'tea', time: '17:00', name: 'Afternoon tea', layout: 'tiers', tone: 'light', fx: 'tiers', len: 440, kicker: 'The afternoon tea time', title: ['Time slows', 'to a pour'],
   text: 'From organic chamomile to Yunnan pu-erh, with warm scones, pastries and savoury bites. At Levante, 16:00 to 19:00, reserved 24 hours ahead.',
   layers: pics([['2025/10/levante-the-afternoon-tea-time-el-fuerte-marbella.jpg', 'Afternoon tea laid out at Levante'], ['2025/10/afternnon-tea-fuerte-marbella-4.jpg', 'The full tea service'], ['2025/10/afternnon-tea-fuerte-marbella-1.jpg', 'Tea poured into fine china'], ['2025/10/afternnon-tea-fuerte-marbella-3.jpg', 'A golden tiered tea stand']]) },
 { id: 'events', time: '18:15', name: 'Gatherings', layout: 'plan', tone: 'teal', fx: 'plan', len: 560, kicker: 'Meetings and events', title: ['Rooms with', 'natural light'],
-  text: '300 m² of meeting space in natural light. Sevilla is 215 m², Estepa 45 m² and Carmelo 40 m².',
-  rooms: [['Sevilla', 'Theatre · 138'], ['Sevilla', 'Classroom · 75'], ['Sevilla', 'U-shape · 42'], ['Sevilla', 'Banquet · 96'], ['Estepa', 'Boardroom · 20'], ['Carmelo', 'Boardroom · 15'], ['Lounge', 'Coffee breaks']],
+  text: '300 m² of meeting space in natural light. The Sevilla hall, 215 m², takes the first four layouts. Estepa is 45 m² and Carmelo 40 m².',
+  rooms: [['Theatre', '138 seats'], ['Classroom', '75 seats'], ['U-shape', '42 seats'], ['Banquet', '96 seats'], ['Estepa', 'Boardroom · 20 seats'], ['Carmelo', 'Boardroom · 15 seats'], ['Lounge', 'Coffee breaks']],
   // one set-up per line of the list: [arrangement, seats, caption, picture]
   setups: [['theatre', 138, 'theatre', '2023/11/halls-06-1.jpg'], ['school', 75, 'classroom', '2023/11/halls-07-1.jpg'], ['u', 42, 'U-shape', '2023/05/el-fuerte-marbella-salones-sevilla-01-web.jpg'], ['banquet', 96, 'banquet', '2025/07/el-fuerte-marbella-salones-sevilla-09-mice-1.jpg'],
     ['board', 20, 'boardroom', '2023/05/el-fuerte-marbella-salones-estepa-01-web.jpg'], ['board', 15, 'boardroom', '2023/10/el-fuerte-marbella-salones-carmelo-02.jpg'], ['lounge', 24, 'coffee breaks', '2023/11/halls-01.jpg']].map(([k, n, c, f], r) => ({ r, k, n, c, src: u(f) })) },
