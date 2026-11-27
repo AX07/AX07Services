@@ -186,6 +186,21 @@ export const projects: readonly {
     author: '',
     url: 'https://ax07-cipla-preview.vercel.app/',
   },
+  {
+    id: 'la-pantera-rosa',
+    category: 'clinics',
+    description:
+      'A website preview for a vet clinic in Estepona. A follow-spot opens the page in the dark, a trail of paw prints walks you through the first visit, and visitors switch between English and Spanish.',
+    shot: '/work/la-pantera-rosa',
+    title: 'La Pantera Rosa',
+    place: 'Estepona',
+    kind: 'Vet clinic preview',
+    stat: '2',
+    statLabel: 'languages, English and Spanish',
+    quote: '',
+    author: '',
+    url: 'https://la-pantera-rosa.vercel.app/',
+  },
 ];
 
 export const plans = [
