@@ -71,7 +71,7 @@ export const projects: readonly {
     category: 'clinics',
     description:
       'One site for a dental practice with two clinics: before and after cases, a 3D implant bridge that comes apart as you scroll, and an assessment request that goes straight to the clinic. In Portuguese and English.',
-    shot: '/work/digital-dentistry',
+    shot: '/work/digital-dentistry-en',
     title: 'Miguel Reis Digital Dentistry',
     place: 'Lisbon & Monte Gordo',
     kind: 'Dental clinics',
@@ -101,7 +101,7 @@ export const projects: readonly {
     category: 'hospitality',
     description:
       'A warm, fast site for a coffee and breakfast spot: the menu, photos of the space and table reservations, all built for the phone in your hand.',
-    shot: '/work/la-kafeteria',
+    shot: '/work/la-kafeteria-en',
     title: 'La Kafeteria',
     place: 'San Pedro',
     kind: 'Coffee & breakfast',
@@ -146,7 +146,7 @@ export const projects: readonly {
     category: 'tours',
     description:
       'Tour operator site with 3D route previews and a WhatsApp booking concierge that connects travellers directly with local guides.',
-    shot: '/work/albania',
+    shot: '/work/albania-en',
     title: 'Albania Fácil',
     place: 'Tirana & Riviera',
     kind: 'Tour operator',
@@ -191,7 +191,7 @@ export const projects: readonly {
     category: 'clinics',
     description:
       'A website preview for a vet clinic in Estepona. A follow-spot opens the page in the dark, a trail of paw prints walks you through the first visit, and visitors switch between English and Spanish.',
-    shot: '/work/la-pantera-rosa',
+    shot: '/work/la-pantera-rosa-en',
     title: 'La Pantera Rosa',
     place: 'Estepona',
     kind: 'Vet clinic preview',

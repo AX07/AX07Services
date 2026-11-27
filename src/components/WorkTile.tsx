@@ -1,5 +1,13 @@
 import type { AnchorHTMLAttributes, ReactNode } from 'react';
 
+/** Phone bento: two columns on rows of this height; the tier says how much of it a tile takes. */
+export const PHONE_ROWS = 'auto-rows-[calc((100vw-3.25rem)*0.43)]';
+export const TIER = {
+  big: 'col-span-2 row-span-3',
+  mid: 'col-span-1 row-span-2',
+  small: 'col-span-1 row-span-1',
+} as const;
+
 /** A bento tile that is mostly the work itself: the looping media fills it, with the name and result over the bottom edge. */
 export function WorkTile({
   kind,

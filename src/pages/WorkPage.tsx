@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type CSSProperties } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { EASE_OUT, Eyebrow, Headline, Reveal } from '../components/Reveal';
 import { DEFAULT_WHATSAPP_MESSAGE, projects, rememberWorkReturn, whatsappLink, workPath, type ProjectCategory } from '../lib/content';
@@ -6,8 +6,7 @@ import { goToSection, linkProps } from '../lib/router';
 import { SPRING } from '../lib/tokens';
 import { WaveBackdrop } from '../components/WaveBackdrop';
 import { ReelVideo } from '../components/ReelVideo';
-import { WorkTile } from '../components/WorkTile';
-import { LoopVideo } from '../components/LoopVideo';
+import { PHONE_ROWS, TIER, WorkTile } from '../components/WorkTile';
 
 const FILTERS: { id: 'all' | ProjectCategory; label: string }[] = [
   { id: 'all', label: 'All work' },
@@ -17,10 +16,33 @@ const FILTERS: { id: 'all' | ProjectCategory; label: string }[] = [
   { id: 'in-house', label: 'In-house' },
 ];
 
+// Phone order and size: the strongest looking builds big, the next three medium, the rest small
+const PHONE_LAYOUT: Record<string, [number, keyof typeof TIER]> = {
+  'digital-dentistry': [1, 'big'],
+  flyfoil: [2, 'mid'],
+  'la-kafeteria': [3, 'mid'],
+  realestate: [4, 'big'],
+  'la-pantera-rosa': [5, 'mid'],
+  altura: [6, 'small'],
+  albania: [7, 'small'],
+  'vice-city': [8, 'big'],
+  cryptoax07: [9, 'small'],
+  cipla: [10, 'small'],
+};
+
 /** The full portfolio: every build playing in a bento grid; a tile opens its demo page. */
 export function WorkPage() {
   const [filter, setFilter] = useState<(typeof FILTERS)[number]['id']>('all');
   const shown = filter === 'all' ? projects : projects.filter((p) => p.category === filter);
+
+  // The mixed sizes only tile cleanly with every project shown; a filtered list is all big on phones
+  const placed = (id: string, desk: string) => {
+    const [order, tier] = PHONE_LAYOUT[id] ?? [99, 'small'];
+    return {
+      style: { '--m': filter === 'all' ? order : 0 } as CSSProperties,
+      className: `[order:var(--m)] md:order-none ${TIER[filter === 'all' ? tier : 'big']} ${desk}`,
+    };
+  };
 
   return (
     <main className="relative isolate z-10 px-5 pb-28 pt-32 sm:px-6 sm:pt-40">
@@ -58,17 +80,17 @@ export function WorkPage() {
         </Reveal>
 
         {/* Bento of media tiles: the newest showcase across the top, then wide + narrow + narrow; the last tile stretches so a filter leaves no hole */}
-        <motion.div layout className="mt-10 grid grid-flow-dense auto-rows-[220px] grid-cols-2 gap-3 md:auto-rows-[clamp(200px,24vw,300px)] md:grid-cols-4 md:gap-4">
+        <motion.div layout className={`mt-10 grid grid-flow-dense ${PHONE_ROWS} grid-cols-2 gap-3 md:auto-rows-[clamp(200px,24vw,300px)] md:grid-cols-4 md:gap-4`}>
           <AnimatePresence mode="popLayout" initial={false}>
             {(filter === 'all' || filter === 'in-house') && (
-              <motion.div key="realestate" layout initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.97 }} transition={{ duration: 0.5, ease: EASE_OUT }} className="col-span-full md:row-span-2">
+              <motion.div key="realestate" layout initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.97 }} transition={{ duration: 0.5, ease: EASE_OUT }} {...placed('realestate', 'md:col-span-full md:row-span-2')}>
                 {/* A static page in public/realestate, so a plain link, not the in-app router */}
                 <WorkTile
                   href="/realestate"
                   kind="Concept templates · Real estate"
                   title="Real estate showcase portfolio"
                   stat="Three openings and moving listing videos"
-                  art={<LoopVideo src="/realestate/media/hero-beach.mp4" poster="/realestate/media/hero-beach.jpg" />}
+                  art={<ReelVideo id="realestate" title="Real estate showcase portfolio" className="absolute inset-0" />}
                   className="h-full"
                 />
               </motion.div>
@@ -76,7 +98,7 @@ export function WorkPage() {
             {shown.map((p, i) => {
               const last = i === shown.length - 1;
               const span =
-                last && shown.length % 3 === 1 ? 'col-span-full' : i % 3 === 0 || (last && shown.length % 3 === 2) ? 'col-span-2' : 'col-span-1';
+                last && shown.length % 3 === 1 ? 'md:col-span-full' : i % 3 === 0 || (last && shown.length % 3 === 2) ? 'md:col-span-2' : 'md:col-span-1';
               return (
                 <motion.div
                   key={p.id}
@@ -86,7 +108,7 @@ export function WorkPage() {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.97 }}
                   transition={{ duration: 0.5, ease: EASE_OUT, delay: i * 0.04 }}
-                  className={span}
+                  {...placed(p.id, `${span} md:row-span-1`)}
                 >
                   <WorkTile
                     {...linkProps(workPath(p.id))}
