@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Real estate showcase portfolio | ax07.dev</title>
+<meta name="description" content="Concept real estate websites by ax07.dev: scroll-driven drone heroes, a walk through a Georgian front door, and moving listing videos.">
+<meta property="og:title" content="Real estate showcase portfolio | ax07.dev"><meta property="og:image" content="https://ax07.dev/realestate/media/hero-beach.jpg">
+<link rel="icon" href="/realestate/media/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@500;600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+/* Same light theme as ax07.dev and the client dashboard: grey page, white glass, ink text, emerald accent. */
+:root{--ink:#f3f4f6;--fg:#1d1d1f;--muted:#6e6e73;--subtle:#737378;--accent:#047857;--accent-bright:#10b981;
+ --glass-bg:rgb(255 255 255/.38);--glass-border:rgb(255 255 255/.75);--glass-ring:rgb(15 23 42/.07);--glass-hl:inset 0 1px 0 rgb(255 255 255/.85),inset 0 0 22px rgb(255 255 255/.35);--ease:cubic-bezier(.23,1,.32,1)}
+*{box-sizing:border-box;margin:0}html{color-scheme:light;background:var(--ink)}
+body{font:16px/1.6 "Inter",system-ui,sans-serif;color:var(--fg);-webkit-font-smoothing:antialiased}
+body::before{content:"";position:fixed;inset:0;z-index:-1;background:radial-gradient(60% 50% at 8% 0%,rgb(16 185 129/.2),transparent 70%),radial-gradient(50% 45% at 100% 30%,rgb(148 163 184/.34),transparent 70%),radial-gradient(55% 50% at 25% 100%,rgb(16 185 129/.13),transparent 70%)}
+.waves{position:absolute;inset:0 0 auto;height:min(90svh,820px);z-index:-1;pointer-events:none;overflow:hidden;-webkit-mask-image:linear-gradient(#000 55%,transparent);mask-image:linear-gradient(#000 55%,transparent)}
+.waves img{width:100%;height:100%;object-fit:cover;opacity:.8}
+a{color:inherit;text-decoration:none}:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.wrap{max-width:1120px;margin:0 auto;padding:24px 20px 72px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.brand{display:flex;align-items:center;gap:10px;font:600 19px "Inter Tight",sans-serif;letter-spacing:-.03em}.brand img{width:28px;height:28px;object-fit:contain}.brand span{color:var(--accent)}
+h1,h2,h3{font-family:"Inter Tight","Inter",sans-serif;font-weight:600;letter-spacing:-.03em;line-height:1.05}
+h1{font-size:clamp(40px,6vw + 12px,80px);padding-bottom:.06em;background:linear-gradient(180deg,var(--fg),#4b5563);-webkit-background-clip:text;background-clip:text;color:transparent}
+h2{font-size:clamp(30px,3vw + 16px,52px)}h3{font-size:clamp(22px,1vw + 18px,30px)}
+.micro{display:block;font:500 11px "JetBrains Mono",ui-monospace,monospace;letter-spacing:.2em;text-transform:uppercase;color:var(--subtle);margin-bottom:12px}
+.lead{color:var(--muted);font-size:18px;max-width:58ch;margin-top:16px}
+.hero{padding:clamp(56px,10vh,120px) 0 40px}
+.btn{display:inline-flex;align-items:center;min-height:44px;padding:0 22px;border-radius:999px;font-weight:600;font-size:15px;background:rgb(255 255 255/.7);border:1px solid var(--glass-border);box-shadow:0 0 0 1px var(--glass-ring),0 1px 2px rgb(0 0 0/.05);transition:transform .25s var(--ease),box-shadow .25s}
+.btn:hover{transform:translateY(-1px)}.btn-primary{background:var(--fg);color:#fff;border-color:transparent}.btn-primary:hover{box-shadow:0 14px 30px -12px rgb(4 120 87/.55)}
+.row{display:flex;flex-wrap:wrap;gap:10px;margin-top:28px}
+section{padding-top:56px}
+.glass{background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:32px;box-shadow:var(--glass-hl),0 0 0 1px var(--glass-ring),0 32px 64px -28px rgb(15 23 42/.22);-webkit-backdrop-filter:blur(22px) saturate(190%);backdrop-filter:blur(22px) saturate(190%)}
+.tpl{margin-top:20px;padding:14px}
+.screen{border-radius:22px;overflow:hidden;background:#0f1115}
+.bar{display:flex;gap:6px;align-items:center;padding:10px 14px;background:#e9ebee}.bar i{width:8px;height:8px;border-radius:50%;background:rgb(29 29 31/.15)}.bar b{margin:0 auto;font:500 11px "JetBrains Mono",monospace;color:var(--muted);background:var(--ink);padding:2px 12px;border-radius:99px}
+video{display:block;width:100%;aspect-ratio:16/9;object-fit:cover;background:#0f1115}
+.info{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:18px;padding:22px 12px 10px}
+.info p{color:var(--muted);font-size:15px;max-width:62ch;margin-top:8px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,460px),1fr));gap:18px;margin-top:28px}
+.listing{padding:12px}.listing video{border-radius:22px}.listing div{padding:16px 10px 6px}.listing h3{font-size:21px}.listing p{color:var(--muted);font-size:14.5px;margin-top:6px}
+.cta{margin-top:72px;padding:clamp(28px,5vw,56px);text-align:center}.cta .lead{margin-inline:auto}.cta .row{justify-content:center}
+footer{margin-top:40px;font-size:12.5px;color:var(--subtle);max-width:90ch}
+@media (max-width:700px){
+ .grid{grid-template-columns:1fr 1fr;gap:10px}
+ .listing{position:relative;padding:6px;border-radius:24px}
+ .listing:first-child,.listing:last-child{grid-column:1/-1}
+ .listing video{height:100%;border-radius:19px;aspect-ratio:3/4}
+ .listing:first-child video{aspect-ratio:4/3}.listing:last-child video{aspect-ratio:16/9}
+ .listing div{position:absolute;inset:auto 6px 6px;padding:36px 14px 12px;border-radius:0 0 19px 19px;background:linear-gradient(transparent,rgb(8 14 18/.78));color:#fff;pointer-events:none}
+ .listing h3{font-size:16px;line-height:1.2}.listing p{display:none}
+}
+@supports not (backdrop-filter:blur(1px)){.glass{background:rgb(255 255 255/.85)}}
+</style></head><body>
+<div class="waves" aria-hidden="true"><img src="/realestate/media/waves-1376.webp" srcset="/realestate/media/waves-768.webp 768w, /realestate/media/waves-1376.webp 1376w, /realestate/media/waves-1920.webp 1920w" sizes="100vw" alt="" width="1376" height="768"></div>
+<main class="wrap">
+  <header class="top">
+    <a class="brand" href="/" aria-label="ax07.dev home page"><img src="/realestate/media/logo.png" alt=""><b>ax07<span>.dev</span></b></a>
+    <a class="btn" href="/work">All work</a>
+  </header>
+
+  <div class="hero">
+    <span class="micro">Concept templates</span>
+    <h1>Real estate showcase portfolio</h1>
+    <p class="lead">Property websites that move. Three openings that play as the visitor scrolls, and listing videos that walk buyers into the home.</p>
+    <div class="row"><a class="btn btn-primary" href="#templates">See the templates</a><a class="btn" href="#listings">Listing videos</a></div>
+  </div>
+
+  <section id="templates">
+    <span class="micro">01 · Hero animations</span><h2>Three ways to arrive</h2>
+
+    <article class="tpl glass">
+      <div class="screen"><div class="bar" aria-hidden="true"><i></i><i></i><i></i><b>drone</b></div>
+        <video muted loop playsinline preload="none" poster="/realestate/media/hero-drone.jpg" src="/realestate/media/hero-drone.mp4" aria-label="Drone template: the view flies down to a villa pool, then the water keeps moving"></video></div>
+      <div class="info"><div><h3>Drone</h3><p>Scrolling flies the drone down to the pool. When it lands, the water keeps moving behind the headline.</p></div></div>
+    </article>
+
+    <article class="tpl glass">
+      <div class="screen"><div class="bar" aria-hidden="true"><i></i><i></i><i></i><b>beach</b></div>
+        <video muted loop playsinline preload="none" poster="/realestate/media/hero-beach.jpg" src="/realestate/media/hero-beach.mp4" aria-label="Beach template: one drone shot comes in from the sea to a beachfront villa, then waves roll onto the sand"></video></div>
+      <div class="info"><div><h3>Beach</h3><p>The sea moves while the visitor reads. One continuous shot brings them in to the villa, and waves roll onto the sand.</p></div></div>
+    </article>
+
+    <article class="tpl glass">
+      <div class="screen"><div class="bar" aria-hidden="true"><i></i><i></i><i></i><b>fanlight</b></div>
+        <video muted loop playsinline preload="none" poster="/realestate/media/hero-fanlight.jpg" src="/realestate/media/hero-fanlight.mp4" aria-label="Fanlight template: the view closes in on a Georgian front door, which opens into a drawing room"></video></div>
+      <div class="info"><div><h3>Fanlight</h3><p>For period homes. The street draws closer, the front door swings open and the visitor steps into the room.</p></div></div>
+    </article>
+  </section>
+
+  <section id="listings">
+    <span class="micro">02 · Listing videos</span><h2>Listings that move</h2>
+    <p class="lead">Each card starts as a single still. The camera then moves through it, so a buyer feels the space before opening the page.</p>
+    <div class="grid">
+      <article class="listing glass"><video muted loop playsinline preload="none" poster="/realestate/media/list-living.jpg" src="/realestate/media/list-living.mp4" aria-label="Camera moving through a living room towards a sea-view terrace"></video><div><h3>Sea-view living room</h3><p>Through the room and out towards the terrace.</p></div></article>
+      <article class="listing glass"><video muted loop playsinline preload="none" poster="/realestate/media/list-bedroom.jpg" src="/realestate/media/list-bedroom.mp4" aria-label="Camera moving from a bedroom out to a terrace over the sea"></video><div><h3>Master suite with terrace</h3><p>From the bed to the balcony rail.</p></div></article>
+      <article class="listing glass"><video muted loop playsinline preload="none" poster="/realestate/media/list-twilight.jpg" src="/realestate/media/list-twilight.mp4" aria-label="Camera pushing in across a lit pool towards a villa at dusk"></video><div><h3>Villa at dusk</h3><p>A slow push across the lit pool.</p></div></article>
+      <article class="listing glass"><video muted loop playsinline preload="none" poster="/realestate/media/list-kitchen.jpg" src="/realestate/media/list-kitchen.mp4" aria-label="Camera moving through a kitchen and dining room towards a terrace over the sea"></video><div><h3>Kitchen to the terrace</h3><p>Past the island, out to the table by the sea.</p></div></article>
+    </div>
+  </section>
+
+  <div class="cta glass">
+    <span class="micro">ax07.dev · Real estate</span><h2>Property, presented in motion.</h2>
+    <p class="lead">Websites and listing films, designed and built by ax07.dev.</p>
+    <div class="row"><a class="btn btn-primary" href="/work">View all work</a><a class="btn" data-wa>Contact</a></div>
+  </div>
+
+  <footer>Concept designs by ax07.dev. Agency names, listings and prices shown inside the templates are samples, not real offers. Villas, rooms and drone footage in Drone, Beach and the listing videos are AI-generated and show no real property. Fanlight photographs: Georgian doorway and Georgian houses in Fitzwilliam Square by Marathon, CC BY-SA 2.0, via Geograph and Wikimedia Commons; room photographs on Unsplash.</footer>
+</main>
+<script>
+// Contact link, same WhatsApp number as the main site (src/lib/content.ts).
+for (const a of document.querySelectorAll('[data-wa]')) {
+  a.href = 'https://wa.me/353894419127?text=' + encodeURIComponent("Hi ax07, I saw your real estate showcase.");
+  a.target = '_blank'; a.rel = 'noopener';
+}
+// Play only what is on screen. Reduced motion: no autoplay, controls instead.
+const videos = document.querySelectorAll('video');
+if (matchMedia('(prefers-reduced-motion: reduce)').matches) videos.forEach((v) => (v.controls = true));
+else {
+  const io = new IntersectionObserver((es) => es.forEach((e) => (e.isIntersecting ? e.target.play().catch(() => (e.target.controls = true)) : e.target.pause())), { threshold: .25 });
+  videos.forEach((v) => io.observe(v));
+}
+</script>
+</body></html>

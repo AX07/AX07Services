@@ -134,7 +134,30 @@ export function WorkPage() {
           </AnimatePresence>
         </motion.div>
 
-        <Reveal className="mt-20 overflow-hidden rounded-lg bg-night p-8 text-white ring-1 ring-line sm:mt-28 sm:p-14">
+        {/* A static page in public/realestate, so a plain link, not the in-app router */}
+        <Reveal className="card mt-4 overflow-hidden !p-0">
+          <a href="/realestate" className="group grid md:grid-cols-2">
+            <div className="aspect-video overflow-hidden bg-raised">
+              <img
+                src="/realestate/media/hero-beach.jpg"
+                alt="Beach template from the real estate showcase"
+                loading="lazy"
+                decoding="async"
+                className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.03]"
+              />
+            </div>
+            <div className="flex flex-col justify-center p-6 sm:p-8">
+              <div className="text-[13px] text-subtle">Concept templates · Real estate</div>
+              <h2 className="display mt-1.5 text-title-lg">Real estate showcase portfolio</h2>
+              <p className="mt-3 text-body-sm text-muted">
+                Three scroll-driven openings (drone, beach and a Georgian front door) and listing videos that move through the home.
+              </p>
+              <span className="btn btn-primary mt-6 !min-h-[42px] self-start !px-5 text-[14px]">See the showcase</span>
+            </div>
+          </a>
+        </Reveal>
+
+        <Reveal className="mt-20overflow-hidden rounded-lg bg-night p-8 text-white ring-1 ring-line sm:mt-28 sm:p-14">
           <span className="text-[13px] font-medium uppercase tracking-[0.14em] text-accent-bright">Free 48-hour preview</span>
           <h2 className="display mt-3 max-w-2xl text-display-3">Your business could be the next one here.</h2>
           <p className="mt-4 max-w-xl text-body text-white/65">
