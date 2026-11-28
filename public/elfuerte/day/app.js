@@ -25,9 +25,9 @@ const warm = i => [i, i + 1, i + 2].forEach(k => scenes[k]?.root.querySelectorAl
 const logo = $('#logo'), home = $('.brand'), night = scenes.length - 1;
 const ease = t => (t = clamp(t), t < .5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2);
 function mark(k, evening) {
-  const narrow = innerWidth <= 860, from = home.getBoundingClientRect();
-  const w = narrow ? innerWidth * .72 : Math.min(innerWidth * .32, 560), h = w * from.height / from.width;
-  const cx = innerWidth / 2, cy = innerHeight * (narrow ? (evening ? .2 : .32) : .43);
+  const sideways = innerHeight <= 520 && innerWidth > innerHeight, narrow = !sideways && innerWidth <= 860, from = home.getBoundingClientRect();
+  const w = narrow ? innerWidth * .72 : Math.min(innerWidth * (sideways ? .36 : .32), 560), h = w * from.height / from.width;
+  const cx = innerWidth * (sideways ? .62 : .5), cy = innerHeight * (narrow ? (evening ? .24 : .32) : .43);
   logo.style.width = from.width + (w - from.width) * k + 'px';
   logo.style.left = from.left + (cx - w / 2 - from.left) * k + 'px';
   logo.style.top = from.top + (cy - h / 2 - from.top) * k + 'px';

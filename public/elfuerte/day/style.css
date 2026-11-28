@@ -31,7 +31,7 @@ body{overflow-x:clip}
 .tone-light{background:var(--ivory);color:var(--ink)}
 .tone-sand{background:var(--sand);color:var(--ink)}
 .tone-teal{background:var(--teal);color:var(--ivory)}
-.tone-dark{background:var(--deep)}
+.tone-dark,.tone-fun{background:var(--deep)}
 .tone-light .kicker span,.tone-sand .kicker span{color:#8a6a34}
 .layout-split .visual,.layout-index .visual{left:46%;top:0;bottom:var(--bar)}
 .layout-split .copy,.layout-index .copy{left:var(--pad);width:calc(46% - var(--pad) - 4vw);top:0;bottom:var(--bar);display:flex;flex-direction:column;justify-content:center;padding-top:60px}
@@ -275,6 +275,62 @@ body{overflow-x:clip}
   .layout-frame .visual{width:100%;outline-offset:6px}
   .layout-frame .copy{grid-template-columns:1fr;text-align:center;justify-items:center}
   .layout-frame h2{margin-bottom:8px}
+}
+/* Phones held upright: the picture takes the top of the screen and melts into the page, the words sit below it.
+   Less of each wide photo is cut away, and nothing important hides behind text. */
+@media (max-width:860px) and (orientation:portrait){
+  .top{padding:12px 14px}
+  .top .btn{padding:9px 13px;font-size:9.5px;letter-spacing:.18em}
+  .side{gap:4px}.side small{font-size:7px;letter-spacing:.06em}
+  .kicker{letter-spacing:.2em;gap:10px}.kicker span::after{width:18px;margin-left:10px}
+
+  .layout-full .visual,.layout-hero .visual,.layout-end .visual{bottom:auto;height:calc(var(--shot,66) * 1svh);-webkit-mask-image:linear-gradient(#000 74%,#0000);mask-image:linear-gradient(#000 74%,#0000)}
+  .layout-full .visual::after,.layout-hero .visual::after{background:linear-gradient(0deg,#07202ab3,#07202a00 34%)}
+  .fx-deck .visual::after,.tone-fun .visual::after{background:linear-gradient(0deg,#07202acc,#07202a00 30%)!important}
+  .layout-full .copy,.layout-hero .copy{bottom:calc(var(--bar) + 18px)}
+  .fx-deck,.fx-scrub.tone-fun{--shot:50}
+  .fx-deck .copy,.tone-fun .copy{bottom:calc(var(--bar) + 10px)}
+  .layout-hero{--shot:70}
+  .layout-end{--shot:100}
+  .layout-end .visual{-webkit-mask-image:none;mask-image:none}
+  .fx-qahwa .visual{--shot:70}
+
+  .layout-orbit .visual{padding:25svh 0 calc(var(--bar) + 2svh)}
+  .ring3d{--w:58vw}
+  .acts img{height:12svh}
+}
+@media (max-width:420px) and (orientation:portrait) and (max-height:720px){
+  .layout-orbit .visual{padding-top:31svh}.layout-orbit h2{font-size:28px}.ring3d{--w:48vw}.acts img{height:10svh}
+}
+/* Phones held sideways: little height, so the words go smaller and stay to one side. */
+@media (orientation:landscape) and (max-height:520px){
+  :root{--bar:52px;--pad:28px}
+  .top{padding:8px 16px}.top .btn{padding:7px 12px;font-size:9px}.side small{display:none}
+  .timeline a{padding-top:24px}.timeline a span{display:none}.timeline a::before{top:12px}.timeline a::after,.timeline ol::before,.timeline ol::after{top:15px}
+  h1,h2,.layout-hero h1,.layout-split h2,.layout-index h2,.layout-bento h2,.layout-walk h2,.layout-tiers h2,.layout-plan h2,.layout-end h2,.fx-deck h2,.tone-fun h2{font-size:30px}
+  .kicker{margin-bottom:6px;font-size:9px}.text{margin-top:8px;font-size:12px;line-height:1.5}
+  .more{margin-top:8px}
+  .layout-full .copy,.layout-hero .copy{left:var(--pad);right:auto;width:min(46vw,400px);bottom:calc(var(--bar) + 10px)}
+  .index{margin-top:6px}.index button,.fx-deck .index button,.tone-fun .index button,.layout-plan .index button{padding:0}
+  .index b,.fx-deck .index b,.tone-fun .index b{font-size:13px;line-height:1.35}.index small,.layout-plan .index small{font-size:9.5px}
+  .fx-deck .text,.tone-fun .text,.layout-plan .text{display:none}
+  .layout-bento .copy{left:var(--pad);right:auto;width:34vw;top:0;bottom:var(--bar)}
+  .layout-bento .visual::after{background:linear-gradient(90deg,#03141be6,#0000 55%)}
+  .bento{left:40%;right:10px;top:50px;bottom:calc(var(--bar) + 8px)}
+  .layout-orbit .visual{padding:104px 0 calc(var(--bar) + 6px);grid-template-rows:1fr auto;gap:6px}
+  .layout-orbit h2 .line{display:inline-block;vertical-align:bottom}.layout-orbit .kicker{margin-bottom:2px}
+  .layout-orbit .copy{top:44px}.layout-orbit h2{font-size:26px}.layout-orbit .more{display:none}
+  .ring3d{--w:17vw}.acts li{grid-template-columns:auto auto;text-align:left;justify-items:start;column-gap:14px}.acts img{grid-row:span 2;height:48px}.acts b{font-size:20px}.acts small{font-size:11px}
+  .layout-walk .track{padding-top:44px;gap:28px}.place{width:62vw}.n1{width:40vw}.plates{height:calc(100svh - 190px);grid-template-rows:1fr 1fr}.plates img:first-child{grid-area:1/1/3/3}.n1 .plates img{grid-area:1/1/3/5}.place h3{font-size:22px;margin:6px 0 0}.place p{font-size:11px;line-height:1.4}
+  .layout-walk .track .copy{width:240px}
+  .layout-tiers .copy{left:14px;right:auto;top:50%;translate:0 -50%;width:36vw;padding:14px 18px}
+  .layout-tiers .kicker span::after{display:none}
+  .layout-plan .copy{left:var(--pad);right:auto;width:36vw;min-width:0;top:46px;bottom:var(--bar);padding:0;justify-content:center}
+  .floor{left:auto;right:10px;bottom:calc(var(--bar) + 8px);width:44vw;height:52svh;grid-template-columns:74px 1fr;gap:8px;padding:8px}.layout{font-size:13px}.layout b{font-size:34px}
+  .layout-frame{padding:46px 16px calc(var(--bar) + 6px);flex-direction:row;gap:28px}.layout-frame .visual{width:52vw}.layout-frame .copy{grid-template-columns:1fr;max-width:34vw}
+  .layout-end .copy{top:40px;bottom:calc(var(--bar) + 6px);width:min(34vw,300px);min-width:0;justify-content:center}
+  .layout-end .end{margin-top:10px;gap:8px}.layout-end .end .btn{padding:9px 16px}.end small{font-size:9px}.maker{display:none}
+  .qahwa .word{font-size:20vw}.arch.a0{width:20vw}.arch.a1{width:15vw}
 }
 @media (prefers-reduced-motion:reduce){
   html{scroll-behavior:auto}

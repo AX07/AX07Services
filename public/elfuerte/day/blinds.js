@@ -10,7 +10,7 @@ window.drawBlinds = (g, img, W, H, { tilt, lift, push, dusk = 0 }) => {
     // cover-crop the doorway, then move in towards the pool and the palm
     const ar = W / H, k = 1 + push * .3;
     const sw = (ar > iw / ih ? iw : ih * ar) / k, sh = sw / ar;
-    const sx = clamp(iw * (.5 - push * .01) - sw / 2, 0, iw - sw), sy = clamp(ih * (.51 + push * .0) - sh / 2, 0, ih - sh);
+    const sx = clamp(iw * (H > W ? .475 + push * .03 : .5 - push * .01) - sw / 2, 0, iw - sw), sy = clamp(ih * (.51 + push * .0) - sh / 2, 0, ih - sh);
     g.drawImage(img, sx, sy, sw, sh, 0, 0, W, H);
   }
   g.fillStyle = `rgba(14,8,4,${(1 - open) * .66})`; g.fillRect(0, 0, W, H);

@@ -113,6 +113,7 @@ window.FX = {
     return { rest: 0, update(p) {
       const at = along(p, n);
       cards.forEach((c, i) => c.style.setProperty('--k', ease(clamp((at - i - .15) / .7)).toFixed(4)));   // the last card stays
+      cards.forEach((c, i) => c.firstChild.style.objectPosition = innerWidth <= 860 && innerHeight > innerWidth ? `${pan(at - i)}% 50%` : '');
       press(btns, Math.round(at));
     } };
   },
@@ -203,7 +204,11 @@ window.FX = {
       hand.style.opacity = t > 0 && t < 1 ? 1 : 0;
       k.c.style.opacity = 1 - clamp((p - .8) / .14);                  // the last of the mist lifts
     }
-    return { rest: 1, update(p) { last = p; paint(p); } };
+    return { rest: 1, update(p) {
+      last = p; paint(p);
+      const x = innerWidth <= 860 && innerHeight > innerWidth ? `${Math.round(40 + 44 * ease(clamp((p - .1) / .85)))}% 50%` : '';
+      s.media.box.querySelectorAll('img,video').forEach(m => m.style.objectPosition = x);
+    } };
   },
 
   tiers(s, a) {
@@ -212,9 +217,10 @@ window.FX = {
     s.visual.append(stack);
     const figs = [...stack.querySelectorAll('figure')];
     return { rest: 1, update(p) {
-      const W = stack.clientWidth, H = stack.clientHeight, narrow = W <= 860;
+      const W = stack.clientWidth, H = stack.clientHeight, narrow = W <= 860 && H > W;
+      const bar = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--bar')), top = H <= 520 ? 76 : 96;
       // where the finished stand sits: to the right of the words, or under them on a phone
-      const box = narrow ? { x: 16, y: H * .45, w: W - 32, h: H * .5 - 20 } : { x: W * .45, y: 96, w: W * .5, h: H - 96 - 100 };
+      const box = narrow ? { x: 16, y: H * .47, w: W - 32, h: H * .53 - bar - 10 } : { x: W * .45, y: top, w: W * .5, h: H - top - bar - 14 };
       const tier = box.h / 4, gap = 12;
       let settled = 0;
       figs.forEach((f, i) => {

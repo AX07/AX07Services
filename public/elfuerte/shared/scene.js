@@ -39,13 +39,18 @@ function film(f) {
 function slides(list) {
   const box = el('div', 'media scrubbed', list.map(img).join(''));
   const pics = [...box.children];
+  const tall = matchMedia('(max-width: 860px) and (orientation: portrait)');
   const scrub = x => pics.forEach((p, i) => {
+    p.style.objectPosition = tall.matches ? `${pan(x - i)}% 50%` : '';
     const k = Math.min(1, Math.max(0, (x - i + .65) / .3));       // fades in just before its turn
     p.style.opacity = i ? k * k * (3 - 2 * k) : 1;
   });
   scrub(0);
   return { box, scrub, play() {} };
 }
+
+// 0 is the picture's own moment; it starts left of centre and drifts right as the page moves on.
+window.pan = d => Math.round(50 + Math.min(.55, Math.max(-.55, d)) * 64);
 
 window.popup = ({ label, video, youtube }) => {
   const a = el('a', 'textlink', label);
